@@ -1,0 +1,11 @@
+pre-commit:
+  jobs:
+    - name: "backend-format-check"
+      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
+      run: cd backend && gleam format --check
+    - name: "backend-type-check"
+      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
+      run: cd backend && gleam check
+    - name: "backend-test"
+      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
+      run: cd backend && gleam test
