@@ -12,9 +12,10 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "skipLibCheck": true,
 
     // Type Checking & Safety
     "strict": true,
-    "types": ["vite/client"]
+    "types": [ "vite/client", "node", "solid-js" ]
   }
 }

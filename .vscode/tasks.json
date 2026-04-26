@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "frontend: build",
+            "type": "shell",
+            "command": "bun run build",
+            "options": { "cwd": "${workspaceFolder}/webfrontend" },
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "dedicated" },
+            "problemMatcher": [ "$tsc" ]
+        },
+        {
+            "label": "frontend: type-check",
+            "type": "shell",
+            "command": "bun x --no-install tsc --noEmit",
+            "options": { "cwd": "${workspaceFolder}/webfrontend" },
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "dedicated" },
+            "problemMatcher": [ "$tsc" ]
+        },
+        {
+            "label": "backend: build",
+            "type": "shell",
+            "command": "gleam build",
+            "options": { "cwd": "${workspaceFolder}/backend" },
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        },
+        {
+            "label": "backend: test",
+            "type": "shell",
+            "command": "gleam test",
+            "options": { "cwd": "${workspaceFolder}/backend" },
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 ---
-description: "Use when writing, reviewing, or refactoring backend Gleam or frontend TypeScript code. Readability is the tie-breaker when correctness and behavior are equivalent."
+description: "Use when writing, reviewing, or refactoring backend Gleam or frontend TypeScript code. Prefer code that is both readable and concise; when those goals pull apart, keep the version that preserves clarity fastest."
 applyTo: "backend/**/*.gleam, webfrontend/src/**/*.ts, webfrontend/src/**/*.tsx"
 ---
 
@@ -7,7 +7,7 @@ applyTo: "backend/**/*.gleam, webfrontend/src/**/*.ts, webfrontend/src/**/*.tsx"
 
 [Hard Rule] - enforcement
 
-When two solutions are equally correct, choose the one easier for the next developer to understand.
+Prefer code that is easy to understand and free of avoidable noise. When a shorter version hides intent, choose the clearer one.
 
 ## Practical Criteria
 
@@ -15,6 +15,12 @@ When two solutions are equally correct, choose the one easier for the next devel
 - Names communicate intent
 - Control flow reads top-to-bottom
 - Complexity is justified by real needs
+- Conciseness removes noise without hiding intent
+
+## Frontend Note
+
+- Apply the same rule to frontend code: prefer components and reactive flows that are easy to scan without unnecessary ceremony or tightly packed JSX
+- Extract helpers or subcomponents when they make rendering logic easier to follow
 
 ## Definition Order
 
@@ -22,13 +28,6 @@ When two solutions are equally correct, choose the one easier for the next devel
 - Define private helpers before first use
 - Define local utility values before dependent expressions
 - Keep file flow sequential from top to bottom
-
-Recommended module order:
-
-1. Imports
-2. Public types and aliases
-3. Constants
-4. Functions in dependency order
 
 Allowed exception:
 
@@ -47,6 +46,7 @@ Allowed exception:
 - Architectural boundaries
 - Validation and explicit error handling
 - Necessary abstractions
+- Clarity for unnecessary terseness
 
 ## Related Rules
 
