@@ -1,20 +1,20 @@
-export interface Product {
+export type Product = Readonly<{
     id: string;
     name: string;
     parent_product_id: string | null;
-}
+}>;
 
-export interface ProductListResponse {
+export type ProductListResponse = Readonly<{
     data: Product[];
     total: number;
     offset: number;
     limit: number;
-}
+}>;
 
-interface FetchProductsParams {
+type FetchProductsParams = Readonly<{
     offset: number;
     limit: number;
-}
+}>;
 
 export async function fetchProducts({
     offset,

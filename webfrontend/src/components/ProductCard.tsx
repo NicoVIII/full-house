@@ -7,9 +7,9 @@ import type { Component } from 'solid-js';
 import { Show } from 'solid-js';
 import type { Product } from '../api/products';
 
-interface ProductCardProps {
+type ProductCardProps = Readonly<{
     product: Product;
-}
+}>;
 
 const ProductCard: Component<ProductCardProps> = (props) => {
     return (

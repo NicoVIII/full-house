@@ -14,6 +14,7 @@ describe('fetchProducts', () => {
             limit: 10,
         };
 
+        // eslint-disable-next-line functional/immutable-data
         global.fetch = vi.fn(() =>
             Promise.resolve({
                 ok: true,
@@ -28,6 +29,7 @@ describe('fetchProducts', () => {
     });
 
     it('throws error on failed response', async () => {
+        // eslint-disable-next-line functional/immutable-data
         global.fetch = vi.fn(() =>
             Promise.resolve({
                 ok: false,
@@ -48,6 +50,7 @@ describe('fetchProducts', () => {
             limit: 5,
         };
 
+        // eslint-disable-next-line functional/immutable-data
         global.fetch = vi.fn(() =>
             Promise.resolve({
                 ok: true,

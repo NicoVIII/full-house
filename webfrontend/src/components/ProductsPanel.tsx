@@ -10,8 +10,8 @@ import { For, Show } from 'solid-js';
 import type { Product } from '../api/products';
 import ProductCard from './ProductCard';
 
-interface ProductsPanelProps {
-    error: unknown;
+type ProductsPanelProps = Readonly<{
+    error: Error | null;
     hasNextPage: boolean;
     isError: boolean;
     isFetchingNextPage: boolean;
@@ -19,7 +19,7 @@ interface ProductsPanelProps {
     onLoadMore: () => void;
     products: Product[];
     total: number;
-}
+}>;
 
 const ProductsPanel: Component<ProductsPanelProps> = (props) => {
     const shownCount = () => props.products.length;

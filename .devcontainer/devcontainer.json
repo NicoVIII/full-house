@@ -27,7 +27,8 @@
 		"vscode": {
 			"extensions": [
 				"editorconfig.editorconfig",
-				"FanaticPythoner.better-todo-tree"
+				"FanaticPythoner.better-todo-tree",
+				"dbaeumer.vscode-eslint"
 			]
 		}
 	}

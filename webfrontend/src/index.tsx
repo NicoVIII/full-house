@@ -11,6 +11,7 @@ const root = document.getElementById('root');
 const queryClient = new QueryClient();
 
 if (!(root instanceof HTMLElement)) {
+  // eslint-disable-next-line functional/no-throw-statements -- This is okay - we have no good way to recover from this
   throw new Error(
     'Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?',
   );
