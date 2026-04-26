@@ -16,6 +16,7 @@ def main() -> int:
         return 0
 
     backend_dir = repo_root() / "backend"
+    run_command(["gleam", "format"], cwd=backend_dir)
     if run_command(["gleam", "test"], cwd=backend_dir):
         return 0
 

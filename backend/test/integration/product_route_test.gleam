@@ -47,7 +47,10 @@ fn mock_repository() -> product_repository.T {
 fn app_handler() -> fn(wisp.Request) -> wisp.Response {
   let repo = mock_repository()
   let routes =
-    router.Routes(products: fn(request) { handler.handle(request, repo) })
+    router.Routes(
+      products: fn(request) { handler.handle(request, repo) },
+      stock: fn(_) { wisp.not_found() },
+    )
 
   fn(request) { router.handle_request(request, routes) }
 }

@@ -1,4 +1,5 @@
 /* @refresh reload */
+import { Navigate, Route, Router } from '@solidjs/router';
 import { render } from 'solid-js/web';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
@@ -6,6 +7,8 @@ import CssBaseline from '@suid/material/CssBaseline';
 
 import App from './App';
 import { attachDevtoolsOverlay } from '@solid-devtools/overlay';
+import ProductsPage from './pages/ProductsPage';
+import StockPage from './pages/StockPage';
 
 const root = document.getElementById('root');
 const queryClient = new QueryClient();
@@ -21,7 +24,11 @@ render(
   () => (
     <QueryClientProvider client={queryClient}>
       <CssBaseline />
-      <App />
+      <Router root={App}>
+        <Route component={() => <Navigate href="/products" />} path="/" />
+        <Route component={ProductsPage} path="/products" />
+        <Route component={StockPage} path="/stock" />
+      </Router>
       <SolidQueryDevtools buttonPosition="bottom-left" />
     </QueryClientProvider>
   ),

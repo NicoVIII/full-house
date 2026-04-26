@@ -15,6 +15,41 @@
     box-shadow: 0 24px 70px rgba(36, 55, 84, 0.08);
 }
 
+.app-nav-shell {
+    padding: 0.5rem;
+    border: 1px solid rgba(36, 55, 84, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 16px 44px rgba(36, 55, 84, 0.08);
+}
+
+.app-nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.app-nav-link {
+    flex: 1;
+    padding: 0.875rem 1.25rem;
+    border-radius: 999px;
+    color: #28415d;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.app-nav-link:hover {
+    background: rgba(40, 65, 93, 0.08);
+}
+
+.app-nav-link-active {
+    color: #fff;
+    background: linear-gradient(135deg, #28415d 0%, #446a8f 100%);
+    box-shadow: 0 12px 24px rgba(40, 65, 93, 0.24);
+}
+
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -38,5 +73,9 @@
 @media (max-width: 640px) {
     .hero-panel {
         padding: 1.5rem;
+    }
+
+    .app-nav {
+        flex-direction: column;
     }
 }

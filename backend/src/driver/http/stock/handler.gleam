@@ -1,15 +1,12 @@
-import application/list_products
-import application/ports/product_repository
+import application/list_stock
+import application/ports/stock_repository
 import driver/http/handler_helpers
 import driver/http/pagination_request_mapper
-import driver/http/products/response_mapper
+import driver/http/stock/response_mapper
 import gleam/http
 import wisp
 
-pub fn handle(
-  request: wisp.Request,
-  repo: product_repository.T,
-) -> wisp.Response {
+pub fn handle(request: wisp.Request, repo: stock_repository.T) -> wisp.Response {
   use <- wisp.require_method(request, http.Get)
 
   let query = wisp.get_query(request)
@@ -17,11 +14,11 @@ pub fn handle(
     Error(message) -> handler_helpers.bad_request(message)
     Ok(#(offset, limit)) -> {
       use result <- handler_helpers.handle_result(
-        list_products.execute(repo, offset, limit),
+        list_stock.execute(repo, offset, limit),
         wisp.internal_server_error(),
       )
 
-      let body = response_mapper.map_list_products_response(result)
+      let body = response_mapper.map_list_stock_response(result)
       wisp.json_response(body, 200)
     }
   }
