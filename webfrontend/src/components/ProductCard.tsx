@@ -7,9 +7,9 @@ import type { Component } from 'solid-js';
 import { Show } from 'solid-js';
 import type { Product } from '../api/products';
 
-type ProductCardProps = {
+interface ProductCardProps {
     product: Product;
-};
+}
 
 const ProductCard: Component<ProductCardProps> = (props) => {
     return (
@@ -20,12 +20,14 @@ const ProductCard: Component<ProductCardProps> = (props) => {
                         {props.product.name}
                     </Typography>
                     <Show when={props.product.parent_product_id}>
-                        <Chip
-                            color="primary"
-                            label={`Parent: ${props.product.parent_product_id}`}
-                            variant="outlined"
-                            sx={{ alignSelf: 'flex-start' }}
-                        />
+                        {(parentProductId) => (
+                            <Chip
+                                color="primary"
+                                label={`Parent: ${parentProductId()}`}
+                                variant="outlined"
+                                sx={{ alignSelf: 'flex-start' }}
+                            />
+                        )}
                     </Show>
                 </Stack>
             </CardContent>

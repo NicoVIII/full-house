@@ -9,3 +9,12 @@ pre-commit:
     - name: "backend-test"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam test
+    - name: "frontend-type-check"
+      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
+      run: cd webfrontend && bun x --no-install tsc --noEmit
+    - name: "frontend-lint"
+      glob: "{lefthook.yml,webfrontend/src/**/*.{ts,tsx}}"
+      run: cd webfrontend && bun run lint
+    - name: "frontend-test"
+      glob: "{lefthook.yml,webfrontend/src/**/*.{ts,tsx}}"
+      run: cd webfrontend && bun run test:run

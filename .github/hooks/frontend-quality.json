@@ -3,8 +3,8 @@
         "PostToolUse": [
             {
                 "type": "command",
-                "command": "python3 .github/hooks/scripts/run-gleam-tests.py",
-                "timeout": 60
+                "command": "python3 .github/hooks/scripts/run-frontend-quality.py",
+                "timeout": 180
             }
         ]
     }

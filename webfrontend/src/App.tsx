@@ -40,7 +40,7 @@ const App: Component = () => {
           <ProductsHero />
           <ProductsPanel
             error={productsQuery.error}
-            hasNextPage={productsQuery.hasNextPage ?? false}
+            hasNextPage={productsQuery.hasNextPage}
             isError={productsQuery.isError}
             isFetchingNextPage={productsQuery.isFetchingNextPage}
             isPending={productsQuery.isPending}

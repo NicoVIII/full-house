@@ -20,6 +20,23 @@
             "problemMatcher": [ "$tsc" ]
         },
         {
+            "label": "frontend: lint",
+            "type": "shell",
+            "command": "bun run lint",
+            "options": { "cwd": "${workspaceFolder}/webfrontend" },
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "dedicated" },
+            "problemMatcher": [ ]
+        },
+        {
+            "label": "frontend: test",
+            "type": "shell",
+            "command": "bun run test:run",
+            "options": { "cwd": "${workspaceFolder}/webfrontend" },
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        },
+        {
             "label": "backend: build",
             "type": "shell",
             "command": "gleam build",
