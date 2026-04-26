@@ -1,10 +1,45 @@
 import application/page_limit
 import application/page_offset
 import application/ports/stock_repository
-import infrastructure/stock_repository/mock_stock_repository
+import infrastructure/stock_repository/sqlite_stock_repository
+import sqlight
 
-pub fn mock_stock_repository_returns_aggregated_quantities_test() {
-  let repo = mock_stock_repository.new()
+fn setup_in_memory_database() -> sqlight.Connection {
+  let assert Ok(connection) = sqlight.open(":memory:")
+  let assert Ok(_) =
+    sqlight.exec(
+      "
+      create table products (
+        id text primary key,
+        name text not null,
+        parent_product_id text references products(id)
+      );
+
+      create table stock_items (
+        id text primary key,
+        product_id text not null references products(id)
+      );
+
+      insert into products (id, name, parent_product_id) values
+        ('018f4e1a-0000-7000-8000-000000000001', 'Espresso', null),
+        ('018f4e1a-0000-7000-8000-000000000002', 'Cappuccino', null),
+        ('018f4e1a-0000-7000-8000-000000000003', 'Latte', null);
+
+      insert into stock_items (id, product_id) values
+        ('018f4e1a-1000-7000-8000-000000000001', '018f4e1a-0000-7000-8000-000000000001'),
+        ('018f4e1a-1000-7000-8000-000000000002', '018f4e1a-0000-7000-8000-000000000001'),
+        ('018f4e1a-1000-7000-8000-000000000003', '018f4e1a-0000-7000-8000-000000000002');
+      ",
+      on: connection,
+    )
+
+  connection
+}
+
+pub fn sqlite_stock_repository_returns_aggregated_quantities_test() {
+  let connection = setup_in_memory_database()
+  let repo = sqlite_stock_repository.new(connection)
+
   let assert Ok(result) =
     repo.list(stock_repository.ListParams(
       offset: page_offset.default(),
@@ -14,24 +49,25 @@ pub fn mock_stock_repository_returns_aggregated_quantities_test() {
   let assert [first, ..] = result.items
   let stock_repository.StockSummary(product_name:, quantity:, ..) = first
 
-  assert result.total == 5
-  assert product_name == "Espresso"
-  assert quantity == 4
+  assert result.total == 2
+  assert product_name == "Cappuccino"
+  assert quantity == 1
 }
 
-pub fn mock_stock_repository_supports_pagination_test() {
-  let repo = mock_stock_repository.new()
+pub fn sqlite_stock_repository_supports_pagination_test() {
+  let connection = setup_in_memory_database()
+  let repo = sqlite_stock_repository.new(connection)
+
   let assert Ok(result) =
     repo.list(stock_repository.ListParams(
       offset: page_offset.new_exn(1),
-      limit: page_limit.new_exn(2),
+      limit: page_limit.new_exn(1),
     ))
 
-  let assert [first, second] = result.items
-  let stock_repository.StockSummary(product_name: first_name, ..) = first
-  let stock_repository.StockSummary(product_name: second_name, ..) = second
+  let assert [first] = result.items
+  let stock_repository.StockSummary(product_name:, quantity:, ..) = first
 
-  assert result.total == 5
-  assert first_name == "Cappuccino"
-  assert second_name == "Latte"
+  assert result.total == 2
+  assert product_name == "Espresso"
+  assert quantity == 2
 }

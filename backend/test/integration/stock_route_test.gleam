@@ -1,13 +1,66 @@
+import application/page_limit
+import application/page_offset
+import application/ports/stock_repository
+import domain/basics/uuid
+import domain/product
 import driver/http/router
 import driver/http/stock/handler
 import gleam/http
+import gleam/list
 import gleam/string
-import infrastructure/stock_repository/mock_stock_repository
 import wisp
 import wisp/simulate
 
+fn product_id(value: String) -> product.Id {
+  product.ProductId(uuid.new_exn(value))
+}
+
+fn list_stock_mock(
+  params: stock_repository.ListParams,
+) -> Result(stock_repository.ListResult, Nil) {
+  let stock_repository.ListParams(offset:, limit:) = params
+
+  let all = [
+    stock_repository.StockSummary(
+      product_id: product_id("018f4e1a-0000-7000-8000-000000000001"),
+      product_name: "Espresso",
+      quantity: 4,
+    ),
+    stock_repository.StockSummary(
+      product_id: product_id("018f4e1a-0000-7000-8000-000000000002"),
+      product_name: "Cappuccino",
+      quantity: 2,
+    ),
+    stock_repository.StockSummary(
+      product_id: product_id("018f4e1a-0000-7000-8000-000000000003"),
+      product_name: "Latte",
+      quantity: 3,
+    ),
+    stock_repository.StockSummary(
+      product_id: product_id("018f4e1a-0000-7000-8000-000000000007"),
+      product_name: "Matcha",
+      quantity: 5,
+    ),
+    stock_repository.StockSummary(
+      product_id: product_id("018f4e1a-0000-7000-8000-000000000009"),
+      product_name: "Oat Latte",
+      quantity: 1,
+    ),
+  ]
+  let items =
+    all
+    |> list.drop(page_offset.value(offset))
+    |> list.take(page_limit.value(limit))
+
+  Ok(stock_repository.ListResult(items: items, total: 5))
+}
+
+fn mock_repository() -> stock_repository.T {
+  stock_repository.T(list: list_stock_mock)
+}
+
 fn app_handler() -> fn(wisp.Request) -> wisp.Response {
-  let repo = mock_stock_repository.new()
+  let repo = mock_repository()
   let routes =
     router.Routes(products: fn(_) { wisp.not_found() }, stock: fn(request) {
       handler.handle(request, repo)

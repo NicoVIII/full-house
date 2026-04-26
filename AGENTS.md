@@ -20,5 +20,5 @@ bun run dev         # start dev server
 bun run build       # build for production
 bun run lint:fix    # lint with auto-fix
 bun run test:run    # run tests
-bun x --no-install tsc --noEmit  # type check
+bun run type-check  # type check
 ```
