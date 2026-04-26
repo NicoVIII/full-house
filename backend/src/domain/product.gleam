@@ -1,4 +1,5 @@
 import domain/basics/uuid
+import domain/product_name
 import gleam/option.{type Option}
 
 pub type Id {
@@ -6,5 +7,5 @@ pub type Id {
 }
 
 pub type T {
-  Product(id: Id, name: String, parent_product_id: Option(Id))
+  Product(id: Id, name: product_name.T, parent_product_id: Option(Id))
 }

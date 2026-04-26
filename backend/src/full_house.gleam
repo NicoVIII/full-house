@@ -1,4 +1,5 @@
-import application/ports/product_repository
+import application/ports/products/create as create_product_port
+import application/ports/products/list as list_product_port
 import application/ports/stock_repository
 import driver/http/products/handler as products_handler
 import driver/http/router
@@ -14,9 +15,10 @@ import wisp/wisp_mist
 
 fn products_route(
   request: wisp.Request,
-  repo: product_repository.T,
+  list_repo: list_product_port.T,
+  create_repo: create_product_port.T,
 ) -> wisp.Response {
-  products_handler.handle(request, repo)
+  products_handler.handle(request, list_repo, create_repo)
 }
 
 fn stock_route(request: wisp.Request, repo: stock_repository.T) -> wisp.Response {
@@ -34,12 +36,15 @@ pub fn main() -> Nil {
   wisp.configure_logger()
 
   let assert Ok(connection) = sqlight.open(database_path())
-  let product_repo = sqlite_product_repository.new(connection)
+  let product_list_repo = sqlite_product_repository.list_port(connection)
+  let product_create_repo = sqlite_product_repository.create_port(connection)
   let stock_repo = sqlite_stock_repository.new(connection)
 
   let routes =
     router.Routes(
-      products: fn(request) { products_route(request, product_repo) },
+      products: fn(request) {
+        products_route(request, product_list_repo, product_create_repo)
+      },
       stock: fn(request) { stock_route(request, stock_repo) },
     )
   let handler = fn(request) { router.handle_request(request, routes) }

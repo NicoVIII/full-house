@@ -3,6 +3,7 @@ import application/page_limit
 import application/page_offset
 import domain/basics/uuid
 import domain/product
+import domain/product_name
 import gleam/json
 import gleam/option.{None, Some}
 
@@ -15,7 +16,7 @@ fn map_product(p: product.T) -> json.Json {
 
   json.object([
     #("id", json.string(uuid.value(uid))),
-    #("name", json.string(p.name)),
+    #("name", json.string(product_name.value(p.name))),
     #("parent_product_id", parent_id_json),
   ])
 }

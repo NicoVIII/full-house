@@ -1,7 +1,9 @@
-import { createInfiniteQuery, type InfiniteData } from '@tanstack/solid-query';
+import { createInfiniteQuery, type InfiniteData, useQueryClient } from '@tanstack/solid-query';
+import Box from '@suid/material/Box';
 import type { Component } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { fetchProducts, type Product, type ProductListResponse } from '../api/products';
+import CreateProductDialog from '../components/CreateProductDialog';
 import ProductsHero from '../components/ProductsHero';
 import ProductsPanel from '../components/ProductsPanel';
 import { flattenPaginatedItems, readPaginatedTotal } from './paginated_query_helpers';
@@ -9,6 +11,8 @@ import { flattenPaginatedItems, readPaginatedTotal } from './paginated_query_hel
 const PAGE_SIZE = 6;
 
 const ProductsPage: Component = () => {
+    const queryClient = useQueryClient();
+
     const productsQuery = createInfiniteQuery<
         ProductListResponse,
         Error,
@@ -35,9 +39,18 @@ const ProductsPage: Component = () => {
     );
     const total = createMemo(() => readPaginatedTotal(productsQuery.data));
 
+    const handleProductCreated = async () => {
+        await queryClient.invalidateQueries({
+            queryKey: ['products', 'infinite'],
+        });
+    };
+
     return (
         <>
             <ProductsHero />
+            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <CreateProductDialog onCreated={handleProductCreated} />
+            </Box>
             <ProductsPanel
                 error={productsQuery.error}
                 hasNextPage={productsQuery.hasNextPage}

@@ -1,28 +1,18 @@
-import application/list_products
-import application/ports/product_repository
-import driver/http/handler_helpers
-import driver/http/pagination_request_mapper
-import driver/http/products/response_mapper
+import application/ports/products/create as create_product_port
+import application/ports/products/list as list_product_port
+import driver/http/products/create/handler as create_handler
+import driver/http/products/list/handler as list_handler
 import gleam/http
 import wisp
 
 pub fn handle(
   request: wisp.Request,
-  repo: product_repository.T,
+  list_repo: list_product_port.T,
+  create_repo: create_product_port.T,
 ) -> wisp.Response {
-  use <- wisp.require_method(request, http.Get)
-
-  let query = wisp.get_query(request)
-  case pagination_request_mapper.map_offset_and_limit(query) {
-    Error(message) -> handler_helpers.bad_request(message)
-    Ok(#(offset, limit)) -> {
-      use result <- handler_helpers.handle_result(
-        list_products.execute(repo, offset, limit),
-        wisp.internal_server_error(),
-      )
-
-      let body = response_mapper.map_list_products_response(result)
-      wisp.json_response(body, 200)
-    }
+  case request.method {
+    http.Get -> list_handler.handle(request, list_repo)
+    http.Post -> create_handler.handle(request, create_repo)
+    _ -> wisp.method_not_allowed(allowed: [http.Get, http.Post])
   }
 }

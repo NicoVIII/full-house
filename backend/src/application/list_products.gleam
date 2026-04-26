@@ -1,6 +1,6 @@
 import application/page_limit
 import application/page_offset
-import application/ports/product_repository
+import application/ports/products/list as product_list_port
 import domain/product
 import gleam/result
 
@@ -14,12 +14,12 @@ pub type ListProductsResult {
 }
 
 pub fn execute(
-  repo: product_repository.T,
+  repo: product_list_port.T,
   offset: page_offset.T,
   limit: page_limit.T,
-) -> Result(ListProductsResult, Nil) {
+) -> Result(ListProductsResult, product_list_port.Error) {
   use list_result <- result.try(
-    repo.list(product_repository.ListParams(offset: offset, limit: limit)),
+    repo.list(product_list_port.Params(offset: offset, limit: limit)),
   )
 
   Ok(ListProductsResult(

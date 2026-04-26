@@ -22,6 +22,7 @@ Prefer feature-oriented folders (what the code does) over technical buckets (wha
 - Start simple: use single files first; introduce folders when complexity requires it
 - Group by feature/resource (`products`, `stock`, `orders`) inside each layer
 - Keep related handler/mapper/adapter files close together
+- When one resource contains multiple distinct operations with their own files, prefer operation subfolders such as `products/create/` or `products/list/` over a flat folder of operation-prefixed files
 - Keep nesting shallow and intentional (typically 2-3 levels)
 - Keep outbound ports in `application/ports/**`
 
@@ -30,11 +31,20 @@ Prefer feature-oriented folders (what the code does) over technical buckets (wha
 ```text
 application/
   list_products.gleam
-  ports/product_repository.gleam
+  create_product.gleam
+  ports/products/
+    list.gleam
+    create.gleam
 
 driver/http/products/
   handler.gleam
-  response_mapper.gleam
+  list/
+    handler.gleam
+    response_mapper.gleam
+  create/
+    handler.gleam
+    request_mapper.gleam
+    response_mapper.gleam
 
 infrastructure/product_repository/
   mock_product_repository.gleam

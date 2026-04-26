@@ -16,6 +16,27 @@ type FetchProductsParams = Readonly<{
     limit: number;
 }>;
 
+export type CreateProductRequest = Readonly<{
+    name: string;
+    parent_product_id?: string | null;
+}>;
+
+export type CreateProductResponse = Readonly<{
+    data: Product;
+}>;
+
+async function readApiErrorMessage(
+    response: Response,
+    fallback: string,
+): Promise<string> {
+    try {
+        const payload = (await response.json()) as { message?: unknown };
+        return typeof payload.message === 'string' ? payload.message : fallback;
+    } catch {
+        return fallback;
+    }
+}
+
 export async function fetchProducts({
     offset,
     limit,
@@ -31,4 +52,27 @@ export async function fetchProducts({
     }
 
     return (await response.json()) as ProductListResponse;
+}
+
+export async function createProduct({
+    name,
+    parent_product_id,
+}: CreateProductRequest): Promise<CreateProductResponse> {
+    const response = await fetch('/api/v1/products', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+            name,
+            parent_product_id: parent_product_id ?? null,
+        }),
+    });
+
+    if (!response.ok) {
+        const defaultMessage = `Create product request failed with status ${String(response.status)}`;
+        throw new Error(await readApiErrorMessage(response, defaultMessage));
+    }
+
+    return (await response.json()) as CreateProductResponse;
 }

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { fetchProducts } from '../api/products';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createProduct, fetchProducts } from '../api/products';
 
 describe('fetchProducts', () => {
     beforeEach(() => {
@@ -61,5 +61,54 @@ describe('fetchProducts', () => {
         await fetchProducts({ offset: 20, limit: 5 });
 
         expect(global.fetch).toHaveBeenCalledWith('/api/v1/products?offset=20&limit=5');
+    });
+});
+
+describe('createProduct', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('creates a product with optional parent_product_id', async () => {
+        const mockResponse = {
+            data: { id: '1', name: 'Pour Over', parent_product_id: null },
+        };
+
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve(mockResponse),
+            } as Response),
+        );
+
+        const result = await createProduct({ name: 'Pour Over', parent_product_id: null });
+
+        expect(result).toEqual(mockResponse);
+        expect(global.fetch).toHaveBeenCalledWith('/api/v1/products', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: 'Pour Over',
+                parent_product_id: null,
+            }),
+        });
+    });
+
+    it('surfaces backend validation message', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 400,
+                json: () => Promise.resolve({ message: 'name must not be empty' }),
+            } as Response),
+        );
+
+        await expect(createProduct({ name: ' ', parent_product_id: null })).rejects.toThrow(
+            'name must not be empty',
+        );
     });
 });
