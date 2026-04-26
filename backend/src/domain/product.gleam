@@ -6,5 +6,5 @@ pub type Id {
 }
 
 pub type T {
-  Product(id: Id, parent_product_id: Option(Id))
+  Product(id: Id, name: String, parent_product_id: Option(Id))
 }
