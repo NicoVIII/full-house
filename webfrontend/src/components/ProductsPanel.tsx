@@ -17,6 +17,7 @@ type ProductsPanelProps = Readonly<{
     isFetchingNextPage: boolean;
     isPending: boolean;
     onLoadMore: () => void;
+    onProductDelete?: (productId: string) => Promise<void>;
     products: Product[];
     total: number;
 }>;
@@ -61,7 +62,14 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
                     </Paper>
 
                     <Box class="product-grid">
-                        <For each={props.products}>{(product) => <ProductCard product={product} />}</For>
+                        <For each={props.products}>
+                            {(product) => (
+                                <ProductCard
+                                    product={product}
+                                    onDelete={props.onProductDelete ?? undefined}
+                                />
+                            )}
+                        </For>
                     </Box>
 
                     <Paper elevation={0} sx={{ p: 3 }}>

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createProduct, fetchProducts } from '../api/products';
+import { createProduct, deleteProduct, fetchProducts } from '../api/products';
 
 describe('fetchProducts', () => {
     beforeEach(() => {
@@ -109,6 +109,85 @@ describe('createProduct', () => {
 
         await expect(createProduct({ name: ' ', parent_product_id: null })).rejects.toThrow(
             'name must not be empty',
+        );
+    });
+});
+
+describe('deleteProduct', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('sends DELETE request with correct product id', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: true,
+            } as Response),
+        );
+
+        await deleteProduct('test-id-123');
+
+        expect(global.fetch).toHaveBeenCalledWith('/api/v1/products/test-id-123', {
+            method: 'DELETE',
+        });
+    });
+
+    it('returns successfully on 204 response', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: true,
+                status: 204,
+            } as Response),
+        );
+
+        await expect(deleteProduct('test-id')).resolves.not.toThrow();
+    });
+
+    it('throws error on 409 conflict (stock items)', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 409,
+                json: () =>
+                    Promise.resolve({
+                        message: 'cannot delete product with existing stock items',
+                    }),
+            } as Response),
+        );
+
+        await expect(deleteProduct('test-id')).rejects.toThrow(
+            'cannot delete product with existing stock items',
+        );
+    });
+
+    it('throws error on 404 not found', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 404,
+                json: () => Promise.resolve({ message: 'product not found' }),
+            } as Response),
+        );
+
+        await expect(deleteProduct('bad-id')).rejects.toThrow('product not found');
+    });
+
+    it('uses default error message when response json fails', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 500,
+                json: () => Promise.reject(new Error('Invalid JSON')),
+            } as Response),
+        );
+
+        await expect(deleteProduct('test-id')).rejects.toThrow(
+            'Delete product request failed with status 500',
         );
     });
 });

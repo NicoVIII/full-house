@@ -2,7 +2,7 @@ import { createInfiniteQuery, type InfiniteData, useQueryClient } from '@tanstac
 import Box from '@suid/material/Box';
 import type { Component } from 'solid-js';
 import { createMemo } from 'solid-js';
-import { fetchProducts, type Product, type ProductListResponse } from '../api/products';
+import { deleteProduct, fetchProducts, type Product, type ProductListResponse } from '../api/products';
 import CreateProductDialog from '../components/CreateProductDialog';
 import ProductsHero from '../components/ProductsHero';
 import ProductsPanel from '../components/ProductsPanel';
@@ -45,6 +45,18 @@ const ProductsPage: Component = () => {
         });
     };
 
+    const handleProductDeleted = async (productId: string) => {
+        try {
+            await deleteProduct(productId);
+            await queryClient.invalidateQueries({
+                queryKey: ['products', 'infinite'],
+            });
+        } catch (error) {
+            console.error('Delete failed:', error);
+            throw error;
+        }
+    };
+
     return (
         <>
             <ProductsHero />
@@ -58,6 +70,7 @@ const ProductsPage: Component = () => {
                 isFetchingNextPage={productsQuery.isFetchingNextPage}
                 isPending={productsQuery.isPending}
                 onLoadMore={() => void productsQuery.fetchNextPage()}
+                onProductDelete={handleProductDeleted}
                 products={products()}
                 total={total()}
             />

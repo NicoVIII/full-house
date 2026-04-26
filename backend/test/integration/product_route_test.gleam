@@ -1,7 +1,10 @@
 import application/page_limit
 import application/page_offset
+import application/ports/products/child_references as child_references_port
 import application/ports/products/create as create_product_port
+import application/ports/products/delete as delete_product_port
 import application/ports/products/list as list_product_port
+import application/ports/products/stock_references as stock_references_port
 import domain/basics/uuid
 import domain/product
 import domain/product_name
@@ -66,12 +69,75 @@ fn create_repository() -> create_product_port.T {
   create_product_port.T(create: create_product_mock)
 }
 
+fn delete_product_mock(
+  product_id: product.Id,
+) -> Result(Nil, delete_product_port.Error) {
+  let product.ProductId(uid) = product_id
+  let id_str = uuid.value(uid)
+
+  // Mock: product with ID ending in 999 doesn't exist
+  case string.ends_with(id_str, "999") {
+    True -> Error(delete_product_port.ProductNotFound)
+    False -> Ok(Nil)
+  }
+}
+
+fn delete_repository() -> delete_product_port.T {
+  delete_product_port.T(delete: delete_product_mock)
+}
+
+fn count_stock_mock(
+  product_id: product.Id,
+) -> Result(Int, stock_references_port.Error) {
+  let product.ProductId(uid) = product_id
+  let id_str = uuid.value(uid)
+
+  // Mock: product with ID ending in 001 has stock items
+  case string.ends_with(id_str, "001") {
+    True -> Ok(5)
+    False -> Ok(0)
+  }
+}
+
+fn count_child_mock(
+  parent_product_id: product.Id,
+) -> Result(Int, child_references_port.Error) {
+  let product.ProductId(uid) = parent_product_id
+  let id_str = uuid.value(uid)
+
+  // Mock: product with ID ending in 003 has child products
+  case string.ends_with(id_str, "003") {
+    True -> Ok(2)
+    False -> Ok(0)
+  }
+}
+
+fn stock_references_repository() -> stock_references_port.T {
+  stock_references_port.T(count_by_product_id: count_stock_mock)
+}
+
+fn child_references_repository() -> child_references_port.T {
+  child_references_port.T(count_by_parent_id: count_child_mock)
+}
+
 fn app_handler() -> fn(wisp.Request) -> wisp.Response {
   let list_repo = list_repository()
   let create_repo = create_repository()
+  let delete_repo = delete_repository()
+  let stock_repo = stock_references_repository()
+  let child_repo = child_references_repository()
   let routes =
     router.Routes(
-      products: fn(request) { handler.handle(request, list_repo, create_repo) },
+      products: fn(request) {
+        handler.handle(
+          request,
+          list_repo,
+          create_repo,
+          delete_repo,
+          stock_repo,
+          child_repo,
+        )
+      },
       stock: fn(_) { wisp.not_found() },
     )
 
@@ -225,4 +291,83 @@ pub fn unknown_route_returns_not_found_test() {
   let response = app_handler()(request)
 
   assert response.status == 404
+}
+
+pub fn delete_product_returns_204_test() {
+  let request =
+    simulate.request(
+      http.Delete,
+      "/api/v1/products/018f4e1a-0000-7000-8000-000000000002",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 204
+  assert body == ""
+}
+
+pub fn delete_product_with_invalid_uuid_returns_400_test() {
+  let request = simulate.request(http.Delete, "/api/v1/products/not-a-uuid")
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 400
+  assert string.contains(body, "\"error\":\"invalid_parameter\"")
+  assert string.contains(
+    body,
+    "\"message\":\"product id must be a valid UUID\"",
+  )
+}
+
+pub fn delete_product_not_found_returns_404_test() {
+  let request =
+    simulate.request(
+      http.Delete,
+      "/api/v1/products/018f4e1a-0000-7000-8000-000000000999",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 404
+  assert string.contains(body, "\"error\":\"not_found\"")
+  assert string.contains(body, "\"message\":\"product not found\"")
+}
+
+pub fn delete_product_with_stock_items_returns_409_test() {
+  let request =
+    simulate.request(
+      http.Delete,
+      "/api/v1/products/018f4e1a-0000-7000-8000-000000000001",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 409
+  assert string.contains(body, "\"error\":\"conflict\"")
+  assert string.contains(
+    body,
+    "\"message\":\"cannot delete product with existing stock items\"",
+  )
+}
+
+pub fn delete_product_with_child_products_returns_409_test() {
+  let request =
+    simulate.request(
+      http.Delete,
+      "/api/v1/products/018f4e1a-0000-7000-8000-000000000003",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 409
+  assert string.contains(body, "\"error\":\"conflict\"")
+  assert string.contains(
+    body,
+    "\"message\":\"cannot delete product with existing child products\"",
+  )
 }

@@ -7,7 +7,8 @@ import domain/product
 import domain/product_name
 import gleam/list
 import gleam/option.{None, Some}
-import infrastructure/product_repository/sqlite_product_repository
+import infrastructure/product_repository/sqlite_product_repository/create_port as create_adapter
+import infrastructure/product_repository/sqlite_product_repository/list_port as list_adapter
 import sqlight
 
 fn setup_in_memory_database() -> sqlight.Connection {
@@ -32,9 +33,9 @@ fn setup_in_memory_database() -> sqlight.Connection {
   connection
 }
 
-pub fn sqlite_product_repository_returns_paginated_products_test() {
+pub fn list_adapter_returns_paginated_products_test() {
   let connection = setup_in_memory_database()
-  let repo = sqlite_product_repository.list_port(connection)
+  let repo = list_adapter.new(connection)
 
   let assert Ok(result) =
     repo.list(list_product_port.Params(
@@ -51,9 +52,9 @@ pub fn sqlite_product_repository_returns_paginated_products_test() {
   assert product_name.value(second_name) == "Latte"
 }
 
-pub fn sqlite_product_repository_keeps_parent_relationship_test() {
+pub fn list_adapter_keeps_parent_relationship_test() {
   let connection = setup_in_memory_database()
-  let repo = sqlite_product_repository.list_port(connection)
+  let repo = list_adapter.new(connection)
 
   let assert Ok(result) =
     repo.list(list_product_port.Params(
@@ -68,10 +69,10 @@ pub fn sqlite_product_repository_keeps_parent_relationship_test() {
   assert parent_product_id != None
 }
 
-pub fn sqlite_product_repository_creates_product_test() {
+pub fn create_and_list_adapters_create_product_test() {
   let connection = setup_in_memory_database()
-  let create_repo = sqlite_product_repository.create_port(connection)
-  let list_repo = sqlite_product_repository.list_port(connection)
+  let create_repo = create_adapter.new(connection)
+  let list_repo = list_adapter.new(connection)
 
   let new_product =
     product.Product(
@@ -93,9 +94,9 @@ pub fn sqlite_product_repository_creates_product_test() {
     |> list.any(fn(p) { product_name.value(p.name) == "Mocha" })
 }
 
-pub fn sqlite_product_repository_returns_parent_not_found_on_create_test() {
+pub fn create_adapter_returns_parent_not_found_on_create_test() {
   let connection = setup_in_memory_database()
-  let repo = sqlite_product_repository.create_port(connection)
+  let repo = create_adapter.new(connection)
 
   let new_product =
     product.Product(
@@ -110,14 +111,14 @@ pub fn sqlite_product_repository_returns_parent_not_found_on_create_test() {
     == Error(create_product_port.ParentProductNotFound)
 }
 
-pub fn sqlite_product_repository_skips_empty_name_rows_test() {
+pub fn list_adapter_skips_empty_name_rows_test() {
   let connection = setup_in_memory_database()
   let assert Ok(_) =
     sqlight.exec(
       "insert into products (id, name, parent_product_id) values ('018f4e1a-0000-7000-8000-000000000010', '   ', null)",
       on: connection,
     )
-  let repo = sqlite_product_repository.list_port(connection)
+  let repo = list_adapter.new(connection)
 
   let assert Ok(result) =
     repo.list(list_product_port.Params(
