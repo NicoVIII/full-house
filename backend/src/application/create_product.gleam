@@ -1,8 +1,7 @@
 import application/ports/products/create as create_product_port
 import domain/basics/uuid
+import domain/commands/create_product_command
 import domain/product
-import domain/product_name
-import gleam/option.{type Option}
 import gleam/result
 
 pub type CreateProductResult {
@@ -11,9 +10,11 @@ pub type CreateProductResult {
 
 pub fn execute(
   repo: create_product_port.T,
-  name: product_name.T,
-  parent_product_id: Option(product.Id),
+  command: create_product_command.T,
 ) -> Result(CreateProductResult, create_product_port.Error) {
+  let create_product_command.CreateProductCommand(name, parent_product_id) =
+    command
+
   let new_product =
     product.Product(
       id: product.ProductId(uuid.generate_v7()),

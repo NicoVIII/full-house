@@ -6,7 +6,10 @@ import driver/http/stock/response_mapper
 import gleam/http
 import wisp
 
-pub fn handle(request: wisp.Request, repo: stock_repository.T) -> wisp.Response {
+pub fn handle(
+  request: wisp.Request,
+  repo: stock_repository.T,
+) -> wisp.Response {
   use <- wisp.require_method(request, http.Get)
 
   let query = wisp.get_query(request)

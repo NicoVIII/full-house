@@ -1,5 +1,6 @@
 import application/create_product
 import application/ports/products/create as create_product_port
+import domain/commands/create_product_command
 import driver/http/handler_helpers
 import driver/http/products/create/request_mapper
 import driver/http/products/create/response_mapper
@@ -26,7 +27,13 @@ pub fn handle(
   case request_mapper.map_payload(payload) {
     Error(message) -> handler_helpers.bad_request(message)
     Ok(#(name, parent_product_id)) -> {
-      case create_product.execute(repo, name, parent_product_id) {
+      let command =
+        create_product_command.CreateProductCommand(
+          name: name,
+          parent_product_id: parent_product_id,
+        )
+
+      case create_product.execute(repo, command) {
         Ok(result) -> {
           let body = response_mapper.map_create_product_response(result)
           wisp.json_response(body, 201)

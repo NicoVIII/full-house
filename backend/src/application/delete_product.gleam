@@ -1,7 +1,7 @@
 import application/ports/products/child_references as child_references_port
 import application/ports/products/delete as delete_product_port
 import application/ports/products/stock_references as stock_references_port
-import domain/product
+import domain/commands/delete_product_command
 import domain/product_deletion_policy
 import gleam/result
 
@@ -23,8 +23,9 @@ pub fn execute(
   stock_repo: stock_references_port.T,
   child_repo: child_references_port.T,
   delete_repo: delete_product_port.T,
-  product_id: product.Id,
+  command: delete_product_command.T,
 ) -> Result(Nil, Error) {
+  let delete_product_command.DeleteProductCommand(product_id) = command
   use stock_count <- result.try(
     stock_repo.count_by_product_id(product_id)
     |> result.map_error(fn(_) { DatabaseFailure }),
