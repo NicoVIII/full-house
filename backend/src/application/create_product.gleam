@@ -1,28 +1,55 @@
 import application/ports/products/create as create_product_port
+import application/ports/products/validate_parent_product as validate_parent_product_port
 import domain/basics/uuid
 import domain/commands/create_product_command
+import domain/create_product_policy
 import domain/product
+import domain/validated_parent_product_id
 import gleam/result
 
 pub type CreateProductResult {
   CreateProductResult(product: product.T)
 }
 
+pub type Error {
+  ValidationFailed(validate_parent_product_port.Error)
+  CreationFailed(create_product_port.Error)
+}
+
 pub fn execute(
-  repo: create_product_port.T,
+  validate_parent_repo: validate_parent_product_port.T,
+  create_repo: create_product_port.T,
   command: create_product_command.T,
-) -> Result(CreateProductResult, create_product_port.Error) {
+) -> Result(CreateProductResult, Error) {
   let create_product_command.CreateProductCommand(name, parent_product_id) =
     command
 
+  // Step 1: Validate parent product exists (if provided)
+  use validated_parent <- result.try(
+    validate_parent_repo.validate(parent_product_id)
+    |> result.map_error(ValidationFailed),
+  )
+
+  // Step 2: Apply creation policy
+  use Nil <- result.try(
+    create_product_policy.can_create(validated_parent)
+    |> result.map_error(fn(_) {
+      CreationFailed(create_product_port.DatabaseFailure)
+    }),
+  )
+
+  // Step 3: Create the product
   let new_product =
     product.Product(
       id: product.ProductId(uuid.generate_v7()),
       name: name,
-      parent_product_id: parent_product_id,
+      parent_product_id: validated_parent_product_id.value(validated_parent),
     )
 
-  use Nil <- result.try(repo.create(new_product))
+  use Nil <- result.try(
+    create_repo.create(new_product)
+    |> result.map_error(CreationFailed),
+  )
 
   Ok(CreateProductResult(product: new_product))
 }

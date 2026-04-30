@@ -4,10 +4,12 @@ import application/ports/products/create as create_product_port
 import application/ports/products/delete as delete_product_port
 import application/ports/products/deletion_references as deletion_references_port
 import application/ports/products/list as list_product_port
+import application/ports/products/validate_parent_product as validate_parent_product_port
 import domain/basics/uuid
 import domain/product
 import domain/product_deletion_references
 import domain/product_name
+import domain/validated_parent_product_id
 import driver/http/products/handler
 import driver/http/router
 import gleam/http
@@ -103,8 +105,30 @@ fn deletion_references_repository() -> deletion_references_port.T {
   deletion_references_port.T(load: load_deletion_references_mock)
 }
 
+fn validate_parent_product_mock(
+  parent_id: option.Option(product.Id),
+) -> Result(validated_parent_product_id.T, validate_parent_product_port.Error) {
+  case parent_id {
+    None -> Ok(validated_parent_product_id.new_exn(None))
+    Some(product.ProductId(uid)) -> {
+      let id_str = uuid.value(uid)
+      // Mock: IDs ending in 99 don't exist; everything else does
+      case string.ends_with(id_str, "99") {
+        True -> Error(validate_parent_product_port.ParentProductNotFound)
+        False ->
+          Ok(validated_parent_product_id.new_exn(Some(product.ProductId(uid))))
+      }
+    }
+  }
+}
+
+fn validate_parent_repository() -> validate_parent_product_port.T {
+  validate_parent_product_port.T(validate: validate_parent_product_mock)
+}
+
 fn app_handler() -> fn(wisp.Request) -> wisp.Response {
   let list_repo = list_repository()
+  let validate_parent_repo = validate_parent_repository()
   let create_repo = create_repository()
   let deletion_references_repo = deletion_references_repository()
   let delete_repo = delete_repository()
@@ -114,6 +138,7 @@ fn app_handler() -> fn(wisp.Request) -> wisp.Response {
         handler.handle(
           request,
           list_repo,
+          validate_parent_repo,
           create_repo,
           deletion_references_repo,
           delete_repo,
