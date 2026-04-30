@@ -1,7 +1,7 @@
-import application/ports/products/child_references as child_references_port
 import application/ports/products/delete as delete_product_port
-import application/ports/products/stock_references as stock_references_port
+import application/ports/products/deletion_references as deletion_references_port
 import domain/commands/delete_product_command
+import domain/product
 import domain/product_deletion_policy
 import gleam/result
 
@@ -15,49 +15,78 @@ pub type Error {
 /// Execute the delete product command.
 ///
 /// Flow:
-/// 1. Query stock references for the product
-/// 2. Apply deletion policy (fail if stock items exist)
-/// 3. If valid, delegate to delete port
-/// 4. Return result or error
+/// 1. Load deletion reference facts
+/// 2. Apply domain deletion policy
+/// 3. If allowed, delegate to delete port
+/// 4. If a concurrent reference appears, re-check and map it explicitly
 pub fn execute(
-  stock_repo: stock_references_port.T,
-  child_repo: child_references_port.T,
+  references_repo: deletion_references_port.T,
   delete_repo: delete_product_port.T,
   command: delete_product_command.T,
 ) -> Result(Nil, Error) {
   let delete_product_command.DeleteProductCommand(product_id) = command
-  use stock_count <- result.try(
-    stock_repo.count_by_product_id(product_id)
-    |> result.map_error(fn(_) { DatabaseFailure }),
-  )
 
-  use child_count <- result.try(
-    child_repo.count_by_parent_id(product_id)
-    |> result.map_error(fn(_) { DatabaseFailure }),
+  use references <- result.try(
+    references_repo.load(product_id)
+    |> result.map_error(map_load_references_error),
   )
 
   use _ <- result.try(
-    product_deletion_policy.can_delete(stock_count, child_count)
-    |> result.map_error(fn(reason) {
-      case reason {
-        product_deletion_policy.ProductHasStockItems -> ProductHasStockItems
-        product_deletion_policy.ProductHasChildProducts ->
-          ProductHasChildProducts
-      }
-    }),
+    map_policy_decision(product_deletion_policy.decide(references)),
   )
 
-  use _ <- result.try(
-    delete_repo.delete(product_id)
-    |> result.map_error(map_delete_error),
-  )
-
-  Ok(Nil)
+  case delete_repo.delete(product_id) {
+    Ok(Nil) -> Ok(Nil)
+    Error(error) -> map_delete_error(references_repo, product_id, error)
+  }
 }
 
-fn map_delete_error(error: delete_product_port.Error) -> Error {
+fn map_policy_decision(
+  decision: product_deletion_policy.Decision,
+) -> Result(Nil, Error) {
+  case decision {
+    product_deletion_policy.CanDelete -> Ok(Nil)
+    product_deletion_policy.CannotDelete([first, ..]) ->
+      case first {
+        product_deletion_policy.HasStockItems(_) -> Error(ProductHasStockItems)
+        product_deletion_policy.HasChildProducts(_) ->
+          Error(ProductHasChildProducts)
+      }
+    product_deletion_policy.CannotDelete([]) -> Ok(Nil)
+  }
+}
+
+fn map_load_references_error(error: deletion_references_port.Error) -> Error {
   case error {
-    delete_product_port.DatabaseFailure -> DatabaseFailure
-    delete_product_port.ProductNotFound -> ProductNotFound
+    deletion_references_port.DatabaseFailure -> DatabaseFailure
+    deletion_references_port.InvalidReferenceData -> DatabaseFailure
+  }
+}
+
+fn map_delete_error(
+  references_repo: deletion_references_port.T,
+  product_id: product.Id,
+  error: delete_product_port.Error,
+) -> Result(Nil, Error) {
+  case error {
+    delete_product_port.DatabaseFailure -> Error(DatabaseFailure)
+    delete_product_port.ProductNotFound -> Error(ProductNotFound)
+    delete_product_port.ProductStillReferenced ->
+      recheck_policy_decision(references_repo, product_id)
+  }
+}
+
+fn recheck_policy_decision(
+  references_repo: deletion_references_port.T,
+  product_id: product.Id,
+) -> Result(Nil, Error) {
+  use references <- result.try(
+    references_repo.load(product_id)
+    |> result.map_error(map_load_references_error),
+  )
+
+  case product_deletion_policy.decide(references) {
+    product_deletion_policy.CanDelete -> Error(DatabaseFailure)
+    blocked -> map_policy_decision(blocked)
   }
 }

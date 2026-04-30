@@ -3,6 +3,7 @@ import domain/product
 pub type Error {
   DatabaseFailure
   ProductNotFound
+  ProductStillReferenced
 }
 
 pub type T {

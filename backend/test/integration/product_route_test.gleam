@@ -1,12 +1,12 @@
 import application/page_limit
 import application/page_offset
-import application/ports/products/child_references as child_references_port
 import application/ports/products/create as create_product_port
 import application/ports/products/delete as delete_product_port
+import application/ports/products/deletion_references as deletion_references_port
 import application/ports/products/list as list_product_port
-import application/ports/products/stock_references as stock_references_port
 import domain/basics/uuid
 import domain/product
+import domain/product_deletion_references
 import domain/product_name
 import driver/http/products/handler
 import driver/http/router
@@ -86,46 +86,28 @@ fn delete_repository() -> delete_product_port.T {
   delete_product_port.T(delete: delete_product_mock)
 }
 
-fn count_stock_mock(
+fn load_deletion_references_mock(
   product_id: product.Id,
-) -> Result(Int, stock_references_port.Error) {
+) -> Result(product_deletion_references.T, deletion_references_port.Error) {
   let product.ProductId(uid) = product_id
   let id_str = uuid.value(uid)
 
-  // Mock: product with ID ending in 001 has stock items
-  case string.ends_with(id_str, "001") {
-    True -> Ok(5)
-    False -> Ok(0)
+  case string.ends_with(id_str, "001"), string.ends_with(id_str, "003") {
+    True, _ -> Ok(product_deletion_references.new_exn(5, 0))
+    False, True -> Ok(product_deletion_references.new_exn(0, 2))
+    False, False -> Ok(product_deletion_references.new_exn(0, 0))
   }
 }
 
-fn count_child_mock(
-  parent_product_id: product.Id,
-) -> Result(Int, child_references_port.Error) {
-  let product.ProductId(uid) = parent_product_id
-  let id_str = uuid.value(uid)
-
-  // Mock: product with ID ending in 003 has child products
-  case string.ends_with(id_str, "003") {
-    True -> Ok(2)
-    False -> Ok(0)
-  }
-}
-
-fn stock_references_repository() -> stock_references_port.T {
-  stock_references_port.T(count_by_product_id: count_stock_mock)
-}
-
-fn child_references_repository() -> child_references_port.T {
-  child_references_port.T(count_by_parent_id: count_child_mock)
+fn deletion_references_repository() -> deletion_references_port.T {
+  deletion_references_port.T(load: load_deletion_references_mock)
 }
 
 fn app_handler() -> fn(wisp.Request) -> wisp.Response {
   let list_repo = list_repository()
   let create_repo = create_repository()
+  let deletion_references_repo = deletion_references_repository()
   let delete_repo = delete_repository()
-  let stock_repo = stock_references_repository()
-  let child_repo = child_references_repository()
   let routes =
     router.Routes(
       products: fn(request) {
@@ -133,9 +115,8 @@ fn app_handler() -> fn(wisp.Request) -> wisp.Response {
           request,
           list_repo,
           create_repo,
+          deletion_references_repo,
           delete_repo,
-          stock_repo,
-          child_repo,
         )
       },
       stock: fn(_) { wisp.not_found() },

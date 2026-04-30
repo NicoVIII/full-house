@@ -1,7 +1,6 @@
 import application/delete_product
-import application/ports/products/child_references as child_references_port
 import application/ports/products/delete as delete_product_port
-import application/ports/products/stock_references as stock_references_port
+import application/ports/products/deletion_references as deletion_references_port
 import domain/basics/uuid
 import domain/commands/delete_product_command
 import domain/product
@@ -12,23 +11,21 @@ import wisp
 
 pub fn handle(
   request: wisp.Request,
-  stock_repo: stock_references_port.T,
-  child_repo: child_references_port.T,
+  references_repo: deletion_references_port.T,
   delete_repo: delete_product_port.T,
 ) -> wisp.Response {
   use <- wisp.require_method(request, http.Delete)
 
   case wisp.path_segments(request) {
     ["api", "v1", "products", id_raw] ->
-      handle_delete(id_raw, stock_repo, child_repo, delete_repo)
+      handle_delete(id_raw, references_repo, delete_repo)
     _ -> wisp.not_found()
   }
 }
 
 fn handle_delete(
   id_raw: String,
-  stock_repo: stock_references_port.T,
-  child_repo: child_references_port.T,
+  references_repo: deletion_references_port.T,
   delete_repo: delete_product_port.T,
 ) -> wisp.Response {
   case uuid.new(id_raw) {
@@ -38,9 +35,7 @@ fn handle_delete(
       let command =
         delete_product_command.DeleteProductCommand(product_id: product_id)
 
-      case
-        delete_product.execute(stock_repo, child_repo, delete_repo, command)
-      {
+      case delete_product.execute(references_repo, delete_repo, command) {
         Ok(Nil) -> wisp.response(204)
         Error(error) -> error_response(error)
       }

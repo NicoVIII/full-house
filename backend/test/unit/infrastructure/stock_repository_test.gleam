@@ -6,6 +6,7 @@ import sqlight
 
 fn setup_in_memory_database() -> sqlight.Connection {
   let assert Ok(connection) = sqlight.open(":memory:")
+  let assert Ok(_) = sqlight.exec("pragma foreign_keys = on", on: connection)
   let assert Ok(_) =
     sqlight.exec(
       "

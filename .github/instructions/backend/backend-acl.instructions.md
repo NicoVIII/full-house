@@ -14,6 +14,7 @@ Use explicit ACL mapping functions at layer boundaries to translate between exte
 - Do not expose driver DTOs, HTTP concerns, or infrastructure record shapes directly to `application/**`.
 - Prefer small dedicated mapper functions over inline ad-hoc conversions.
 - Preserve semantic meaning when mapping (for example optional IDs, pagination semantics, and error categories).
+- Do not hide business-policy decisions inside infrastructure-shaped responses. If infrastructure reports a coarse technical outcome such as constraint failure, map it to a technical port error and let application/domain re-evaluate business meaning from domain facts when needed.
 
 ## Mapper Function Organization
 
@@ -67,3 +68,4 @@ pub fn handle(request: wisp.Request) -> wisp.Response {
 3. Can application use-case signatures stay stable if HTTP payload shapes change?
 4. Can infrastructure storage/external schemas change without changing application types?
 5. Are mapping responsibilities kept out of domain code?
+6. Are infrastructure errors translated as technical outcomes rather than silently becoming business logic?

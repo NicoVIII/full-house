@@ -19,6 +19,7 @@ pub fn main() -> Nil {
   wisp.configure_logger()
 
   let assert Ok(connection) = sqlight.open(database_path())
+  let assert Ok(_) = sqlight.exec("pragma foreign_keys = on", on: connection)
   let products_handler = products_route.compose(connection)
   let stock_handler = stock_route.compose(connection)
 
