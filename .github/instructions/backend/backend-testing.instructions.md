@@ -4,7 +4,7 @@ applyTo: "backend/src/**/*.gleam, backend/test/**/*.gleam"
 ---
 # Backend Testing Strategy
 
-[Strong Preference] - enforcement
+[Strong Preference]
 
 Aim for broad and meaningful backend test coverage, with explicit and documented exceptions when justified.
 - Most backend behavior should be covered by automated tests.

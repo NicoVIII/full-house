@@ -219,7 +219,7 @@ pub fn validate_parent_adapter_accepts_none_parent_test() {
 
   let result = repo.validate(None)
 
-  assert result == Ok(validated_parent_product_id.new_exn(None))
+  assert result == Ok(option.None)
 }
 
 pub fn validate_parent_adapter_validates_existing_parent_test() {
@@ -233,7 +233,15 @@ pub fn validate_parent_adapter_validates_existing_parent_test() {
 
   let result = repo.validate(existing_parent_id)
 
-  assert result == Ok(validated_parent_product_id.new_exn(existing_parent_id))
+  case result {
+    Ok(option.Some(validated_parent)) -> {
+      let retrieved_id = validated_parent_product_id.value(validated_parent)
+      let expected_id =
+        product.ProductId(uuid.new_exn("018f4e1a-0000-7000-8000-000000000001"))
+      assert retrieved_id == expected_id
+    }
+    _ -> panic as "Expected Ok(Some(ValidatedParentProductId))"
+  }
 }
 
 pub fn validate_parent_adapter_rejects_nonexistent_parent_test() {

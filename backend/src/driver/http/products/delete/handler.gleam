@@ -2,7 +2,7 @@ import application/delete_product
 import application/ports/products/delete as delete_product_port
 import application/ports/products/deletion_references as deletion_references_port
 import domain/basics/uuid
-import domain/commands/delete_product_command
+import domain/products/deletion/command as delete_product_command
 import domain/products/product
 import driver/http/handler_helpers
 import gleam/http
@@ -32,8 +32,7 @@ fn handle_delete(
     Error(_) -> handler_helpers.bad_request("product id must be a valid UUID")
     Ok(uid) -> {
       let product_id = product.ProductId(uid)
-      let command =
-        delete_product_command.DeleteProductCommand(product_id: product_id)
+      let command = delete_product_command.Command(product_id: product_id)
 
       case delete_product.execute(references_repo, delete_repo, command) {
         Ok(Nil) -> wisp.response(204)

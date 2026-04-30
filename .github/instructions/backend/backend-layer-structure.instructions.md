@@ -5,7 +5,7 @@ applyTo: "backend/src/**/*.gleam"
 
 # Backend Layer Structure
 
-[Guidance] - enforcement
+[Guidance]
 
 Prefer feature-oriented folders (what the code does) over technical buckets (what kind of file it is).
 

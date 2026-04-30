@@ -1,10 +1,32 @@
+import domain/basics/non_empty_set
 import domain/basics/uuid
 import domain/products/product
 import domain/products/product_name
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
+import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
+import gleam/string
+
+fn map_name_error(error: product_name.ValidationError) -> String {
+  case error {
+    product_name.Empty -> "name must not be empty"
+    product_name.LeadingOrTrailingWhitespace ->
+      "name must not start or end with whitespace"
+    product_name.InvalidCharacters -> "name must not contain tabs or newlines"
+    product_name.TooLong -> "name must be 255 characters or less"
+  }
+}
+
+fn join_name_errors(
+  errors: non_empty_set.T(product_name.ValidationError),
+) -> String {
+  errors
+  |> non_empty_set.to_list
+  |> list.map(map_name_error)
+  |> string.join("; ")
+}
 
 fn payload_decoder() -> decode.Decoder(#(String, Option(String))) {
   {
@@ -19,10 +41,9 @@ fn payload_decoder() -> decode.Decoder(#(String, Option(String))) {
 }
 
 fn map_name(raw_name: String) -> Result(product_name.T, String) {
-  case product_name.new(raw_name) {
+  case product_name.from_user_input(raw_name) {
     Ok(name) -> Ok(name)
-    Error(product_name.Empty) -> Error("name must not be empty")
-    Error(product_name.TooLong) -> Error("name must be 255 characters or less")
+    Error(errors) -> Error(join_name_errors(errors))
   }
 }
 

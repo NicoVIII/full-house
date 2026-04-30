@@ -37,6 +37,12 @@ For validated opaque types, provide both:
 
 Never call `new_exn` on unvalidated user or external input.
 
+For validation constructors that can return multiple errors:
+
+- Return a non-empty error collection type.
+- Prefer a deduplicating collection (for example a non-empty set) when error order is not domain-significant.
+- Prefer an ordered non-empty collection when error order or priority is domain-significant (for example stable API error message ordering).
+
 ## Anti-Patterns
 
 - Passing raw `String` / `Int` where a named value object exists

@@ -1,7 +1,7 @@
 import application/create_product
 import application/ports/products/create as create_product_port
 import application/ports/products/validate_parent_product as validate_parent_product_port
-import domain/commands/create_product_command
+import domain/products/creation/command as create_product_command
 import driver/http/handler_helpers
 import driver/http/products/create/request_mapper
 import driver/http/products/create/response_mapper
@@ -42,7 +42,7 @@ pub fn handle(
     Error(message) -> handler_helpers.bad_request(message)
     Ok(#(name, parent_product_id)) -> {
       let command =
-        create_product_command.CreateProductCommand(
+        create_product_command.Command(
           name: name,
           parent_product_id: parent_product_id,
         )

@@ -8,5 +8,8 @@ pub type Error {
 }
 
 pub type T {
-  T(validate: fn(Option(product.Id)) -> Result(validated_parent_id.T, Error))
+  T(
+    validate: fn(Option(product.Id)) ->
+      Result(Option(validated_parent_id.T), Error),
+  )
 }

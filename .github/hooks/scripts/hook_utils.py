@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import json
 import subprocess
 import sys
@@ -12,6 +13,22 @@ WRITE_TOOL_NAMES = {
     "create_file",
     "replace_string_in_file",
     "multi_replace_string_in_file",
+    "edit_notebook_file",
+    "create_new_jupyter_notebook",
+}
+
+
+WRITE_INPUT_KEYS = {
+    "filePath",
+    "filePaths",
+    "path",
+    "old_path",
+    "new_path",
+    "oldPath",
+    "newPath",
+    "input",
+    "content",
+    "newCode",
 }
 
 
@@ -29,8 +46,55 @@ def load_payload() -> dict[str, Any]:
 
 
 def should_process_write_tool(payload: dict[str, Any]) -> bool:
-    tool_name = payload.get("tool_name")
-    return isinstance(tool_name, str) and tool_name in WRITE_TOOL_NAMES
+    tool_name = normalize_tool_name(get_payload_field(payload, "tool_name", "toolName"))
+    print(f"[hook_utils] detected tool name: {tool_name}")
+    if tool_name in WRITE_TOOL_NAMES:
+        return True
+
+    # Fallback for hook payload variants: if the payload shape clearly looks
+    # like a file write/edit operation, treat it as a write tool.
+    return payload_looks_like_write(get_tool_input(payload))
+
+
+def get_payload_field(payload: dict[str, Any], *names: str) -> Any:
+    for name in names:
+        if name in payload:
+            return payload.get(name)
+    return None
+
+
+def get_tool_input(payload: dict[str, Any]) -> Any:
+    return get_payload_field(payload, "tool_input", "toolInput", "input")
+
+
+def detected_tool_name(payload: dict[str, Any]) -> str:
+    tool_name = normalize_tool_name(get_payload_field(payload, "tool_name", "toolName"))
+    return tool_name or "unknown"
+
+
+def normalize_tool_name(tool_name: Any) -> str:
+    if not isinstance(tool_name, str):
+        return ""
+
+    # Some payloads include a namespace prefix (e.g. "functions.apply_patch").
+    return tool_name.split(".")[-1]
+
+
+def payload_looks_like_write(tool_input: Any) -> bool:
+    if isinstance(tool_input, dict):
+        for key, value in tool_input.items():
+            if key in WRITE_INPUT_KEYS:
+                return True
+            if payload_looks_like_write(value):
+                return True
+        return False
+
+    if isinstance(tool_input, list):
+        for value in tool_input:
+            if payload_looks_like_write(value):
+                return True
+
+    return False
 
 
 def iter_strings(value: Any):
@@ -49,15 +113,19 @@ def iter_strings(value: Any):
 
 
 def payload_touches_backend_gleam(payload: dict[str, Any]) -> bool:
-    tool_input = payload.get("tool_input")
+    tool_input = get_tool_input(payload)
     for text in iter_strings(tool_input):
-        if "/backend/" in text and ".gleam" in text:
+        if (
+            "/backend/" in text
+            or text.startswith("backend/")
+            or "backend/" in text
+        ) and ".gleam" in text:
             return True
     return False
 
 
 def payload_touches_webfrontend(payload: dict[str, Any]) -> bool:
-    tool_input = payload.get("tool_input")
+    tool_input = get_tool_input(payload)
     for text in iter_strings(tool_input):
         if "/webfrontend/" in text or text.startswith("webfrontend/") or "webfrontend/" in text:
             return True
@@ -71,6 +139,23 @@ def repo_root() -> Path:
 def run_command(command: list[str], cwd: Path) -> bool:
     completed = subprocess.run(command, cwd=cwd, check=False)
     return completed.returncode == 0
+
+
+def log_hook_run(hook_name: str, payload: dict[str, Any], outcome: str) -> None:
+    record = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "hook": hook_name,
+        "tool": detected_tool_name(payload),
+        "outcome": outcome,
+    }
+
+    try:
+        log_path = repo_root() / ".github/hooks/.last-run.log"
+        with log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception:
+        # Logging must never break hook execution.
+        return
 
 
 def block(message: str, system_message: str | None = None) -> int:

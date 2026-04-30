@@ -47,7 +47,7 @@ fn map_product_row(
   )
   use parent_id <- result.try(map_parent_id(parent_id_raw))
 
-  case product_name.new(raw_name) {
+  case product_name.from_user_input(raw_name) {
     Ok(name) ->
       Ok(
         Some(product.Product(id: id, name: name, parent_product_id: parent_id)),

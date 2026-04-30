@@ -107,16 +107,21 @@ fn deletion_references_repository() -> deletion_references_port.T {
 
 fn validate_parent_product_mock(
   parent_id: option.Option(product.Id),
-) -> Result(validated_parent_product_id.T, validate_parent_product_port.Error) {
+) -> Result(
+  option.Option(validated_parent_product_id.T),
+  validate_parent_product_port.Error,
+) {
   case parent_id {
-    None -> Ok(validated_parent_product_id.new_exn(None))
-    Some(product.ProductId(uid)) -> {
+    option.None -> Ok(option.None)
+    option.Some(product.ProductId(uid)) -> {
       let id_str = uuid.value(uid)
       // Mock: IDs ending in 99 don't exist; everything else does
       case string.ends_with(id_str, "99") {
         True -> Error(validate_parent_product_port.ParentProductNotFound)
         False ->
-          Ok(validated_parent_product_id.new_exn(Some(product.ProductId(uid))))
+          Ok(
+            option.Some(validated_parent_product_id.new(product.ProductId(uid))),
+          )
       }
     }
   }
@@ -238,6 +243,21 @@ pub fn products_route_rejects_empty_name_on_create_test() {
 
   assert response.status == 400
   assert string.contains(body, "\"message\":\"name must not be empty\"")
+}
+
+pub fn products_route_rejects_name_with_newline_on_create_test() {
+  let request =
+    simulate.request(http.Post, "/api/v1/products")
+    |> simulate.json_body(json.object([#("name", json.string("Flat\nWhite"))]))
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 400
+  assert string.contains(
+    body,
+    "\"message\":\"name must not contain tabs or newlines\"",
+  )
 }
 
 pub fn products_route_rejects_invalid_parent_product_id_on_create_test() {

@@ -1,6 +1,6 @@
 import application/ports/products/delete as delete_product_port
 import application/ports/products/deletion_references as deletion_references_port
-import domain/commands/delete_product_command
+import domain/products/deletion/command as delete_product_command
 import domain/products/deletion/policy as product_deletion_policy
 import domain/products/product
 import gleam/result
@@ -24,7 +24,7 @@ pub fn execute(
   delete_repo: delete_product_port.T,
   command: delete_product_command.T,
 ) -> Result(Nil, Error) {
-  let delete_product_command.DeleteProductCommand(product_id) = command
+  let delete_product_command.Command(product_id) = command
 
   use references <- result.try(
     references_repo.load(product_id)

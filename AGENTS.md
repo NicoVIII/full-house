@@ -1,6 +1,6 @@
 # Full House — Agent Guide
 
-`backend/` — Gleam/Wisp API (port 8000). `webfrontend/` — Solid/TypeScript/Vite.
+`backend/` — Gleam/Wisp API. `webfrontend/` — Solid/TypeScript/Vite.
 
 ## Backend
 

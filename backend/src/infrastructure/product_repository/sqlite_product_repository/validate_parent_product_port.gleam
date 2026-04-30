@@ -16,12 +16,14 @@ fn map_error(_: sqlight.Error) -> validate_parent_product_port.Error {
 fn validate_parent(
   connection: sqlight.Connection,
   parent_id: option.Option(product.Id),
-) -> Result(validated_parent_product_id.T, validate_parent_product_port.Error) {
+) -> Result(
+  option.Option(validated_parent_product_id.T),
+  validate_parent_product_port.Error,
+) {
   case parent_id {
     None -> {
       // No parent is always valid
-      validated_parent_product_id.new(None)
-      |> result.map_error(fn(_) { validate_parent_product_port.DatabaseFailure })
+      Ok(None)
     }
     Some(product_id) -> {
       // Verify parent exists
@@ -43,12 +45,7 @@ fn validate_parent(
 
       case total == 0 {
         True -> Error(validate_parent_product_port.ParentProductNotFound)
-        False -> {
-          validated_parent_product_id.new(Some(product_id))
-          |> result.map_error(fn(_) {
-            validate_parent_product_port.DatabaseFailure
-          })
-        }
+        False -> Ok(Some(validated_parent_product_id.new(product_id)))
       }
     }
   }
