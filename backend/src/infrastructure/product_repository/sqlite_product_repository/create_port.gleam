@@ -1,7 +1,7 @@
 import application/ports/products/create as create_product_port
 import domain/basics/uuid
-import domain/product
-import domain/product_name
+import domain/products/product
+import domain/products/product_name
 import gleam/dynamic/decode
 import gleam/option.{type Option}
 import gleam/result

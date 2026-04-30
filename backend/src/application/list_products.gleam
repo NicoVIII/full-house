@@ -1,7 +1,7 @@
 import application/page_limit
 import application/page_offset
 import application/ports/products/list as product_list_port
-import domain/product
+import domain/products/product
 import gleam/result
 
 pub type ListProductsResult {

@@ -1,4 +1,4 @@
-import domain/validated_parent_product_id
+import domain/products/creation/validated_parent_id
 
 /// Business rules for product creation:
 /// Parent product (if provided) must exist.
@@ -17,7 +17,7 @@ pub type Decision {
 /// Decide whether a product can be created based on validated parent.
 /// Since the parent has been validated (via port), this is a simple pass-through.
 /// Provided for consistency with deletion policy and future extension.
-pub fn decide(parent: validated_parent_product_id.T) -> Decision {
+pub fn decide(parent: validated_parent_id.T) -> Decision {
   case parent {
     _ -> CanCreate
   }
@@ -26,7 +26,7 @@ pub fn decide(parent: validated_parent_product_id.T) -> Decision {
 /// Check whether a product can be created.
 /// Returns Ok(Nil) if all creation preconditions are met.
 pub fn can_create(
-  parent: validated_parent_product_id.T,
+  parent: validated_parent_id.T,
 ) -> Result(Nil, CreationBlocker) {
   case decide(parent) {
     CanCreate -> Ok(Nil)

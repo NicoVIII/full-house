@@ -3,7 +3,7 @@ import application/ports/products/delete as delete_product_port
 import application/ports/products/deletion_references as deletion_references_port
 import domain/basics/uuid
 import domain/commands/delete_product_command
-import domain/product
+import domain/products/product
 import driver/http/handler_helpers
 import gleam/http
 import gleam/json

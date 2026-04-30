@@ -5,7 +5,7 @@
 /// This module encodes the core invariants as a pure domain policy.
 /// It is called early in the application layer (before persistence) to prevent
 /// deletion attempts that violate the rules.
-import domain/product_deletion_references
+import domain/products/deletion/references as product_deletion_references
 
 pub type Blocker {
   HasStockItems(count: Int)

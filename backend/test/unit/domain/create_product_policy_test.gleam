@@ -1,5 +1,5 @@
-import domain/create_product_policy
-import domain/validated_parent_product_id
+import domain/products/creation/policy as create_product_policy
+import domain/products/creation/validated_parent_id as validated_parent_product_id
 import gleam/option.{None}
 import gleeunit/should
 

@@ -1,5 +1,5 @@
 import application/ports/products/delete as delete_product_port
-import domain/product
+import domain/products/product
 import gleam/dynamic/decode
 import gleam/result
 import infrastructure/product_repository/sqlite_product_repository/shared

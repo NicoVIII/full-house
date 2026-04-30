@@ -2,8 +2,8 @@ import application/page_limit
 import application/page_offset
 import application/ports/products/list as list_product_port
 import domain/basics/uuid
-import domain/product
-import domain/product_name
+import domain/products/product
+import domain/products/product_name
 import gleam/dynamic/decode
 import gleam/int
 import gleam/list

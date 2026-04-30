@@ -1,7 +1,7 @@
 import application/create_product
 import domain/basics/uuid
-import domain/product
-import domain/product_name
+import domain/products/product
+import domain/products/product_name
 import gleam/json
 import gleam/option.{None, Some}
 

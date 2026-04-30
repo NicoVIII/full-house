@@ -1,5 +1,5 @@
-import domain/product
-import domain/product_deletion_references
+import domain/products/deletion/references
+import domain/products/product
 
 pub type Error {
   DatabaseFailure
@@ -7,5 +7,5 @@ pub type Error {
 }
 
 pub type T {
-  T(load: fn(product.Id) -> Result(product_deletion_references.T, Error))
+  T(load: fn(product.Id) -> Result(references.T, Error))
 }

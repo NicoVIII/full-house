@@ -2,7 +2,7 @@ import application/page_limit
 import application/page_offset
 import application/ports/stock_repository
 import domain/basics/uuid
-import domain/product
+import domain/products/product
 import gleam/dynamic/decode
 import gleam/list
 import gleam/result

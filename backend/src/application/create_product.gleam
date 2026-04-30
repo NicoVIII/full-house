@@ -2,9 +2,9 @@ import application/ports/products/create as create_product_port
 import application/ports/products/validate_parent_product as validate_parent_product_port
 import domain/basics/uuid
 import domain/commands/create_product_command
-import domain/create_product_policy
-import domain/product
-import domain/validated_parent_product_id
+import domain/products/creation/policy as create_product_policy
+import domain/products/creation/validated_parent_id as validated_parent_product_id
+import domain/products/product
 import gleam/result
 
 pub type CreateProductResult {

@@ -1,6 +1,6 @@
 import application/ports/products/deletion_references as deletion_references_port
-import domain/product
-import domain/product_deletion_references
+import domain/products/deletion/references as product_deletion_references
+import domain/products/product
 import gleam/result
 import infrastructure/product_repository/sqlite_product_repository/shared
 import sqlight

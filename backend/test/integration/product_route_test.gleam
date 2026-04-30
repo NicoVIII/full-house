@@ -6,10 +6,10 @@ import application/ports/products/deletion_references as deletion_references_por
 import application/ports/products/list as list_product_port
 import application/ports/products/validate_parent_product as validate_parent_product_port
 import domain/basics/uuid
-import domain/product
-import domain/product_deletion_references
-import domain/product_name
-import domain/validated_parent_product_id
+import domain/products/creation/validated_parent_id as validated_parent_product_id
+import domain/products/deletion/references as product_deletion_references
+import domain/products/product
+import domain/products/product_name
 import driver/http/products/handler
 import driver/http/router
 import gleam/http

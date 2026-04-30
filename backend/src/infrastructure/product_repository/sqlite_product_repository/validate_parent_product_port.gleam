@@ -1,6 +1,6 @@
 import application/ports/products/validate_parent_product as validate_parent_product_port
-import domain/product
-import domain/validated_parent_product_id
+import domain/products/creation/validated_parent_id as validated_parent_product_id
+import domain/products/product
 import gleam/option.{None, Some}
 import gleam/result
 import infrastructure/product_repository/sqlite_product_repository/shared

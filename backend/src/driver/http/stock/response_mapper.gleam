@@ -3,7 +3,7 @@ import application/page_limit
 import application/page_offset
 import application/ports/stock_repository
 import domain/basics/uuid
-import domain/product
+import domain/products/product
 import gleam/json
 
 fn map_stock_summary(summary: stock_repository.StockSummary) -> json.Json {

@@ -1,6 +1,6 @@
 import application/page_limit
 import application/page_offset
-import domain/product
+import domain/products/product
 
 pub type Error {
   DatabaseFailure

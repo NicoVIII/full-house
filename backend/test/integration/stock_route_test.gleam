@@ -2,7 +2,7 @@ import application/page_limit
 import application/page_offset
 import application/ports/stock_repository
 import domain/basics/uuid
-import domain/product
+import domain/products/product
 import driver/http/router
 import driver/http/stock/handler
 import gleam/http

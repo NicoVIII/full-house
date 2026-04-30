@@ -1,5 +1,5 @@
-import domain/product_deletion_policy
-import domain/product_deletion_references
+import domain/products/deletion/policy as product_deletion_policy
+import domain/products/deletion/references as product_deletion_references
 import gleeunit/should
 
 pub fn decide_with_no_references_returns_can_delete_test() {

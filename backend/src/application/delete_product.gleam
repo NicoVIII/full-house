@@ -1,8 +1,8 @@
 import application/ports/products/delete as delete_product_port
 import application/ports/products/deletion_references as deletion_references_port
 import domain/commands/delete_product_command
-import domain/product
-import domain/product_deletion_policy
+import domain/products/deletion/policy as product_deletion_policy
+import domain/products/product
 import gleam/result
 
 pub type Error {

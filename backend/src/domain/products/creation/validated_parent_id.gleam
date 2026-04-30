@@ -1,4 +1,4 @@
-import domain/product
+import domain/products/product
 import gleam/option.{type Option}
 
 /// Validated parent product ID — guarantees the parent exists (if Some) or is None.

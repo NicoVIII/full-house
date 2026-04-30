@@ -1,5 +1,5 @@
 import domain/basics/uuid
-import domain/product
+import domain/products/product
 import gleam/dynamic/decode
 
 pub fn total_decoder() -> decode.Decoder(Int) {

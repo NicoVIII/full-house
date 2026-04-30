@@ -1,4 +1,4 @@
-import domain/product
+import domain/products/product
 
 pub type Error {
   DatabaseFailure

@@ -1,5 +1,5 @@
 import domain/basics/uuid
-import domain/product
+import domain/products/product
 
 /// Represents one physical inventory unit.
 pub type T {
