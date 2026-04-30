@@ -36,8 +36,16 @@ def run(
     *,
     env: dict[str, str] | None = None,
     input_text: str | None = None,
+    cwd: Path | None = None,
 ) -> None:
-    subprocess.run(command, check=True, env=env, text=True, input=input_text)
+    subprocess.run(
+        command,
+        check=True,
+        env=env,
+        text=True,
+        input=input_text,
+        cwd=str(cwd) if cwd is not None else None,
+    )
 
 
 def ensure_dbmate() -> None:
@@ -94,6 +102,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     repo_root = resolve_repo_root()
+    backend_dir = repo_root / "backend"
 
     db_path = Path(
         args.db_path
@@ -101,8 +110,8 @@ def main() -> int:
         or resolve_default_db_path(repo_root)
     ).expanduser()
 
-    migrations_dir = repo_root / "backend" / "db" / "migrations"
-    dev_seed_file = repo_root / "backend" / "db" / "seeds" / "dev" / "dev_seed.sql"
+    migrations_dir = backend_dir / "db" / "migrations"
+    dev_seed_file = backend_dir / "db" / "seeds" / "dev" / "dev_seed.sql"
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -112,7 +121,11 @@ def main() -> int:
     env = dict(os.environ)
     env["DATABASE_URL"] = f"sqlite:{db_path}"
 
-    run(["dbmate", "--migrations-dir", str(migrations_dir), "up"], env=env)
+    run(
+        ["dbmate", "--migrations-dir", str(migrations_dir), "up"],
+        env=env,
+        cwd=backend_dir,
+    )
 
     if args.seed:
         run(
