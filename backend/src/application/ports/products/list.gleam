@@ -1,6 +1,7 @@
 import application/page_limit
 import application/page_offset
 import domain/products/product
+import gleam/option.{type Option}
 
 pub type Error {
   DatabaseFailure
@@ -12,7 +13,11 @@ pub type ListResult {
 }
 
 pub type Params {
-  Params(offset: page_offset.T, limit: page_limit.T)
+  Params(
+    offset: page_offset.T,
+    limit: page_limit.T,
+    parent_product_id: Option(product.Id),
+  )
 }
 
 pub type T {

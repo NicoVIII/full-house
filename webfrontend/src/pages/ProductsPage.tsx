@@ -1,8 +1,8 @@
 import { createInfiniteQuery, type InfiniteData, useQueryClient } from '@tanstack/solid-query';
 import Box from '@suid/material/Box';
 import type { Component } from 'solid-js';
-import { createMemo } from 'solid-js';
-import { deleteProduct, fetchProducts, type Product, type ProductListResponse } from '../api/products';
+import { createEffect, createMemo } from 'solid-js';
+import { fetchProducts, type Product, type ProductListResponse } from '../api/products';
 import CreateProductDialog from '../components/CreateProductDialog';
 import ProductsHero from '../components/ProductsHero';
 import ProductsPanel from '../components/ProductsPanel';
@@ -38,23 +38,21 @@ const ProductsPage: Component = () => {
         flattenPaginatedItems<Product, ProductListResponse>(productsQuery.data),
     );
     const total = createMemo(() => readPaginatedTotal(productsQuery.data));
+    const productsById = createMemo(() => new Map(products().map((product) => [product.id, product])));
+
+    createEffect(() => {
+        products().forEach((product) => {
+            queryClient.setQueryData(
+                ['products', 'detail', product.id],
+                { data: product },
+            );
+        });
+    });
 
     const handleProductCreated = async () => {
         await queryClient.invalidateQueries({
             queryKey: ['products', 'infinite'],
         });
-    };
-
-    const handleProductDeleted = async (productId: string) => {
-        try {
-            await deleteProduct(productId);
-            await queryClient.invalidateQueries({
-                queryKey: ['products', 'infinite'],
-            });
-        } catch (error) {
-            console.error('Delete failed:', error);
-            throw error;
-        }
     };
 
     return (
@@ -70,7 +68,7 @@ const ProductsPage: Component = () => {
                 isFetchingNextPage={productsQuery.isFetchingNextPage}
                 isPending={productsQuery.isPending}
                 onLoadMore={() => void productsQuery.fetchNextPage()}
-                onProductDelete={handleProductDeleted}
+                productsById={productsById()}
                 products={products()}
                 total={total()}
             />

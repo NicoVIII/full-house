@@ -7,6 +7,7 @@ import CssBaseline from '@suid/material/CssBaseline';
 
 import App from './App';
 import { attachDevtoolsOverlay } from '@solid-devtools/overlay';
+import ProductDetailPage from './pages/ProductDetailPage';
 import ProductsPage from './pages/ProductsPage';
 import StockPage from './pages/StockPage';
 
@@ -26,6 +27,7 @@ render(
       <CssBaseline />
       <Router root={App}>
         <Route component={() => <Navigate href="/products" />} path="/" />
+        <Route component={ProductDetailPage} path="/products/:productId" />
         <Route component={ProductsPage} path="/products" />
         <Route component={StockPage} path="/stock" />
       </Router>

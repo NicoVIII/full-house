@@ -3,7 +3,9 @@ import application/page_offset
 import application/ports/products/create as create_product_port
 import application/ports/products/delete as delete_product_port
 import application/ports/products/deletion_references as deletion_references_port
+import application/ports/products/get as get_product_port
 import application/ports/products/list as list_product_port
+import application/ports/products/list_child_ids as list_child_ids_port
 import application/ports/products/validate_parent_product as validate_parent_product_port
 import domain/basics/uuid
 import domain/products/creation/validated_parent_id as validated_parent_product_id
@@ -32,24 +34,53 @@ fn make_product(value: String, name: String) -> product.T {
   )
 }
 
+fn make_child_product(
+  value: String,
+  name: String,
+  parent_id: product.Id,
+) -> product.T {
+  product.Product(
+    id: product_id(value),
+    name: product_name.new_exn(name),
+    parent_product_id: Some(parent_id),
+  )
+}
+
 fn list_products_mock(
   params: list_product_port.Params,
 ) -> Result(list_product_port.ListResult, list_product_port.Error) {
-  let list_product_port.Params(offset:, limit:) = params
+  let list_product_port.Params(offset:, limit:, parent_product_id:) = params
 
+  let latte_id = product_id("018f4e1a-0000-7000-8000-000000000002")
   let product_1 =
     make_product("018f4e1a-0000-7000-8000-000000000001", "Espresso")
   let product_2 = make_product("018f4e1a-0000-7000-8000-000000000002", "Latte")
   let product_3 =
-    make_product("018f4e1a-0000-7000-8000-000000000003", "Cappuccino")
+    make_child_product(
+      "018f4e1a-0000-7000-8000-000000000003",
+      "Cappuccino",
+      latte_id,
+    )
+  let product_4 =
+    make_child_product(
+      "018f4e1a-0000-7000-8000-000000000004",
+      "Mocha Latte",
+      latte_id,
+    )
 
-  let all = [product_1, product_2, product_3]
+  let all_products = [product_1, product_2, product_3, product_4]
+  let filtered = case parent_product_id {
+    None -> all_products
+    Some(parent_id) ->
+      all_products
+      |> list.filter(fn(item) { item.parent_product_id == Some(parent_id) })
+  }
   let items =
-    all
+    filtered
     |> list.drop(page_offset.value(offset))
     |> list.take(page_limit.value(limit))
 
-  Ok(list_product_port.ListResult(items: items, total: 3))
+  Ok(list_product_port.ListResult(items: items, total: list.length(filtered)))
 }
 
 fn create_product_mock(
@@ -65,6 +96,35 @@ fn create_product_mock(
 
 fn list_repository() -> list_product_port.T {
   list_product_port.T(list: list_products_mock)
+}
+
+fn get_product_mock(
+  target_id: product.Id,
+) -> Result(product.T, get_product_port.Error) {
+  let latte_id = product_id("018f4e1a-0000-7000-8000-000000000002")
+  let all_products = [
+    make_product("018f4e1a-0000-7000-8000-000000000001", "Espresso"),
+    make_product("018f4e1a-0000-7000-8000-000000000002", "Latte"),
+    make_child_product(
+      "018f4e1a-0000-7000-8000-000000000003",
+      "Cappuccino",
+      latte_id,
+    ),
+    make_child_product(
+      "018f4e1a-0000-7000-8000-000000000004",
+      "Mocha Latte",
+      latte_id,
+    ),
+  ]
+
+  case list.find(all_products, fn(item) { item.id == target_id }) {
+    Ok(found_product) -> Ok(found_product)
+    Error(_) -> Error(get_product_port.ProductNotFound)
+  }
+}
+
+fn get_repository() -> get_product_port.T {
+  get_product_port.T(get: get_product_mock)
 }
 
 fn create_repository() -> create_product_port.T {
@@ -127,32 +187,91 @@ fn validate_parent_product_mock(
   }
 }
 
+fn list_child_ids_mock(
+  _product_id: product.Id,
+) -> Result(List(String), list_child_ids_port.Error) {
+  Ok([])
+}
+
+fn child_ids_repository() -> list_child_ids_port.T {
+  list_child_ids_port.T(load: list_child_ids_mock)
+}
+
 fn validate_parent_repository() -> validate_parent_product_port.T {
   validate_parent_product_port.T(validate: validate_parent_product_mock)
 }
 
 fn app_handler() -> fn(wisp.Request) -> wisp.Response {
+  let get_repo = get_repository()
   let list_repo = list_repository()
   let validate_parent_repo = validate_parent_repository()
   let create_repo = create_repository()
   let deletion_references_repo = deletion_references_repository()
   let delete_repo = delete_repository()
+  let child_ids_repo = child_ids_repository()
   let routes =
     router.Routes(
       products: fn(request) {
         handler.handle(
           request,
+          get_repo,
           list_repo,
           validate_parent_repo,
           create_repo,
           deletion_references_repo,
           delete_repo,
+          child_ids_repo,
         )
       },
       stock: fn(_) { wisp.not_found() },
     )
 
   fn(request) { router.handle_request(request, routes) }
+}
+
+pub fn product_detail_route_returns_product_json_test() {
+  let request =
+    simulate.request(
+      http.Get,
+      "/api/v1/products/018f4e1a-0000-7000-8000-000000000003",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 200
+  assert string.contains(body, "\"name\":\"Cappuccino\"")
+  assert string.contains(
+    body,
+    "\"parent_product_id\":\"018f4e1a-0000-7000-8000-000000000002\"",
+  )
+}
+
+pub fn product_detail_route_rejects_invalid_product_id_test() {
+  let request = simulate.request(http.Get, "/api/v1/products/not-a-uuid")
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 400
+  assert string.contains(
+    body,
+    "\"message\":\"product id must be a valid UUID\"",
+  )
+}
+
+pub fn product_detail_route_returns_not_found_test() {
+  let request =
+    simulate.request(
+      http.Get,
+      "/api/v1/products/018f4e1a-0000-7000-8000-000000000099",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 404
+  assert string.contains(body, "\"message\":\"product not found\"")
 }
 
 pub fn products_route_returns_paginated_json_test() {
@@ -162,7 +281,7 @@ pub fn products_route_returns_paginated_json_test() {
   let body = simulate.read_body(response)
 
   assert response.status == 200
-  assert string.contains(body, "\"total\":3")
+  assert string.contains(body, "\"total\":4")
   assert string.contains(body, "\"limit\":2")
   assert string.contains(body, "\"offset\":0")
   assert string.contains(body, "\"name\":\"Espresso\"")
@@ -175,10 +294,42 @@ pub fn products_route_uses_offset_param_test() {
   let body = simulate.read_body(response)
 
   assert response.status == 200
-  assert string.contains(body, "\"total\":3")
+  assert string.contains(body, "\"total\":4")
   assert string.contains(body, "\"offset\":1")
   assert string.contains(body, "\"limit\":1")
   assert string.contains(body, "\"name\":\"Latte\"")
+}
+
+pub fn products_route_filters_by_parent_product_id_test() {
+  let request =
+    simulate.request(
+      http.Get,
+      "/api/v1/products?parent_product_id=018f4e1a-0000-7000-8000-000000000002",
+    )
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 200
+  assert string.contains(body, "\"total\":2")
+  assert string.contains(body, "\"name\":\"Cappuccino\"")
+  assert string.contains(body, "\"name\":\"Mocha Latte\"")
+  assert !string.contains(body, "\"name\":\"Espresso\"")
+}
+
+pub fn products_route_rejects_invalid_parent_product_id_filter_test() {
+  let request =
+    simulate.request(http.Get, "/api/v1/products?parent_product_id=not-a-uuid")
+
+  let response = app_handler()(request)
+  let body = simulate.read_body(response)
+
+  assert response.status == 400
+  assert string.contains(body, "\"error\":\"invalid_parameter\"")
+  assert string.contains(
+    body,
+    "\"message\":\"parent_product_id must be a valid UUID\"",
+  )
 }
 
 pub fn products_route_rejects_invalid_limit_test() {

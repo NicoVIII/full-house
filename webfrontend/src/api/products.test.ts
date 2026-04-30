@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createProduct, deleteProduct, fetchProducts } from '../api/products';
+import { createProduct, deleteProduct, fetchProduct, fetchProducts } from '../api/products';
 
 describe('fetchProducts', () => {
     beforeEach(() => {
@@ -8,7 +8,7 @@ describe('fetchProducts', () => {
 
     it('fetches products with correct offset and limit', async () => {
         const mockResponse = {
-            data: [{ id: '1', name: 'Product 1', parent_product_id: null }],
+            data: [{ id: '1', name: 'Product 1', parent_product_id: null, child_product_ids: [] }],
             total: 1,
             offset: 0,
             limit: 10,
@@ -62,6 +62,67 @@ describe('fetchProducts', () => {
 
         expect(global.fetch).toHaveBeenCalledWith('/api/v1/products?offset=20&limit=5');
     });
+
+    it('includes parent_product_id filter when provided', async () => {
+        const mockResponse = {
+            data: [{ id: '2', name: 'Child Product', parent_product_id: 'parent-1', child_product_ids: [] }],
+            total: 1,
+            offset: 0,
+            limit: 10,
+        };
+
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve(mockResponse),
+            } as Response),
+        );
+
+        await fetchProducts({ offset: 0, limit: 10, parent_product_id: 'parent-1' });
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/api/v1/products?offset=0&limit=10&parent_product_id=parent-1',
+        );
+    });
+});
+
+describe('fetchProduct', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('fetches a single product by id', async () => {
+        const mockResponse = {
+            data: { id: '1', name: 'Latte', parent_product_id: null, child_product_ids: [] },
+        };
+
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve(mockResponse),
+            } as Response),
+        );
+
+        const result = await fetchProduct('1');
+
+        expect(result).toEqual(mockResponse);
+        expect(global.fetch).toHaveBeenCalledWith('/api/v1/products/1');
+    });
+
+    it('surfaces backend detail error messages', async () => {
+        // eslint-disable-next-line functional/immutable-data
+        global.fetch = vi.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 404,
+                json: () => Promise.resolve({ message: 'product not found' }),
+            } as Response),
+        );
+
+        await expect(fetchProduct('missing')).rejects.toThrow('product not found');
+    });
 });
 
 describe('createProduct', () => {
@@ -71,7 +132,7 @@ describe('createProduct', () => {
 
     it('creates a product with optional parent_product_id', async () => {
         const mockResponse = {
-            data: { id: '1', name: 'Pour Over', parent_product_id: null },
+            data: { id: '1', name: 'Pour Over', parent_product_id: null, child_product_ids: [] },
         };
 
         // eslint-disable-next-line functional/immutable-data

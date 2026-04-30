@@ -1,34 +1,35 @@
 import application/list_products
 import application/page_limit
 import application/page_offset
-import domain/basics/uuid
+import application/ports/products/list_child_ids as list_child_ids_port
 import domain/products/product
-import domain/products/product_name
+import driver/http/products/product_json
 import gleam/json
-import gleam/option.{None, Some}
 
-fn map_product(p: product.T) -> json.Json {
-  let product.ProductId(uid) = p.id
-  let parent_id_json = case p.parent_product_id {
-    None -> json.null()
-    Some(product.ProductId(parent_uid)) -> json.string(uuid.value(parent_uid))
+fn map_product_with_children(
+  child_ids_repo: list_child_ids_port.T,
+  p: product.T,
+) -> json.Json {
+  let child_ids = case child_ids_repo.load(p.id) {
+    Ok(ids) -> ids
+    Error(_) -> []
   }
 
-  json.object([
-    #("id", json.string(uuid.value(uid))),
-    #("name", json.string(product_name.value(p.name))),
-    #("parent_product_id", parent_id_json),
-  ])
+  product_json.map_product_with_children(p, child_ids)
 }
 
-fn map_product_list(products: List(product.T)) -> json.Json {
-  json.array(products, map_product)
+fn map_product_list(
+  child_ids_repo: list_child_ids_port.T,
+  products: List(product.T),
+) -> json.Json {
+  json.array(products, fn(p) { map_product_with_children(child_ids_repo, p) })
 }
 
 pub fn map_list_products_response(
   result: list_products.ListProductsResult,
+  child_ids_repo: list_child_ids_port.T,
 ) -> String {
-  let data_json = map_product_list(result.data)
+  let data_json = map_product_list(child_ids_repo, result.data)
 
   json.object([
     #("data", data_json),

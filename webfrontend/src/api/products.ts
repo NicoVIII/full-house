@@ -2,6 +2,7 @@ export type Product = Readonly<{
     id: string;
     name: string;
     parent_product_id: string | null;
+    child_product_ids: string[];
 }>;
 
 export type ProductListResponse = Readonly<{
@@ -11,9 +12,14 @@ export type ProductListResponse = Readonly<{
     limit: number;
 }>;
 
+export type ProductResponse = Readonly<{
+    data: Product;
+}>;
+
 type FetchProductsParams = Readonly<{
     offset: number;
     limit: number;
+    parent_product_id?: string | null;
 }>;
 
 export type CreateProductRequest = Readonly<{
@@ -51,18 +57,33 @@ async function readApiErrorMessage(
 export async function fetchProducts({
     offset,
     limit,
+    parent_product_id,
 }: FetchProductsParams): Promise<ProductListResponse> {
     const searchParams = new URLSearchParams({
         offset: String(offset),
         limit: String(limit),
+        ...(parent_product_id != null ? { parent_product_id } : {}),
     });
+
     const response = await fetch(`/api/v1/products?${searchParams.toString()}`);
 
     if (!response.ok) {
-        throw new Error(`Products request failed with status ${String(response.status)}`);
+        const defaultMessage = `Products request failed with status ${String(response.status)}`;
+        throw new Error(await readApiErrorMessage(response, defaultMessage));
     }
 
     return (await response.json()) as ProductListResponse;
+}
+
+export async function fetchProduct(productId: string): Promise<ProductResponse> {
+    const response = await fetch(`/api/v1/products/${productId}`);
+
+    if (!response.ok) {
+        const defaultMessage = `Product request failed with status ${String(response.status)}`;
+        throw new Error(await readApiErrorMessage(response, defaultMessage));
+    }
+
+    return (await response.json()) as ProductResponse;
 }
 
 export async function createProduct({
