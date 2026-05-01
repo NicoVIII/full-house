@@ -1,5 +1,5 @@
-import application/list_stock
-import application/ports/stock_repository
+import application/queries/list_stock
+import application/queries/ports/stock_repository
 import driver/http/handler_helpers
 import driver/http/pagination_request_mapper
 import driver/http/stock/response_mapper

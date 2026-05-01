@@ -1,5 +1,5 @@
-import application/ports/products/create as create_product_port
-import application/ports/products/validate_parent_product as validate_parent_product_port
+import application/commands/ports/create as create_product_port
+import application/commands/ports/validate_parent_product as validate_parent_product_port
 import domain/basics/uuid
 import domain/products/creation/command as create_product_command
 import domain/products/creation/policy as create_product_policy

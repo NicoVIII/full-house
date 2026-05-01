@@ -1,4 +1,4 @@
-import application/create_product
+import application/commands/create_product
 import driver/http/products/product_json
 import gleam/json
 

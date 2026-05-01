@@ -1,6 +1,6 @@
-import application/page_limit
-import application/page_offset
-import application/ports/products/list as product_list_port
+import application/queries/page_limit
+import application/queries/page_offset
+import application/queries/ports/list as product_list_port
 import domain/products/product
 import gleam/option.{type Option}
 import gleam/result

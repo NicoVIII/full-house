@@ -1,11 +1,11 @@
-import application/page_limit
-import application/page_offset
-import application/ports/products/create as create_product_port
-import application/ports/products/delete as delete_product_port
-import application/ports/products/deletion_references as deletion_references_port
-import application/ports/products/get as get_product_port
-import application/ports/products/list as list_product_port
-import application/ports/products/validate_parent_product as validate_parent_product_port
+import application/commands/ports/create as create_product_port
+import application/commands/ports/delete as delete_product_port
+import application/commands/ports/deletion_references as deletion_references_port
+import application/commands/ports/validate_parent_product as validate_parent_product_port
+import application/queries/page_limit
+import application/queries/page_offset
+import application/queries/ports/get as get_product_port
+import application/queries/ports/list as list_product_port
 import domain/basics/uuid
 import domain/products/creation/validated_parent_id as validated_parent_product_id
 import domain/products/deletion/references as product_deletion_references

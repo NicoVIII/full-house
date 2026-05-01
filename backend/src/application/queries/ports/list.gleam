@@ -1,5 +1,5 @@
-import application/page_limit
-import application/page_offset
+import application/queries/page_limit
+import application/queries/page_offset
 import domain/products/product
 import gleam/option.{type Option}
 

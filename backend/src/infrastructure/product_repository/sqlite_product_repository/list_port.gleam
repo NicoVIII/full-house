@@ -1,6 +1,6 @@
-import application/page_limit
-import application/page_offset
-import application/ports/products/list as list_product_port
+import application/queries/page_limit
+import application/queries/page_offset
+import application/queries/ports/list as list_product_port
 import domain/basics/uuid
 import domain/products/product
 import domain/products/product_name

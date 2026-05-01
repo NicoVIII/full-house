@@ -1,5 +1,5 @@
-import application/ports/products/delete as delete_product_port
-import application/ports/products/deletion_references as deletion_references_port
+import application/commands/ports/delete as delete_product_port
+import application/commands/ports/deletion_references as deletion_references_port
 import domain/products/deletion/command as delete_product_command
 import domain/products/deletion/policy as product_deletion_policy
 import domain/products/product

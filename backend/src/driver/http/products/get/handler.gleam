@@ -1,6 +1,6 @@
-import application/get_product
-import application/ports/products/get as get_product_port
-import application/ports/products/list_child_ids as list_child_ids_port
+import application/queries/get_product
+import application/queries/ports/get as get_product_port
+import application/queries/ports/list_child_ids as list_child_ids_port
 import domain/basics/uuid
 import domain/products/product
 import driver/http/handler_helpers

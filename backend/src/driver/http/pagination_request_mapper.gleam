@@ -1,5 +1,5 @@
-import application/page_limit
-import application/page_offset
+import application/queries/page_limit
+import application/queries/page_offset
 import gleam/int
 import gleam/list
 import gleam/result

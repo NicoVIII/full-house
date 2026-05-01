@@ -1,6 +1,6 @@
-import application/delete_product
-import application/ports/products/delete as delete_product_port
-import application/ports/products/deletion_references as deletion_references_port
+import application/commands/delete_product
+import application/commands/ports/delete as delete_product_port
+import application/commands/ports/deletion_references as deletion_references_port
 import domain/basics/uuid
 import domain/products/deletion/command as delete_product_command
 import domain/products/product

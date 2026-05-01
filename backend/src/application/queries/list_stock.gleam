@@ -1,6 +1,6 @@
-import application/page_limit
-import application/page_offset
-import application/ports/stock_repository
+import application/queries/page_limit
+import application/queries/page_offset
+import application/queries/ports/stock_repository
 import gleam/result
 
 pub type ListStockResult {

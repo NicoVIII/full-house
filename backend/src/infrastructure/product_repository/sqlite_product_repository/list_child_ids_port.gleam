@@ -1,4 +1,4 @@
-import application/ports/products/list_child_ids as list_child_ids_port
+import application/queries/ports/list_child_ids as list_child_ids_port
 import domain/products/product
 import gleam/dynamic/decode
 import gleam/result

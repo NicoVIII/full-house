@@ -1,4 +1,4 @@
-import application/ports/products/delete as delete_product_port
+import application/commands/ports/delete as delete_product_port
 import domain/products/product
 import gleam/dynamic/decode
 import gleam/result

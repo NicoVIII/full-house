@@ -1,4 +1,4 @@
-import application/ports/products/get as get_product_port
+import application/queries/ports/get as get_product_port
 import domain/basics/uuid
 import domain/products/product
 import domain/products/product_name

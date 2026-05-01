@@ -1,6 +1,6 @@
-import application/list_products
-import application/ports/products/list as product_list_port
-import application/ports/products/list_child_ids as list_child_ids_port
+import application/queries/list_products
+import application/queries/ports/list as product_list_port
+import application/queries/ports/list_child_ids as list_child_ids_port
 import driver/http/handler_helpers
 import driver/http/products/list/request_mapper
 import driver/http/products/list/response_mapper

@@ -1,7 +1,7 @@
-import application/list_products
-import application/page_limit
-import application/page_offset
-import application/ports/products/list_child_ids as list_child_ids_port
+import application/queries/list_products
+import application/queries/page_limit
+import application/queries/page_offset
+import application/queries/ports/list_child_ids as list_child_ids_port
 import domain/products/product
 import driver/http/products/product_json
 import gleam/json

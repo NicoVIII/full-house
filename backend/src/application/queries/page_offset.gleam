@@ -1,4 +1,4 @@
-import application/page_limit
+import application/queries/page_limit
 
 pub opaque type T {
   Offset(value: Int)

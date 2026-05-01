@@ -1,4 +1,4 @@
-import application/ports/products/create as create_product_port
+import application/commands/ports/create as create_product_port
 import domain/basics/uuid
 import domain/products/product
 import domain/products/product_name

@@ -1,4 +1,4 @@
-import application/ports/products/deletion_references as deletion_references_port
+import application/commands/ports/deletion_references as deletion_references_port
 import domain/products/deletion/references as product_deletion_references
 import domain/products/product
 import gleam/result
