@@ -1,46 +1,12 @@
 import application/commands/delete_product
-import application/commands/ports/delete as delete_product_port
-import application/commands/ports/deletion_references as deletion_references_port
-import domain/basics/uuid
-import domain/products/deletion/command as delete_product_command
-import domain/products/product
+import application/shared/infrastructure_error
+import common/product_id
+import domain/basics/non_empty_set
+import domain/products/deletable_product_id
 import driver/http/handler_helpers
-import gleam/http
 import gleam/json
+import gleam/list
 import wisp
-
-pub fn handle(
-  request: wisp.Request,
-  references_repo: deletion_references_port.T,
-  delete_repo: delete_product_port.T,
-) -> wisp.Response {
-  use <- wisp.require_method(request, http.Delete)
-
-  case wisp.path_segments(request) {
-    ["api", "v1", "products", id_raw] ->
-      handle_delete(id_raw, references_repo, delete_repo)
-    _ -> wisp.not_found()
-  }
-}
-
-fn handle_delete(
-  id_raw: String,
-  references_repo: deletion_references_port.T,
-  delete_repo: delete_product_port.T,
-) -> wisp.Response {
-  case uuid.new(id_raw) {
-    Error(_) -> handler_helpers.bad_request("product id must be a valid UUID")
-    Ok(uid) -> {
-      let product_id = product.ProductId(uid)
-      let command = delete_product_command.Command(product_id: product_id)
-
-      case delete_product.execute(references_repo, delete_repo, command) {
-        Ok(Nil) -> wisp.response(204)
-        Error(error) -> error_response(error)
-      }
-    }
-  }
-}
 
 fn error_response(error: delete_product.Error) -> wisp.Response {
   case error {
@@ -54,32 +20,46 @@ fn error_response(error: delete_product.Error) -> wisp.Response {
         ),
         404,
       )
-    delete_product.ProductHasStockItems ->
+    delete_product.DomainError(domain_errors) ->
       wisp.json_response(
         json.to_string(
           json.object([
             #("error", json.string("conflict")),
             #(
-              "message",
-              json.string("cannot delete product with existing stock items"),
+              "messages",
+              json.array(
+                domain_errors
+                  |> non_empty_set.to_list
+                  |> list.map(fn(error) {
+                    case error {
+                      deletable_product_id.HasChildren ->
+                        "cannot delete product with child products"
+                      deletable_product_id.HasStockItems ->
+                        "cannot delete product with existing stock items"
+                    }
+                  }),
+                of: json.string,
+              ),
             ),
           ]),
         ),
         409,
       )
-    delete_product.ProductHasChildProducts ->
-      wisp.json_response(
-        json.to_string(
-          json.object([
-            #("error", json.string("conflict")),
-            #(
-              "message",
-              json.string("cannot delete product with existing child products"),
-            ),
-          ]),
-        ),
-        409,
-      )
-    delete_product.DatabaseFailure -> wisp.internal_server_error()
+    delete_product.InfrastructureError(infrastructure_error.DatabaseFailure) ->
+      wisp.internal_server_error()
+  }
+}
+
+pub fn handle(id_raw: String, ports: delete_product.Ports) -> wisp.Response {
+  use product_id <-
+    product_id.new(id_raw)
+    |> handler_helpers.on_error_value(handler_helpers.bad_request(
+      "product id is invalid",
+    ))
+  let command = delete_product.Command(id: product_id)
+
+  case delete_product.execute(command, ports) {
+    Ok(Nil) -> wisp.response(204)
+    Error(error) -> error_response(error)
   }
 }

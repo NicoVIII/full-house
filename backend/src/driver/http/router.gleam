@@ -1,16 +1,58 @@
+import composition
+import driver/http/products/create/handler as products_create_handler
+import driver/http/products/delete/handler as products_delete_handler
+import driver/http/products/get/handler as products_get_handler
+import driver/http/products/list/handler as products_list_handler
+import driver/http/stock_items/list/handler as stock_items_list_handler
+import gleam/http
 import wisp
 
-pub type Routes {
-  Routes(
-    products: fn(wisp.Request) -> wisp.Response,
-    stock: fn(wisp.Request) -> wisp.Response,
-  )
+fn products_route(
+  request: wisp.Request,
+  context: composition.AppContext,
+) -> wisp.Response {
+  case request.method {
+    http.Get ->
+      products_list_handler.handle(request, context.list_products_port)
+    http.Post ->
+      products_create_handler.handle(request, context.create_product_ports)
+    _ -> wisp.method_not_allowed(allowed: [http.Get, http.Post])
+  }
 }
 
-pub fn handle_request(request: wisp.Request, routes: Routes) -> wisp.Response {
+fn products_detail_route(
+  id_raw: String,
+  request: wisp.Request,
+  context: composition.AppContext,
+) -> wisp.Response {
+  case request.method {
+    http.Delete ->
+      products_delete_handler.handle(id_raw, context.delete_product_ports)
+    http.Get -> products_get_handler.handle(id_raw, context.get_product_port)
+    _ -> wisp.method_not_allowed(allowed: [http.Get, http.Delete])
+  }
+}
+
+fn stock_items_route(
+  request: wisp.Request,
+  context: composition.AppContext,
+) -> wisp.Response {
+  case request.method {
+    http.Get ->
+      stock_items_list_handler.handle(request, context.list_stock_items_port)
+    _ -> wisp.method_not_allowed(allowed: [http.Get])
+  }
+}
+
+pub fn handle_request(
+  request: wisp.Request,
+  context: composition.AppContext,
+) -> wisp.Response {
   case wisp.path_segments(request) {
-    ["api", "v1", "products", ..] -> routes.products(request)
-    ["api", "v1", "stock"] -> routes.stock(request)
+    ["api", "v1", "products"] -> products_route(request, context)
+    ["api", "v1", "products", id_raw] ->
+      products_detail_route(id_raw, request, context)
+    ["api", "v1", "stock_items"] -> stock_items_route(request, context)
     _ -> wisp.not_found()
   }
 }

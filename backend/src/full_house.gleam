@@ -1,5 +1,4 @@
-import composition/http/products_route
-import composition/http/stock_route
+import composition
 import driver/http/router
 import envoy
 import gleam/erlang/process
@@ -15,19 +14,22 @@ fn database_path() -> String {
   }
 }
 
+pub fn build_handler(
+  app_context: composition.AppContext,
+) -> fn(wisp.Request) -> wisp.Response {
+  fn(request) { router.handle_request(request, app_context) }
+}
+
 pub fn main() -> Nil {
   wisp.configure_logger()
 
+  // Prepare database connection
   let assert Ok(connection) = sqlight.open(database_path())
   let assert Ok(_) = sqlight.exec("pragma foreign_keys = on", on: connection)
-  let products_handler = products_route.compose(connection)
-  let stock_handler = stock_route.compose(connection)
-
-  let routes = router.Routes(products: products_handler, stock: stock_handler)
-  let handler = fn(request) { router.handle_request(request, routes) }
 
   let assert Ok(_) =
-    handler
+    composition.compose_app_context(connection)
+    |> build_handler
     // TODO: replace secret key base with env var
     |> wisp_mist.handler("development_secret_key_base_do_not_use_in_prod")
     |> mist.new

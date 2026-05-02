@@ -1,92 +1,68 @@
-import application/commands/ports/delete as delete_product_port
-import application/commands/ports/deletion_references as deletion_references_port
-import domain/products/deletion/command as delete_product_command
-import domain/products/deletion/policy as product_deletion_policy
+import application/shared/infrastructure_error
+import common/product_id
+import domain/basics/non_empty_set
+import domain/products/deletable_product_id
 import domain/products/product
 import gleam/result
 
+pub type LoadProductError {
+  LoadProductNotFound
+  LoadProductInfrastructureError(infrastructure_error.T)
+}
+
+pub type LoadProductPort =
+  fn(product_id.T) -> Result(product.T, LoadProductError)
+
+pub type DeletionProperties {
+  DeletionProperties(has_children: Bool, has_stock_items: Bool)
+}
+
+pub type DeletionPropertiesPort =
+  fn(product_id.T) -> Result(DeletionProperties, infrastructure_error.T)
+
+pub type DeletePort =
+  fn(deletable_product_id.T) -> Result(Nil, infrastructure_error.T)
+
+pub type Ports {
+  Ports(
+    get_deletion_properties: DeletionPropertiesPort,
+    delete: DeletePort,
+    load_product: LoadProductPort,
+  )
+}
+
+pub type Command {
+  Command(id: product_id.T)
+}
+
 pub type Error {
-  DatabaseFailure
   ProductNotFound
-  ProductHasStockItems
-  ProductHasChildProducts
+  DomainError(non_empty_set.T(deletable_product_id.DeletionError))
+  InfrastructureError(infrastructure_error.T)
 }
 
-/// Execute the delete product command.
-///
-/// Flow:
-/// 1. Load deletion reference facts
-/// 2. Apply domain deletion policy
-/// 3. If allowed, delegate to delete port
-/// 4. If a concurrent reference appears, re-check and map it explicitly
-pub fn execute(
-  references_repo: deletion_references_port.T,
-  delete_repo: delete_product_port.T,
-  command: delete_product_command.T,
-) -> Result(Nil, Error) {
-  let delete_product_command.Command(product_id) = command
+pub fn execute(command: Command, ports: Ports) -> Result(Nil, Error) {
+  let Command(id:) = command
 
-  use references <- result.try(
-    references_repo.load(product_id)
-    |> result.map_error(map_load_references_error),
-  )
-
-  use _ <- result.try(
-    map_policy_decision(product_deletion_policy.decide(references)),
-  )
-
-  case delete_repo.delete(product_id) {
-    Ok(Nil) -> Ok(Nil)
-    Error(error) -> map_delete_error(references_repo, product_id, error)
-  }
-}
-
-fn map_policy_decision(
-  decision: product_deletion_policy.Decision,
-) -> Result(Nil, Error) {
-  case decision {
-    product_deletion_policy.CanDelete -> Ok(Nil)
-    product_deletion_policy.CannotDelete([first, ..]) ->
-      case first {
-        product_deletion_policy.HasStockItems(_) -> Error(ProductHasStockItems)
-        product_deletion_policy.HasChildProducts(_) ->
-          Error(ProductHasChildProducts)
+  use product <- result.try(
+    ports.load_product(id)
+    |> result.map_error(fn(err) {
+      case err {
+        LoadProductNotFound -> ProductNotFound
+        LoadProductInfrastructureError(e) -> InfrastructureError(e)
       }
-    product_deletion_policy.CannotDelete([]) -> Ok(Nil)
-  }
-}
-
-fn map_load_references_error(error: deletion_references_port.Error) -> Error {
-  case error {
-    deletion_references_port.DatabaseFailure -> DatabaseFailure
-    deletion_references_port.InvalidReferenceData -> DatabaseFailure
-  }
-}
-
-fn map_delete_error(
-  references_repo: deletion_references_port.T,
-  product_id: product.Id,
-  error: delete_product_port.Error,
-) -> Result(Nil, Error) {
-  case error {
-    delete_product_port.DatabaseFailure -> Error(DatabaseFailure)
-    delete_product_port.ProductNotFound -> Error(ProductNotFound)
-    delete_product_port.ProductStillReferenced ->
-      recheck_policy_decision(references_repo, product_id)
-  }
-}
-
-fn recheck_policy_decision(
-  references_repo: deletion_references_port.T,
-  product_id: product.Id,
-) -> Result(Nil, Error) {
-  use references <- result.try(
-    references_repo.load(product_id)
-    |> result.map_error(map_load_references_error),
+    }),
   )
 
-  case product_deletion_policy.decide(references) {
-    product_deletion_policy.CanDelete -> Error(DatabaseFailure)
-    blocked -> map_policy_decision(blocked)
-  }
+  use DeletionProperties(has_children, has_stock_items) <- result.try(
+    ports.get_deletion_properties(id)
+    |> result.map_error(InfrastructureError),
+  )
+  use deletable_product_id <- result.try(
+    deletable_product_id.prove(product:, has_stock_items:, has_children:)
+    |> result.map_error(DomainError),
+  )
+
+  ports.delete(deletable_product_id)
+  |> result.map_error(InfrastructureError)
 }

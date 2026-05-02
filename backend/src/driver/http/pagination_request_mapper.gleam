@@ -1,5 +1,5 @@
-import application/queries/page_limit
-import application/queries/page_offset
+import application/queries/common/page_limit
+import application/queries/common/page_offset
 import gleam/int
 import gleam/list
 import gleam/result
@@ -47,11 +47,11 @@ fn map_limit_param(
   }
 }
 
-pub fn map_offset_and_limit(
+pub fn map_limit_and_offset(
   query: List(#(String, String)),
-) -> Result(#(page_offset.T, page_limit.T), String) {
-  use offset <- result.try(map_offset_param(query))
+) -> Result(#(page_limit.T, page_offset.T), String) {
   use limit <- result.try(map_limit_param(query))
+  use offset <- result.try(map_offset_param(query))
 
-  Ok(#(offset, limit))
+  Ok(#(limit, offset))
 }

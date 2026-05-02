@@ -1,28 +1,26 @@
 import application/queries/list_products
-import application/queries/ports/list as product_list_port
-import application/queries/ports/list_child_ids as list_child_ids_port
 import driver/http/handler_helpers
-import driver/http/products/list/request_mapper
+import driver/http/pagination_request_mapper
 import driver/http/products/list/response_mapper
+import gleam/http
 import wisp
 
 pub fn handle(
   request: wisp.Request,
-  repo: product_list_port.T,
-  child_ids_repo: list_child_ids_port.T,
+  port: list_products.ListProductsPort,
 ) -> wisp.Response {
-  let query = wisp.get_query(request)
-  case request_mapper.map_query(query) {
-    Error(message) -> handler_helpers.bad_request(message)
-    Ok(#(offset, limit, parent_product_id)) -> {
-      use result <- handler_helpers.handle_result(
-        list_products.execute(repo, offset, limit, parent_product_id),
-        wisp.internal_server_error(),
-      )
+  use <- wisp.require_method(request, http.Get)
 
-      let body =
-        response_mapper.map_list_products_response(result, child_ids_repo)
-      wisp.json_response(body, 200)
-    }
-  }
+  let query = wisp.get_query(request)
+
+  use #(limit, offset) <-
+    pagination_request_mapper.map_limit_and_offset(query)
+    |> handler_helpers.on_error(handler_helpers.bad_request)
+
+  use result <-
+    list_products.execute(limit, offset, port)
+    |> handler_helpers.on_error_value(wisp.internal_server_error())
+
+  let body = response_mapper.map_list_products_response(result)
+  wisp.json_response(body, 200)
 }

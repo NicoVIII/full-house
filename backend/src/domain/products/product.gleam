@@ -1,11 +1,12 @@
-import domain/basics/uuid
+import common/product_id
+import domain/products/existing_product_id
 import domain/products/product_name
 import gleam/option.{type Option}
 
-pub type Id {
-  ProductId(value: uuid.T)
-}
-
 pub type T {
-  Product(id: Id, name: product_name.T, parent_product_id: Option(Id))
+  T(
+    id: product_id.T,
+    name: product_name.T,
+    parent_product_id: Option(existing_product_id.T),
+  )
 }

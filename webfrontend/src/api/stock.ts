@@ -24,7 +24,7 @@ export async function fetchStock({
         offset: String(offset),
         limit: String(limit),
     });
-    const response = await fetch(`/api/v1/stock?${searchParams.toString()}`);
+    const response = await fetch(`/api/v1/stock_items?${searchParams.toString()}`);
 
     if (!response.ok) {
         throw new Error(`Stock request failed with status ${String(response.status)}`);

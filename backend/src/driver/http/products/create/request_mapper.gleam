@@ -1,6 +1,5 @@
+import common/product_id
 import domain/basics/non_empty_set
-import domain/basics/uuid
-import domain/products/product
 import domain/products/product_name
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
@@ -49,12 +48,11 @@ fn map_name(raw_name: String) -> Result(product_name.T, String) {
 
 fn map_parent_product_id(
   raw_parent_product_id: Option(String),
-) -> Result(Option(product.Id), String) {
+) -> Result(Option(product_id.T), String) {
   case raw_parent_product_id {
     None -> Ok(None)
     Some(raw_id) ->
-      uuid.new(raw_id)
-      |> result.map(product.ProductId)
+      product_id.new(raw_id)
       |> result.map(Some)
       |> result.map_error(fn(_) { "parent_product_id must be a valid UUID" })
   }
@@ -62,7 +60,7 @@ fn map_parent_product_id(
 
 pub fn map_payload(
   payload: Dynamic,
-) -> Result(#(product_name.T, Option(product.Id)), String) {
+) -> Result(#(product_name.T, Option(product_id.T)), String) {
   use #(raw_name, raw_parent_product_id) <- result.try(
     decode.run(payload, payload_decoder())
     |> result.map_error(fn(_) {

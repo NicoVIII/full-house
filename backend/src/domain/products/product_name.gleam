@@ -1,6 +1,5 @@
 import domain/basics/conditional
 import domain/basics/non_empty_set
-import gleam/list
 import gleam/string
 
 const max_length = 255
@@ -50,30 +49,6 @@ pub fn from_user_input(
   raw
   |> string.trim
   |> new
-}
-
-fn error_message(error: ValidationError) -> String {
-  case error {
-    Empty -> "ProductName must not be empty"
-    LeadingOrTrailingWhitespace ->
-      "ProductName must not start or end with whitespace"
-    InvalidCharacters -> "ProductName must not contain tabs or newlines"
-    TooLong -> "ProductName must be 255 characters or less"
-  }
-}
-
-fn join_error_messages(errors: non_empty_set.T(ValidationError)) -> String {
-  errors
-  |> non_empty_set.to_list
-  |> list.map(error_message)
-  |> string.join("; ")
-}
-
-pub fn new_exn(raw: String) -> T {
-  case new(raw) {
-    Ok(name) -> name
-    Error(errors) -> panic as join_error_messages(errors)
-  }
 }
 
 pub fn value(name: T) -> String {

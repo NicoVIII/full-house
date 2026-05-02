@@ -1,61 +1,60 @@
-import application/commands/ports/create as create_product_port
-import application/commands/ports/validate_parent_product as validate_parent_product_port
-import domain/basics/uuid
-import domain/products/creation/command as create_product_command
-import domain/products/creation/policy as create_product_policy
-import domain/products/creation/validated_parent_id as validated_parent_product_id
+import application/shared/infrastructure_error
+import common/product_id
+import domain/products/existing_product_id
 import domain/products/product
-import gleam/option
+import domain/products/product_name
+import gleam/option.{type Option, None, Some}
 import gleam/result
 
-pub type CreateProductResult {
-  CreateProductResult(product: product.T)
+pub type ProductExistencePort =
+  fn(product_id.T) -> Result(Bool, infrastructure_error.T)
+
+pub type CreatePort =
+  fn(product.T) -> Result(Nil, infrastructure_error.T)
+
+pub type Ports {
+  Ports(does_product_exist: ProductExistencePort, create: CreatePort)
+}
+
+pub type Command {
+  Command(name: product_name.T, parent_product_id: Option(product_id.T))
 }
 
 pub type Error {
-  ValidationFailed(validate_parent_product_port.Error)
-  CreationFailed(create_product_port.Error)
+  ParentDoesNotExist
+  InfrastructureError(infrastructure_error.T)
 }
 
-pub fn execute(
-  validate_parent_repo: validate_parent_product_port.T,
-  create_repo: create_product_port.T,
-  command: create_product_command.T,
-) -> Result(CreateProductResult, Error) {
-  let create_product_command.Command(name, parent_product_id) = command
+pub fn execute(command: Command, ports: Ports) -> Result(product.T, Error) {
+  let Command(name, parent_product_id_opt) = command
 
-  // Step 1: Validate parent product exists (if provided)
-  use validated_parent_opt <- result.try(
-    validate_parent_repo.validate(parent_product_id)
-    |> result.map_error(ValidationFailed),
-  )
+  // Prepare parent product id if provided
+  use parent_product_id <- result.try(case parent_product_id_opt {
+    None -> Ok(None)
+    Some(parent_id) -> {
+      use parent_exists <- result.try(
+        ports.does_product_exist(parent_id)
+        |> result.map_error(InfrastructureError),
+      )
 
-  // Step 2: Apply creation policy (if parent is provided)
-  use Nil <- result.try(case validated_parent_opt {
-    option.None -> Ok(Nil)
-    option.Some(validated_parent) ->
-      create_product_policy.can_create(validated_parent)
-      |> result.map_error(fn(_) {
-        CreationFailed(create_product_port.DatabaseFailure)
-      })
+      case existing_product_id.prove(parent_id, parent_exists) {
+        Ok(existing_id) -> Ok(Some(existing_id))
+        Error(existing_product_id.ProductNotFound) -> Error(ParentDoesNotExist)
+      }
+    }
   })
 
-  // Step 3: Create the product
   let new_product =
-    product.Product(
-      id: product.ProductId(uuid.generate_v7()),
+    product.T(
+      id: product_id.generate(),
       name: name,
-      parent_product_id: case validated_parent_opt {
-        option.None -> option.None
-        option.Some(validated_parent) ->
-          option.Some(validated_parent_product_id.value(validated_parent))
-      },
+      parent_product_id: parent_product_id,
     )
 
   use Nil <- result.try(
-    create_repo.create(new_product)
-    |> result.map_error(CreationFailed),
+    ports.create(new_product)
+    |> result.map_error(InfrastructureError),
   )
 
-  Ok(CreateProductResult(product: new_product))
+  Ok(new_product)
 }
