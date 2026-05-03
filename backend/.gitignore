@@ -1,6 +1,7 @@
 *.beam
 *.ez
 /build
+/linting/build
 erl_crash.dump
 /db/data/
 /db/schema.sql

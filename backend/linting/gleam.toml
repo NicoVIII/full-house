@@ -1,0 +1,30 @@
+name = "linting"
+version = "1.0.0"
+
+[dependencies]
+gleam_stdlib = ">= 0.44.0 and < 2.0.0"
+glinter = ">= 2.16.0 and < 3.0.0"
+simplifile = ">= 2.0.0 and < 3.0.0"
+glance = ">= 6.0.0 and < 7.0.0"
+gleam_crypto = ">= 1.5.2 and < 2.0.0"
+
+[tools.glinter]
+include = ["../src/"]
+
+[tools.glinter.rules]
+# unused_exports cannot resolve cross-module references correctly when scanning
+# via a relative "../src/" path, so disable it here. Run `gleam run -m glinter`
+# from the backend/ directory if you want unused_exports checking.
+unused_exports = "off"
+
+domain_no_application = "error"
+domain_no_infrastructure = "error"
+domain_no_driver = "error"
+application_no_infrastructure = "error"
+application_no_driver = "error"
+infrastructure_no_driver = "error"
+driver_no_infrastructure = "error"
+common_no_domain = "error"
+common_no_application = "error"
+common_no_infrastructure = "error"
+common_no_driver = "error"

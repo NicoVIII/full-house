@@ -28,6 +28,6 @@ jobs:
       - name: Type check
         run: gleam check
       - name: Lint
-        run: gleam run -m glinter
+        run: gleam run -m lint
       - name: Run tests
         run: gleam test

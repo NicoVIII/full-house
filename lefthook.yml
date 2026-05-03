@@ -8,7 +8,7 @@ pre-commit:
       run: cd backend && gleam check
     - name: "backend-lint"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
-      run: cd backend && gleam run -m glinter
+      run: cd backend && gleam run -m lint
     - name: "backend-test"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam test

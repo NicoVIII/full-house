@@ -2,13 +2,29 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "frontend: build",
+            "label": "backend: build",
             "type": "shell",
-            "command": "bun run build",
-            "options": { "cwd": "${workspaceFolder}/webfrontend" },
+            "command": "gleam build",
+            "options": { "cwd": "${workspaceFolder}/backend" },
             "group": "build",
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        },
+        {
+            "label": "backend: lint",
+            "type": "shell",
+            "command": "gleam run -m lint",
+            "options": { "cwd": "${workspaceFolder}/backend" },
+            "group": "test",
             "presentation": { "reveal": "always", "panel": "dedicated" },
-            "problemMatcher": [ "$tsc" ]
+            "problemMatcher": [ ]
+        },
+        {
+            "label": "backend: test",
+            "type": "shell",
+            "command": "gleam test",
+            "options": { "cwd": "${workspaceFolder}/backend" },
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "dedicated" }
         },
         {
             "label": "frontend: type-check",
@@ -37,20 +53,13 @@
             "presentation": { "reveal": "always", "panel": "dedicated" }
         },
         {
-            "label": "backend: build",
+            "label": "frontend: build",
             "type": "shell",
-            "command": "gleam build",
-            "options": { "cwd": "${workspaceFolder}/backend" },
+            "command": "bun run build",
+            "options": { "cwd": "${workspaceFolder}/webfrontend" },
             "group": "build",
-            "presentation": { "reveal": "always", "panel": "dedicated" }
-        },
-        {
-            "label": "backend: test",
-            "type": "shell",
-            "command": "gleam test",
-            "options": { "cwd": "${workspaceFolder}/backend" },
-            "group": "test",
-            "presentation": { "reveal": "always", "panel": "dedicated" }
+            "presentation": { "reveal": "always", "panel": "dedicated" },
+            "problemMatcher": [ "$tsc" ]
         }
     ]
 }
