@@ -30,7 +30,8 @@
 			"extensions": [
 				"editorconfig.editorconfig",
 				"FanaticPythoner.better-todo-tree",
-				"dbaeumer.vscode-eslint"
+				"dbaeumer.vscode-eslint",
+				"MermaidChart.vscode-mermaid-chart"
 			]
 		}
 	}
