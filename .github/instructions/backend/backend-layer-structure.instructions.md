@@ -24,20 +24,18 @@ Prefer feature-oriented folders (what the code does) over technical buckets (wha
 - Keep related handler/mapper/adapter files close together
 - When one resource contains multiple distinct operations with their own files, prefer operation subfolders such as `products/create/` or `products/list/` over a flat folder of operation-prefixed files
 - Keep nesting shallow and intentional (typically 2-3 levels)
-- Keep outbound ports in `application/ports/**`
+- Keep outbound port abstractions in `application/**` (either colocated in the use-case module or extracted to a dedicated application module when shared)
 
 ## Minimal Example
 
 ```text
 application/
-  list_products.gleam
-  create_product.gleam
-  ports/products/
-    list.gleam
-    create.gleam
+  commands/
+    create_product.gleam
+  queries/
+    list_products.gleam
 
 driver/http/products/
-  handler.gleam
   list/
     handler.gleam
     response_mapper.gleam
@@ -46,9 +44,9 @@ driver/http/products/
     request_mapper.gleam
     response_mapper.gleam
 
-infrastructure/product_repository/
-  mock_product_repository.gleam
-  postgres_product_repository.gleam
+infrastructure/adapter/
+  commands/create_product/create_adapter.gleam
+  queries/list_products/list_products_adapter.gleam
 ```
 
 ## Review Checklist
@@ -56,4 +54,4 @@ infrastructure/product_repository/
 1. Can a new developer identify features from folder names alone?
 2. Are related files colocated by feature/resource?
 3. Is nesting reasonable for the current complexity?
-4. Are ports in `application/ports/**` and adapters in `infrastructure/**`?
+4. Are outbound ports defined in `application/**` and adapters in `infrastructure/**`?

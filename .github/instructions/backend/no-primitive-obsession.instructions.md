@@ -28,14 +28,14 @@ Do not create value objects for trivial internal values with no constraints.
 
 ## Constructor Contract
 
-For validated opaque types, provide both:
+For validated opaque types, always provide a safe constructor:
 
 1. `new(...) -> Result(T, E)` for untrusted/external input
-2. `new_exn(...) -> T` for constants and already-validated internal data
+2. Optional trusted-path constructor/factory when it materially improves ergonomics (for example specialized test-only creation helpers)
 
-`new_exn` must delegate to `new` to avoid duplicated validation logic.
+If a trusted-path constructor/factory exists, it should delegate to `new` (or share the same validation/building path) to avoid duplicated logic.
 
-Never call `new_exn` on unvalidated user or external input.
+Never route unvalidated user or external input through trusted-path constructors/factories.
 
 For validation constructors that can return multiple errors:
 
@@ -53,8 +53,8 @@ For validation constructors that can return multiple errors:
 
 1. Are meaningful primitive fields wrapped in named opaque types?
 2. Are invariants enforced once in constructors instead of many call sites?
-3. Are both `new` and `new_exn` present when validation exists?
-4. Is `new_exn` restricted to trusted data paths?
+3. Is there a `new` constructor for untrusted input?
+4. If trusted-path constructors/factories exist, are they restricted to trusted data paths?
 5. Is the value object placed in the correct layer?
 
 ## Related Instructions

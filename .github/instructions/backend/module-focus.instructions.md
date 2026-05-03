@@ -48,7 +48,7 @@ application/page_offset.gleam  ← only Offset (may reference page_limit)
 
 ```
 // Good: one concept, one module
-domain/basics/uuid.gleam    ← T, new, new_exn, value, generate_v7
+domain/basics/uuid.gleam    ← T, new, value, generate_v7
 domain/product.gleam        ← Id, T (Id is inseparable from Product)
 ```
 

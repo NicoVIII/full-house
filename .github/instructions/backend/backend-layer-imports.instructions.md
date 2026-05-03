@@ -12,8 +12,8 @@ Follow one-way dependency direction across layers.
 ## Allowed Dependencies By Layer
 
 - `domain/**`: `domain/**`, `gleam/**`, pure external libs
-- `application/**`: `application/**`, `application/ports/**`, `domain/**`, `gleam/**`
-- `infrastructure/**`: `infrastructure/**`, `application/**`, `application/ports/**`, `domain/**`, `gleam/**`
+- `application/**`: `application/**`, `domain/**`, `gleam/**`
+- `infrastructure/**`: `infrastructure/**`, `application/**`, `domain/**`, `gleam/**`
 - `driver/**`: `driver/**`, `application/**`, `domain/**`, `gleam/**`
 - Composition root (`full_house.gleam` or `composition/**`): may import all layers, but wiring only
 
