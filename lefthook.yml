@@ -1,8 +1,8 @@
 pre-commit:
   jobs:
-    - name: "backend-format-check"
+    - name: "backend-format"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
-      run: cd backend && gleam format --check
+      run: cd backend && gleam format
     - name: "backend-type-check"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam check
@@ -12,6 +12,9 @@ pre-commit:
     - name: "backend-test"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam test
+    - name: "frontend-format"
+      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
+      run: cd webfrontend && bun run format:fix
     - name: "frontend-type-check"
       glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
       run: cd webfrontend && bun x --no-install tsc --noEmit
