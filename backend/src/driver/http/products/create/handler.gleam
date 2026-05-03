@@ -19,14 +19,16 @@ fn create_error_response(error: create_product.Error) -> wisp.Response {
 }
 
 pub fn handle(
-  request: wisp.Request,
-  ports: create_product.Ports,
+  request request: wisp.Request,
+  ports ports: create_product.Ports,
 ) -> wisp.Response {
   use <- wisp.require_method(request, http.Post)
   use payload <- wisp.require_json(request)
   use #(name, parent_product_id) <-
     request_mapper.map_payload(payload)
-    |> handler_helpers.on_error(handler_helpers.bad_request)
+    |> handler_helpers.on_error(fn(error) {
+      request_mapper.error_to_string(error) |> handler_helpers.bad_request
+    })
 
   let command =
     create_product.Command(name: name, parent_product_id: parent_product_id)

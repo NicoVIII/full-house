@@ -41,7 +41,10 @@ pub type Error {
   InfrastructureError(infrastructure_error.T)
 }
 
-pub fn execute(command: Command, ports: Ports) -> Result(Nil, Error) {
+pub fn execute(
+  command command: Command,
+  ports ports: Ports,
+) -> Result(Nil, Error) {
   let Command(id:) = command
 
   use product <- result.try(

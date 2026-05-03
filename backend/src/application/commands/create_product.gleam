@@ -25,7 +25,10 @@ pub type Error {
   InfrastructureError(infrastructure_error.T)
 }
 
-pub fn execute(command: Command, ports: Ports) -> Result(product.T, Error) {
+pub fn execute(
+  command command: Command,
+  ports ports: Ports,
+) -> Result(product.T, Error) {
   let Command(name, parent_product_id_opt) = command
 
   // Prepare parent product id if provided

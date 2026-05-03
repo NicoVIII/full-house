@@ -1,7 +1,6 @@
-import application/queries/common/page_limit
-import application/queries/common/page_offset
 import application/queries/common/stock_item_query_model
 import infrastructure/adapter/queries/list_stock_items/list_stock_items_adapter
+import integration/create
 import sqlight
 
 fn setup_in_memory_database() -> sqlight.Connection {
@@ -41,7 +40,7 @@ pub fn sqlite_stock_adapter_returns_aggregated_quantities_test() {
   let connection = setup_in_memory_database()
   let port = list_stock_items_adapter.new(connection)
 
-  let assert Ok(result) = port(page_limit.new_exn(10), page_offset.default())
+  let assert Ok(result) = port(create.paging_params(10, 0))
 
   let assert [first, ..] = result.data
   let stock_item_query_model.StockItemQueryModel(product_name:, quantity:, ..) =
@@ -56,7 +55,7 @@ pub fn sqlite_stock_adapter_supports_pagination_test() {
   let connection = setup_in_memory_database()
   let port = list_stock_items_adapter.new(connection)
 
-  let assert Ok(result) = port(page_limit.new_exn(1), page_offset.new_exn(1))
+  let assert Ok(result) = port(create.paging_params(1, 1))
 
   let assert [first] = result.data
   let stock_item_query_model.StockItemQueryModel(product_name:, quantity:, ..) =

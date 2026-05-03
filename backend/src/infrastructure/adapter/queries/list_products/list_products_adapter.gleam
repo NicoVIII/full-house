@@ -1,5 +1,6 @@
 import application/queries/common/page_limit
 import application/queries/common/page_offset
+import application/queries/common/paging
 import application/queries/common/product_query_model
 import application/queries/list_products
 import application/shared/infrastructure_error
@@ -21,13 +22,13 @@ fn query_total(
   case total_query_result {
     Ok([total]) -> Ok(total)
     Error(_) -> Error(infrastructure_error.DatabaseFailure)
+    // nolint: avoid_panic
     Ok(_) -> panic as "Unexpected result format for total count query"
   }
 }
 
 fn query_list(
-  limit: page_limit.T,
-  offset: page_offset.T,
+  paging_params: paging.Params,
   connection: sqlight.Connection,
 ) -> Result(List(product_query_model.T), infrastructure_error.T) {
   let query_result =
@@ -40,8 +41,8 @@ fn query_list(
       LIMIT ? OFFSET ?
       ",
       with: [
-        sqlight.int(page_limit.value(limit)),
-        sqlight.int(page_offset.value(offset)),
+        sqlight.int(page_limit.value(paging_params.limit)),
+        sqlight.int(page_offset.value(paging_params.offset)),
       ],
       on: connection,
       expecting: decoder.product_query_model(),
@@ -54,21 +55,15 @@ fn query_list(
 }
 
 fn list_products(
-  limit: page_limit.T,
-  offset: page_offset.T,
+  paging_params: paging.Params,
   connection: sqlight.Connection,
-) -> Result(list_products.ListProductsResult, infrastructure_error.T) {
+) -> Result(list_products.Response, infrastructure_error.T) {
   use total <- result.try(query_total(connection))
-  use model_list <- result.try(query_list(limit, offset, connection))
+  use model_list <- result.try(query_list(paging_params, connection))
 
-  Ok(list_products.ListProductsResult(
-    data: model_list,
-    limit: limit,
-    offset: offset,
-    total: total,
-  ))
+  Ok(paging.Response(data: model_list, total:, paging_params:))
 }
 
 pub fn new(connection: sqlight.Connection) -> list_products.ListProductsPort {
-  fn(limit, offset) { list_products(limit, offset, connection) }
+  fn(paging_params) { list_products(paging_params, connection) }
 }

@@ -6,21 +6,24 @@ import gleam/http
 import wisp
 
 pub fn handle(
-  request: wisp.Request,
-  port: list_stock_items.ListStockItemsPort,
+  request request: wisp.Request,
+  port port: list_stock_items.ListStockItemsPort,
 ) -> wisp.Response {
   use <- wisp.require_method(request, http.Get)
 
   let query = wisp.get_query(request)
-  case pagination_request_mapper.map_limit_and_offset(query) {
-    Error(message) -> handler_helpers.bad_request(message)
-    Ok(#(limit, offset)) -> {
-      use result <-
-        list_stock_items.execute(limit, offset, port)
-        |> handler_helpers.on_error_value(wisp.internal_server_error())
 
-      let body = response_mapper.map_list_stock_response(result)
-      wisp.json_response(body, 200)
-    }
-  }
+  use paging_params <-
+    pagination_request_mapper.map_paging_params(query)
+    |> handler_helpers.on_error(fn(error) {
+      pagination_request_mapper.error_to_string(error)
+      |> handler_helpers.bad_request
+    })
+
+  use result <-
+    list_stock_items.execute(paging_params, port)
+    |> handler_helpers.on_error_value(wisp.internal_server_error())
+
+  let body = response_mapper.map_list_stock_response(result)
+  wisp.json_response(body, 200)
 }

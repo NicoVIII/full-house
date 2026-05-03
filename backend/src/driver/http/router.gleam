@@ -21,9 +21,9 @@ fn products_route(
 }
 
 fn products_detail_route(
-  id_raw: String,
-  request: wisp.Request,
-  context: composition.AppContext,
+  id_raw id_raw: String,
+  request request: wisp.Request,
+  ctx context: composition.AppContext,
 ) -> wisp.Response {
   case request.method {
     http.Delete ->
@@ -45,14 +45,14 @@ fn stock_items_route(
 }
 
 pub fn handle_request(
-  request: wisp.Request,
-  context: composition.AppContext,
+  request request: wisp.Request,
+  ctx ctx: composition.AppContext,
 ) -> wisp.Response {
   case wisp.path_segments(request) {
-    ["api", "v1", "products"] -> products_route(request, context)
+    ["api", "v1", "products"] -> products_route(request, ctx)
     ["api", "v1", "products", id_raw] ->
-      products_detail_route(id_raw, request, context)
-    ["api", "v1", "stock_items"] -> stock_items_route(request, context)
+      products_detail_route(id_raw:, request:, ctx:)
+    ["api", "v1", "stock_items"] -> stock_items_route(request, ctx)
     _ -> wisp.not_found()
   }
 }

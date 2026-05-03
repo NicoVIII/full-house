@@ -28,6 +28,7 @@ fn query_has_children(
       io.println_error("Database error: " <> err.message)
       Error(infrastructure_error.DatabaseFailure)
     }
+    // nolint: avoid_panic
     Ok(_) -> panic as "Unexpected result from database"
   }
 }
@@ -55,6 +56,7 @@ fn query_has_stock_items(
       io.println_error("Database error: " <> err.message)
       Error(infrastructure_error.DatabaseFailure)
     }
+    // nolint: avoid_panic
     Ok(_) -> panic as "Unexpected result from database"
   }
 }

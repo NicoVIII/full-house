@@ -13,12 +13,15 @@ pub fn product() -> decode.Decoder(product.T) {
   use name <- decode.field(1, decode.string)
   use parent_id <- decode.field(2, decode.optional(decode.string))
 
+  // nolint: assert_ok_pattern -- We assume that data in the database is valid
   let assert Ok(id) = product_id.new(id)
+  // nolint: assert_ok_pattern -- We assume that data in the database is valid
   let assert Ok(name) = product_name.new(name)
   let parent_id =
     option.map(parent_id, fn(parent_id) {
+      // nolint: assert_ok_pattern -- We assume that data in the database is valid
       let assert Ok(parent_id) = product_id.new(parent_id)
-      // We are sure that the parent product exists because of the foreign key constraint in the database
+      // nolint: assert_ok_pattern -- We are sure that the parent product exists because of the foreign key constraint in the database
       let assert Ok(parent_id) = existing_product_id.prove(parent_id, True)
       parent_id
     })

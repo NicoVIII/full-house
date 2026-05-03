@@ -15,13 +15,6 @@ pub fn new(value: String) -> Result(T, Nil) {
   |> result.map(Uuid)
 }
 
-pub fn new_exn(value: String) -> T {
-  case new(value) {
-    Ok(uid) -> uid
-    Error(_) -> panic as "Invalid UUID string"
-  }
-}
-
 pub fn value(uuid: T) -> String {
   uuid.to_string(uuid.value)
 }

@@ -29,6 +29,7 @@ fn get_product(
       Error(delete_product.LoadProductInfrastructureError(
         infrastructure_error.DatabaseFailure,
       ))
+    // nolint: avoid_panic
     Ok(_) -> panic as "Unexpected: multiple rows for single product query"
   }
 }

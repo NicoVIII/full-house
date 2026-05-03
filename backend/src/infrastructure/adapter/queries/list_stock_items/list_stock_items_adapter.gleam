@@ -1,5 +1,6 @@
 import application/queries/common/page_limit
 import application/queries/common/page_offset
+import application/queries/common/paging
 import application/queries/common/stock_item_query_model
 import application/queries/list_stock_items
 import application/shared/infrastructure_error
@@ -30,6 +31,7 @@ fn query_total(
   case total_query_result {
     Ok([total]) -> Ok(total)
     Error(_) -> Error(infrastructure_error.DatabaseFailure)
+    // nolint: avoid_panic
     Ok(_) -> panic as "Unexpected result format for total count query"
   }
 }
@@ -46,8 +48,7 @@ fn stock_item_decoder() -> decode.Decoder(stock_item_query_model.T) {
 }
 
 fn query_stock_item_list(
-  limit: page_limit.T,
-  offset: page_offset.T,
+  paging_params: paging.Params,
   connection: sqlight.Connection,
 ) -> Result(List(stock_item_query_model.T), infrastructure_error.T) {
   let query_result =
@@ -62,8 +63,8 @@ fn query_stock_item_list(
       ",
       on: connection,
       with: [
-        sqlight.int(page_limit.value(limit)),
-        sqlight.int(page_offset.value(offset)),
+        sqlight.int(page_limit.value(paging_params.limit)),
+        sqlight.int(page_offset.value(paging_params.offset)),
       ],
       expecting: stock_item_decoder(),
     )
@@ -75,23 +76,17 @@ fn query_stock_item_list(
 }
 
 fn list_stock(
-  limit: page_limit.T,
-  offset: page_offset.T,
+  paging_params: paging.Params,
   connection: sqlight.Connection,
-) -> Result(list_stock_items.ListStockItemsResult, infrastructure_error.T) {
+) -> Result(list_stock_items.Response, infrastructure_error.T) {
   use total <- result.try(query_total(connection))
-  use model_list <- result.try(query_stock_item_list(limit, offset, connection))
+  use model_list <- result.try(query_stock_item_list(paging_params, connection))
 
-  Ok(list_stock_items.ListStockItemsResult(
-    data: model_list,
-    limit: limit,
-    offset: offset,
-    total: total,
-  ))
+  Ok(paging.Response(data: model_list, total:, paging_params:))
 }
 
 pub fn new(
   connection: sqlight.Connection,
 ) -> list_stock_items.ListStockItemsPort {
-  fn(limit, offset) { list_stock(limit, offset, connection) }
+  fn(paging_params) { list_stock(paging_params, connection) }
 }

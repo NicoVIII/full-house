@@ -50,7 +50,10 @@ fn error_response(error: delete_product.Error) -> wisp.Response {
   }
 }
 
-pub fn handle(id_raw: String, ports: delete_product.Ports) -> wisp.Response {
+pub fn handle(
+  id_raw id_raw: String,
+  ports ports: delete_product.Ports,
+) -> wisp.Response {
   use product_id <-
     product_id.new(id_raw)
     |> handler_helpers.on_error_value(handler_helpers.bad_request(

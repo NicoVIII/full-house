@@ -6,6 +6,9 @@ pre-commit:
     - name: "backend-type-check"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam check
+    - name: "backend-lint"
+      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
+      run: cd backend && gleam run -m glinter
     - name: "backend-test"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam test

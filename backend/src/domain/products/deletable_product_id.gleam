@@ -23,7 +23,7 @@ pub fn prove(
     |> conditional.prepend_if(has_stock_items, HasStockItems)
 
   case non_empty_set.from_list(errors) {
-    Error(_) -> Ok(DeletableProductId(product.id))
+    Error(non_empty_set.EmptyList) -> Ok(DeletableProductId(product.id))
     Ok(validation_errors) -> Error(validation_errors)
   }
 }

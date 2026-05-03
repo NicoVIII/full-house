@@ -36,7 +36,7 @@ pub fn new(raw: String) -> Result(T, non_empty_set.T(ValidationError)) {
     |> conditional.prepend_if(string.length(raw) > max_length, TooLong)
 
   case non_empty_set.from_list(errors) {
-    Error(_) -> Ok(ProductName(raw))
+    Error(non_empty_set.EmptyList) -> Ok(ProductName(raw))
     Ok(validation_errors) -> Error(validation_errors)
   }
 }

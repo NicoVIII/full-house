@@ -7,7 +7,7 @@ import wisp
 fn mock_app_context() -> composition.AppContext {
   composition.AppContext(
     get_product_port: fn(_) { panic as "not mocked" },
-    list_products_port: fn(_, _) { panic as "not mocked" },
+    list_products_port: fn(_) { panic as "not mocked" },
     create_product_ports: create_product.Ports(
       does_product_exist: fn(_) { panic as "not mocked" },
       create: fn(_) { panic as "not mocked" },
@@ -17,7 +17,7 @@ fn mock_app_context() -> composition.AppContext {
       delete: fn(_) { panic as "not mocked" },
       load_product: fn(_) { panic as "not mocked" },
     ),
-    list_stock_items_port: fn(_, _) { panic as "not mocked" },
+    list_stock_items_port: fn(_) { panic as "not mocked" },
   )
 }
 

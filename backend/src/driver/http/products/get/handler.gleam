@@ -24,8 +24,8 @@ fn error_response(error: get_product.GetProductError) -> wisp.Response {
 }
 
 pub fn handle(
-  id_raw: String,
-  port: get_product.GetProductPort,
+  id_raw id_raw: String,
+  port port: get_product.GetProductPort,
 ) -> wisp.Response {
   use id <-
     product_id.new(id_raw)

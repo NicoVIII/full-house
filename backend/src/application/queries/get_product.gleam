@@ -11,8 +11,8 @@ pub type GetProductPort =
   fn(product_id.T) -> Result(product_query_model.T, GetProductError)
 
 pub fn execute(
-  id: product_id.T,
-  get_product: GetProductPort,
+  for id: product_id.T,
+  port get_product: GetProductPort,
 ) -> Result(product_query_model.T, GetProductError) {
   get_product(id)
 }

@@ -21,16 +21,14 @@ fn map_stock_list(summaries: List(stock_item_query_model.T)) -> json.Json {
   json.array(summaries, map_stock_item)
 }
 
-pub fn map_list_stock_response(
-  result: list_stock_items.ListStockItemsResult,
-) -> String {
-  let data_json = map_stock_list(result.data)
+pub fn map_list_stock_response(response: list_stock_items.Response) -> String {
+  let data_json = map_stock_list(response.data)
 
   json.object([
     #("data", data_json),
-    #("total", json.int(result.total)),
-    #("offset", json.int(page_offset.value(result.offset))),
-    #("limit", json.int(page_limit.value(result.limit))),
+    #("total", json.int(response.total)),
+    #("offset", json.int(page_offset.value(response.paging_params.offset))),
+    #("limit", json.int(page_limit.value(response.paging_params.limit))),
   ])
   |> json.to_string
 }

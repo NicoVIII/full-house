@@ -9,16 +9,14 @@ fn map_product_list(products: List(product_query_model.T)) -> json.Json {
   json.array(products, product_json.map_product_query_model)
 }
 
-pub fn map_list_products_response(
-  result: list_products.ListProductsResult,
-) -> String {
-  let data_json = map_product_list(result.data)
+pub fn map_list_products_response(response: list_products.Response) -> String {
+  let data_json = map_product_list(response.data)
 
   json.object([
     #("data", data_json),
-    #("total", json.int(result.total)),
-    #("limit", json.int(page_limit.value(result.limit))),
-    #("offset", json.int(page_offset.value(result.offset))),
+    #("total", json.int(response.total)),
+    #("limit", json.int(page_limit.value(response.paging_params.limit))),
+    #("offset", json.int(page_offset.value(response.paging_params.offset))),
   ])
   |> json.to_string
 }
