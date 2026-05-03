@@ -10,7 +10,7 @@ import wisp/wisp_mist
 fn database_path() -> String {
   case envoy.get("DATABASE_PATH") {
     Ok(path) -> path
-    Error(Nil) -> "./data/full_house.db"
+    Error(Nil) -> "./db/data/full_house.db"
   }
 }
 

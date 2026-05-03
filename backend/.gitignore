@@ -2,5 +2,5 @@
 *.ez
 /build
 erl_crash.dump
-/data/
+/db/data/
 /db/schema.sql

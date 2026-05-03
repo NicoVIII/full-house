@@ -20,7 +20,7 @@ def resolve_repo_root() -> Path:
 
 
 def resolve_default_db_path(repo_root: Path) -> Path:
-    return repo_root / "backend" / "data" / "full_house.db"
+    return repo_root / "backend" / "db" / "data" / "full_house.db"
 
 
 def map_architecture(machine: str) -> str:
