@@ -25,7 +25,7 @@ describe('fetchStock', () => {
         const result = await fetchStock({ offset: 0, limit: 10 });
 
         expect(result).toEqual(mockResponse);
-        expect(global.fetch).toHaveBeenCalledWith('/api/v1/stock?offset=0&limit=10');
+        expect(global.fetch).toHaveBeenCalledWith('/api/v1/stock_items?offset=0&limit=10');
     });
 
     it('throws error on failed stock response', async () => {
