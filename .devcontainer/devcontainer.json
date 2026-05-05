@@ -31,7 +31,8 @@
 				"editorconfig.editorconfig",
 				"FanaticPythoner.better-todo-tree",
 				"dbaeumer.vscode-eslint",
-				"MermaidChart.vscode-mermaid-chart"
+				"MermaidChart.vscode-mermaid-chart",
+				"fronterior.biome-monorepo"
 			]
 		}
 	}

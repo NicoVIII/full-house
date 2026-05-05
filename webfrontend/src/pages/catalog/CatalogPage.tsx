@@ -1,3 +1,4 @@
+import { Typography } from "@suid/material";
 import Box from "@suid/material/Box";
 import {
 	createInfiniteQuery,
@@ -10,18 +11,17 @@ import {
 	fetchProducts,
 	type Product,
 	type ProductListResponse,
-} from "../api/products";
-import CreateProductDialog from "../components/CreateProductDialog";
-import ProductsHero from "../components/ProductsHero";
-import ProductsPanel from "../components/ProductsPanel";
+} from "../../api/products";
 import {
 	flattenPaginatedItems,
 	readPaginatedTotal,
-} from "./paginated_query_helpers";
+} from "../paginated_query_helpers";
+import CreateProductFab from "./CreateProductFab";
+import ProductsPanel from "./ProductsPanel";
 
 const PAGE_SIZE = 6;
 
-const ProductsPage: Component = () => {
+const CatalogPage: Component = () => {
 	const queryClient = useQueryClient();
 
 	const productsQuery = createInfiniteQuery<
@@ -69,9 +69,17 @@ const ProductsPage: Component = () => {
 
 	return (
 		<>
-			<ProductsHero />
-			<Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
-				<CreateProductDialog onCreated={handleProductCreated} />
+			<Box sx={{ display: "flex" }}>
+				<Typography
+					variant="h2"
+					component="h1"
+					sx={{ flexGrow: 1, fontWeight: 700 }}
+				>
+					Products
+				</Typography>
+				<Box sx={{ alignItems: "center", display: "flex" }}>
+					<CreateProductFab onCreated={handleProductCreated} />
+				</Box>
 			</Box>
 			<ProductsPanel
 				error={productsQuery.error}
@@ -88,4 +96,4 @@ const ProductsPage: Component = () => {
 	);
 };
 
-export default ProductsPage;
+export default CatalogPage;

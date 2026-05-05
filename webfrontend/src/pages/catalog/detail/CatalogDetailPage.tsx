@@ -15,7 +15,8 @@ import {
 	fetchProduct,
 	type Product,
 	type ProductResponse,
-} from "../api/products";
+} from "../../../api/products";
+import { routes } from "../../../routes";
 
 const ProductDetailPage: Component = () => {
 	const params = useParams();
@@ -117,7 +118,7 @@ const ProductDetailPage: Component = () => {
 			await queryClient.invalidateQueries({
 				queryKey: ["products", "infinite"],
 			});
-			navigate("/products");
+			navigate(routes.catalog.build());
 		} catch (error) {
 			console.error("Delete failed:", error);
 		} finally {
@@ -129,8 +130,8 @@ const ProductDetailPage: Component = () => {
 		<Stack spacing={3}>
 			<Paper class="hero-panel" elevation={0}>
 				<Stack spacing={2}>
-					<A class="product-inline-link" href="/products">
-						Back to products
+					<A class="product-inline-link" href={routes.catalog.build()}>
+						Back to catalog
 					</A>
 					<Show
 						when={productIdFromRoute() !== ""}
@@ -179,16 +180,18 @@ const ProductDetailPage: Component = () => {
 											<Typography color="text.secondary" variant="body2">
 												{currentProduct()?.id}
 											</Typography>
-											<Show when={parentProductId() !== null}>
-												<Typography variant="body2" color="text.secondary">
-													Parent:{" "}
-													<A
-														class="product-inline-link product-inline-link-strong"
-														href={`/products/${parentProductId() ?? ""}`}
-													>
-														{parentQuery.data?.data.name ?? parentProductId()}
-													</A>
-												</Typography>
+											<Show when={parentProductId()}>
+												{(parentProductId) => (
+													<Typography variant="body2" color="text.secondary">
+														Parent:{" "}
+														<A
+															class="product-inline-link product-inline-link-strong"
+															href={`/products/${parentProductId()}`}
+														>
+															{parentQuery.data?.data.name ?? parentProductId()}
+														</A>
+													</Typography>
+												)}
 											</Show>
 										</Stack>
 									</Stack>
@@ -279,7 +282,9 @@ const ProductDetailPage: Component = () => {
 														<Stack spacing={0.25}>
 															<A
 																class="product-inline-link product-inline-link-strong"
-																href={`/products/${child.id}`}
+																href={routes.catalog.subs.detail.build(
+																	child.id,
+																)}
 															>
 																{child.name}
 															</A>

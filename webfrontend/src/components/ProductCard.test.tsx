@@ -71,7 +71,7 @@ describe("ProductCard", () => {
 		const container = renderCard();
 
 		const titleLink = container.querySelector("a.product-card-title-link");
-		expect(titleLink?.getAttribute("href")).toBe("/products/123");
+		expect(titleLink?.getAttribute("href")).toBe("/catalog/123");
 	});
 
 	it("links the parent chip to the parent detail page", () => {
@@ -83,7 +83,7 @@ describe("ProductCard", () => {
 		const container = renderCard(productWithParent);
 
 		const parentLink = container.querySelector("a.product-inline-link");
-		expect(parentLink?.getAttribute("href")).toBe("/products/parent-123");
+		expect(parentLink?.getAttribute("href")).toBe("/catalog/parent-123");
 	});
 
 	it("shows variant count chip when product has children", () => {

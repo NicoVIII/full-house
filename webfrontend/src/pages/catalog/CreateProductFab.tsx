@@ -1,3 +1,4 @@
+import AddIcon from "@suid/icons-material/Add";
 import Alert from "@suid/material/Alert";
 import Box from "@suid/material/Box";
 import Button from "@suid/material/Button";
@@ -5,17 +6,19 @@ import Dialog from "@suid/material/Dialog";
 import DialogActions from "@suid/material/DialogActions";
 import DialogContent from "@suid/material/DialogContent";
 import DialogTitle from "@suid/material/DialogTitle";
+import Fab from "@suid/material/Fab";
+import { Portal } from "@suid/material/Portal/Portal";
 import Stack from "@suid/material/Stack";
 import TextField from "@suid/material/TextField";
 import type { Component } from "solid-js";
 import { createSignal, Show } from "solid-js";
-import { createProduct } from "../api/products";
+import { createProduct } from "../../api/products";
 
 type CreateProductDialogProps = Readonly<{
 	onCreated: () => void | Promise<void>;
 }>;
 
-const CreateProductDialog: Component<CreateProductDialogProps> = (props) => {
+const CreateProductFab: Component<CreateProductDialogProps> = (props) => {
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [name, setName] = createSignal("");
 	const [parentProductId, setParentProductId] = createSignal("");
@@ -70,10 +73,30 @@ const CreateProductDialog: Component<CreateProductDialogProps> = (props) => {
 			});
 	};
 
+	const fabStyle = {
+		position: "fixed",
+		bottom: 32,
+		right: 32,
+	} as const;
+
 	return (
 		<>
-			<Button onClick={() => setIsOpen(true)} variant="contained">
-				Add Product
+			<Portal>
+				<Fab
+					sx={{ ...fabStyle, display: { xs: "inline-flex", md: "none" } }}
+					color="primary"
+					variant="extended"
+					onClick={() => setIsOpen(true)}
+				>
+					<AddIcon /> Product
+				</Fab>
+			</Portal>
+			<Button
+				sx={{ display: { xs: "none", md: "inline-flex" } }}
+				variant="contained"
+				onClick={() => setIsOpen(true)}
+			>
+				<AddIcon /> Product
 			</Button>
 
 			<Dialog fullWidth maxWidth="sm" open={isOpen()} onClose={close}>
@@ -130,4 +153,4 @@ const CreateProductDialog: Component<CreateProductDialogProps> = (props) => {
 	);
 };
 
-export default CreateProductDialog;
+export default CreateProductFab;

@@ -7,8 +7,8 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
-import type { Product } from "../api/products";
-import ProductCard from "./ProductCard";
+import type { Product } from "../../api/products";
+import ProductCard from "../../components/ProductCard";
 
 type ProductsPanelProps = Readonly<{
 	error: Error | null;
@@ -53,11 +53,12 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
 				<Stack spacing={3}>
 					<Paper elevation={0} sx={{ p: 3 }}>
 						<Stack
-							direction={{ xs: "column", sm: "row" }}
+							direction="row"
 							spacing={2}
 							sx={{
+								flexWrap: "wrap",
 								justifyContent: "space-between",
-								alignItems: { xs: "flex-start", sm: "center" },
+								alignItems: "center",
 							}}
 						>
 							<Typography variant="h6" sx={{ fontWeight: 600 }}>

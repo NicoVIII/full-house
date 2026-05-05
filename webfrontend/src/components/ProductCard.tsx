@@ -8,6 +8,7 @@ import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { Show } from "solid-js";
 import type { Product } from "../api/products";
+import { routes } from "../routes";
 
 type ProductCardProps = Readonly<{
 	product: Product;
@@ -29,7 +30,7 @@ const ProductCard: Component<ProductCardProps> = (props) => {
 				<Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
 					<A
 						class="product-card-title-link"
-						href={`/products/${props.product.id}`}
+						href={routes.catalog.subs.detail.build(props.product.id)}
 					>
 						{props.product.name}
 					</A>
@@ -45,7 +46,7 @@ const ProductCard: Component<ProductCardProps> = (props) => {
 								{(parentProductId) => (
 									<A
 										class="product-inline-link"
-										href={`/products/${parentProductId()}`}
+										href={routes.catalog.subs.detail.build(parentProductId())}
 									>
 										<Chip
 											size="small"
