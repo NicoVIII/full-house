@@ -2,6 +2,7 @@ import composition
 import driver/http/router
 import envoy
 import gleam/erlang/process
+import gleam/int
 import mist
 import sqlight
 import wisp
@@ -11,6 +12,24 @@ fn database_path() -> String {
   case envoy.get("DATABASE_PATH") {
     Ok(path) -> path
     Error(Nil) -> "./db/data/full_house.db"
+  }
+}
+
+fn secret_key_base() -> String {
+  case envoy.get("SECRET_KEY_BASE") {
+    Ok(key) -> key
+    Error(Nil) -> "development_secret_key_base_do_not_use_in_prod"
+  }
+}
+
+fn port() -> Int {
+  case envoy.get("PORT") {
+    Ok(p) ->
+      case int.parse(p) {
+        Ok(n) -> n
+        Error(Nil) -> 8000
+      }
+    Error(Nil) -> 8000
   }
 }
 
@@ -30,10 +49,9 @@ pub fn main() -> Nil {
   let assert Ok(_) =
     composition.compose_app_context(connection)
     |> build_handler
-    // TODO: replace secret key base with env var
-    |> wisp_mist.handler("development_secret_key_base_do_not_use_in_prod")
+    |> wisp_mist.handler(secret_key_base())
     |> mist.new
-    |> mist.port(8000)
+    |> mist.port(port())
     |> mist.start
 
   process.sleep_forever()
