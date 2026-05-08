@@ -28,6 +28,10 @@ Current implementation is an early foundation and does not yet cover the full gr
 - Product and stock management basics are implemented.
 - Best-before tracking, household target stock goals, and automated restock suggestions are planned next steps.
 
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up the project locally, run tests, and submit changes.
+
 ## Deployment
 
 Docker images are published to the GitHub Container Registry on every push to `main` and on version tags (`v*`).
@@ -56,7 +60,7 @@ volumes:
 Then start it:
 
 ```sh
-docker compose -f docker-compose.example.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 The application is then available at `http://localhost:8000`.
@@ -76,4 +80,4 @@ The application is then available at `http://localhost:8000`.
 |---|---|
 | `main` | Every push to the `main` branch |
 | `sha-<short>` | Every push (pinnable SHA tag) |
-| `1.2.3`, `1.2`, `latest` | When a `v1.2.3` git tag is pushed |
+| `1.2.3`, `1.2`, `1`, `latest` | When a `v1.2.3` git tag is pushed |
