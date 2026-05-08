@@ -1,6 +1,6 @@
 import { render } from "solid-js/web";
 import { describe, expect, it } from "vitest";
-import type { StockSummary } from "../api/stock";
+import { StockSummary } from "../../data/stock/stock";
 import StockCard from "./StockCard";
 
 describe("StockCard", () => {

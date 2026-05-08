@@ -7,8 +7,8 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
-import type { Product } from "../../api/products";
-import ProductCard from "../../components/ProductCard";
+import { Product } from "../../data/product/product";
+import ProductCard from "./ProductCard";
 
 type ProductsPanelProps = Readonly<{
 	error: Error | null;
@@ -74,9 +74,9 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
 						<For each={props.products}>
 							{(product) => {
 								const parentProduct =
-									product.parent_product_id === null
-										? undefined
-										: props.productsById.get(product.parent_product_id);
+									product.parent_product_id !== undefined
+										? props.productsById.get(product.parent_product_id)
+										: undefined;
 
 								return (
 									<ProductCard

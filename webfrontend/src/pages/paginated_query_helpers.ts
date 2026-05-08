@@ -3,19 +3,18 @@ type PaginatedQueryPage<TItem> = Readonly<{
 	total: number;
 }>;
 
-type PaginatedQueryData<TPage> = Readonly<{
-	pages: TPage[];
+type PaginatedQueryData<TItem> = Readonly<{
+	pages: PaginatedQueryPage<TItem>[];
 }>;
 
-export function flattenPaginatedItems<
-	TItem,
-	TPage extends PaginatedQueryPage<TItem>,
->(queryData: PaginatedQueryData<TPage> | undefined): TItem[] {
+export function flattenPaginatedItems<TItem>(
+	queryData: PaginatedQueryData<TItem> | undefined,
+): TItem[] {
 	return queryData?.pages.flatMap((page) => page.data) ?? [];
 }
 
-export function readPaginatedTotal<TPage extends Readonly<{ total: number }>>(
-	queryData: PaginatedQueryData<TPage> | undefined,
+export function readPaginatedTotal<TItem>(
+	queryData: PaginatedQueryData<TItem> | undefined,
 ): number {
 	return queryData?.pages[0]?.total ?? 0;
 }

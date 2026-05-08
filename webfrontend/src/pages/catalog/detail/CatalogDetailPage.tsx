@@ -7,88 +7,47 @@ import IconButton from "@suid/material/IconButton";
 import Paper from "@suid/material/Paper";
 import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
-import { createQuery, useQueryClient } from "@tanstack/solid-query";
+import { useMutation, useQuery } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
-import {
-	deleteProduct,
-	fetchProduct,
-	type Product,
-	type ProductResponse,
-} from "../../../api/products";
+import { createMemo, For, Show } from "solid-js";
+import { deleteProductMutationOptions } from "../../../data/product/delete/mutation";
+import { productQueryOptions } from "../../../data/product/get/query";
+import { Product, ProductId } from "../../../data/product/product";
 import { routes } from "../../../routes";
 
-const ProductDetailPage: Component = () => {
+const usePageParams = () => {
 	const params = useParams();
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+	const productId = createMemo(() => ProductId(params.productId!));
+	return {
+		productId,
+	};
+};
+
+const ProductDetailPage: Component = () => {
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-	const productIdFromRoute = createMemo(() => params.productId ?? "");
-	const [isDeleting, setIsDeleting] = createSignal(false);
 
-	// Main product query
-	const productQuery = createQuery<ProductResponse>(() => ({
-		enabled: productIdFromRoute() !== "",
-		queryFn: () => fetchProduct(productIdFromRoute()),
-		queryKey: ["products", "detail", productIdFromRoute()] as const,
-		staleTime: 1000 * 60 * 60,
-	}));
+	const { productId } = usePageParams();
 
-	const currentProduct = createMemo(() => productQuery.data?.data);
+	// Feature: Load product details
+	const productQuery = useQuery(() => productQueryOptions(productId()));
+	const product = createMemo(() => productQuery.data);
 
-	const parentProductId = createMemo(
-		() => currentProduct()?.parent_product_id ?? null,
+	// Feature: Show parent
+	const parentProductId = createMemo(() => product()?.parent_product_id);
+	const parentQuery = useQuery(() =>
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		productQueryOptions(parentProductId()!, {
+			enabled: parentProductId() !== undefined,
+		}),
 	);
+	const parent = createMemo(() => parentQuery.data);
 
-	// Parent product query — only for resolving the display name
-	const parentQuery = createQuery<ProductResponse>(() => ({
-		enabled: parentProductId() !== null,
-		queryFn: async () => {
-			const nextParentProductId = parentProductId();
-
-			if (nextParentProductId === null) {
-				throw new Error("Parent product id is missing");
-			}
-
-			return fetchProduct(nextParentProductId);
-		},
-		queryKey: ["products", "detail", parentProductId() ?? ""] as const,
-		staleTime: 1000 * 60 * 60,
-	}));
-
-	// Hydrate cache with loaded products
-	createEffect(() => {
-		const product = currentProduct();
-		if (product === undefined) {
-			return;
-		}
-
-		queryClient.setQueryData(["products", "detail", product.id], {
-			data: product,
-		});
-	});
-
-	// Child product queries — one per child id
-	const childQueries = createMemo(() => {
-		const product = currentProduct();
-		if (!product) {
-			return [];
-		}
-
-		return product.child_product_ids.map((childId) =>
-			createQuery<ProductResponse>(() => ({
-				enabled: childId !== "",
-				queryFn: () => fetchProduct(childId),
-				queryKey: ["products", "detail", childId] as const,
-				staleTime: 1000 * 60 * 60,
-			})),
-		);
-	});
-
-	const children = createMemo(() =>
-		childQueries()
-			.map((q) => q.data?.data)
-			.filter((c): c is Product => c !== undefined),
-	);
+	// Feature: Show children
+	const childQueries = () =>
+		product()?.child_product_ids.map((childId) =>
+			useQuery(() => productQueryOptions(childId)),
+		) ?? [];
 
 	const childrenAreLoading = createMemo(() =>
 		childQueries().some((q) => q.isPending),
@@ -96,34 +55,30 @@ const ProductDetailPage: Component = () => {
 	const childrenError = createMemo(
 		() => childQueries().find((q) => q.isError)?.error ?? null,
 	);
-
-	const hasChildren = createMemo(
-		() => (currentProduct()?.child_product_ids.length ?? 0) > 0,
+	const children = createMemo(() =>
+		childQueries()
+			.filter((q) => q.data !== undefined)
+			.map((q) => q.data),
 	);
 
-	const handleDelete = async () => {
-		const product = currentProduct();
-		if (!product) {
-			return;
-		}
-
+	// Feature: Delete
+	const deleteMutation = useMutation(() =>
+		deleteProductMutationOptions(productId(), {
+			onSuccess: () => {
+				navigate(routes.catalog.build());
+			},
+			onError: (error) => {
+				console.error("Delete failed:", error);
+			},
+		}),
+	);
+	const handleDelete = (product: Product) => {
 		const confirmed = window.confirm(`Delete product "${product.name}"?`);
 		if (!confirmed) {
 			return;
 		}
 
-		setIsDeleting(true);
-		try {
-			await deleteProduct(product.id);
-			await queryClient.invalidateQueries({
-				queryKey: ["products", "infinite"],
-			});
-			navigate(routes.catalog.build());
-		} catch (error) {
-			console.error("Delete failed:", error);
-		} finally {
-			setIsDeleting(false);
-		}
+		deleteMutation.mutate();
 	};
 
 	return (
@@ -134,30 +89,25 @@ const ProductDetailPage: Component = () => {
 						Back to catalog
 					</A>
 					<Show
-						when={productIdFromRoute() !== ""}
+						when={!productQuery.isError}
 						fallback={
-							<Alert severity="error">Product id is missing in route.</Alert>
+							<Alert severity="error">
+								{productQuery.error instanceof Error
+									? productQuery.error.message
+									: "Failed to load product."}
+							</Alert>
 						}
 					>
 						<Show
-							when={!productQuery.isError}
+							when={product()}
 							fallback={
-								<Alert severity="error">
-									{productQuery.error instanceof Error
-										? productQuery.error.message
-										: "Failed to load product."}
-								</Alert>
+								<Stack spacing={2} sx={{ alignItems: "center", py: 4 }}>
+									<CircularProgress />
+									<Typography>Loading product...</Typography>
+								</Stack>
 							}
 						>
-							<Show
-								when={currentProduct() !== undefined}
-								fallback={
-									<Stack spacing={2} sx={{ alignItems: "center", py: 4 }}>
-										<CircularProgress />
-										<Typography>Loading product...</Typography>
-									</Stack>
-								}
-							>
+							{(product) => (
 								<Box
 									sx={{
 										display: "flex",
@@ -174,11 +124,11 @@ const ProductDetailPage: Component = () => {
 											Product detail
 										</Typography>
 										<Typography variant="h3" sx={{ fontWeight: 700 }}>
-											{currentProduct()?.name}
+											{product().name}
 										</Typography>
 										<Stack spacing={0.5}>
 											<Typography color="text.secondary" variant="body2">
-												{currentProduct()?.id}
+												{product().id}
 											</Typography>
 											<Show when={parentProductId()}>
 												{(parentProductId) => (
@@ -188,7 +138,7 @@ const ProductDetailPage: Component = () => {
 															class="product-inline-link product-inline-link-strong"
 															href={`/products/${parentProductId()}`}
 														>
-															{parentQuery.data?.data.name ?? parentProductId()}
+															{parent()?.name ?? parentProductId()}
 														</A>
 													</Typography>
 												)}
@@ -197,7 +147,7 @@ const ProductDetailPage: Component = () => {
 									</Stack>
 									<span
 										title={
-											hasChildren()
+											children().length > 0
 												? "Cannot delete: this product has variants. Remove them first."
 												: "Delete product"
 										}
@@ -206,21 +156,25 @@ const ProductDetailPage: Component = () => {
 										<IconButton
 											aria-label="Delete product"
 											color="error"
-											disabled={hasChildren() || isDeleting()}
-											onClick={() => void handleDelete()}
+											disabled={
+												children().length > 0 || deleteMutation.isPending
+											}
+											onClick={() => {
+												handleDelete(product());
+											}}
 											size="small"
 										>
 											<DeleteOutline />
 										</IconButton>
 									</span>
 								</Box>
-							</Show>
+							)}
 						</Show>
 					</Show>
 				</Stack>
 			</Paper>
 
-			<Show when={currentProduct() !== undefined && !productQuery.isError}>
+			<Show when={product() !== undefined && !productQuery.isError}>
 				<Paper elevation={0} sx={{ p: 3 }}>
 					<Stack spacing={2}>
 						<Stack
@@ -235,10 +189,8 @@ const ProductDetailPage: Component = () => {
 								Variants
 							</Typography>
 							<Typography color="text.secondary" variant="body2">
-								{currentProduct()?.child_product_ids.length ?? 0} variant
-								{(currentProduct()?.child_product_ids.length ?? 0) === 1
-									? ""
-									: "s"}
+								{product()?.child_product_ids.length ?? 0} variant
+								{(product()?.child_product_ids.length ?? 0) === 1 ? "" : "s"}
 							</Typography>
 						</Stack>
 

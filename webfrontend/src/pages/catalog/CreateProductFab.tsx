@@ -10,9 +10,10 @@ import Fab from "@suid/material/Fab";
 import { Portal } from "@suid/material/Portal/Portal";
 import Stack from "@suid/material/Stack";
 import TextField from "@suid/material/TextField";
+import { useMutation } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createSignal, Show } from "solid-js";
-import { createProduct } from "../../api/products";
+import { createProductMutationOptions } from "../../data/product/create/mutation";
 
 type CreateProductDialogProps = Readonly<{
 	onCreated: () => void | Promise<void>;
@@ -39,6 +40,20 @@ const CreateProductFab: Component<CreateProductDialogProps> = (props) => {
 		setParentProductId("");
 	};
 
+	const createProductMutation = useMutation(() => ({
+		...createProductMutationOptions(),
+		onSuccess: async () => {
+			await props.onCreated();
+			reset();
+			close();
+		},
+		onError: (error: Readonly<Error>) => {
+			setSubmitError(error.message);
+		},
+		onSettled: () => {
+			setIsSubmitting(false);
+		},
+	}));
 	const handleSubmit = () => {
 		const trimmedName = name().trim();
 		const trimmedParent = parentProductId().trim();
@@ -52,25 +67,10 @@ const CreateProductFab: Component<CreateProductDialogProps> = (props) => {
 		setSubmitError(null);
 		setIsSubmitting(true);
 
-		const onCreated = props.onCreated;
-
-		void createProduct({
+		createProductMutation.mutate({
 			name: trimmedName,
-			parent_product_id: trimmedParent === "" ? null : trimmedParent,
-		})
-			.then(async () => {
-				await onCreated();
-				reset();
-				close();
-			})
-			.catch((error: unknown) => {
-				setSubmitError(
-					error instanceof Error ? error.message : "Failed to create product.",
-				);
-			})
-			.finally(() => {
-				setIsSubmitting(false);
-			});
+			parent_product_id: trimmedParent !== "" ? trimmedParent : undefined,
+		});
 	};
 
 	const fabStyle = {

@@ -7,8 +7,8 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { Show } from "solid-js";
-import type { Product } from "../api/products";
-import { routes } from "../routes";
+import { Product } from "../../data/product/product";
+import { routes } from "../../routes";
 
 type ProductCardProps = Readonly<{
 	product: Product;
@@ -39,7 +39,9 @@ const ProductCard: Component<ProductCardProps> = (props) => {
 				{/* Relationships section — consistent height placeholder */}
 				<Box class="product-card-relationships">
 					<Show
-						when={props.product.parent_product_id !== null || childCount() > 0}
+						when={
+							props.product.parent_product_id !== undefined || childCount() > 0
+						}
 					>
 						<Stack spacing={0.75}>
 							<Show when={props.product.parent_product_id}>

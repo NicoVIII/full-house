@@ -1,16 +1,16 @@
 import { Route, Router } from "@solidjs/router";
 import { render } from "solid-js/web";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Product } from "../api/products";
+import { Product, ProductId } from "../../data/product/product";
 import ProductCard from "./ProductCard";
 
 describe("ProductCard", () => {
-	const mockProduct: Product = {
-		id: "123",
+	const mockProduct = Product({
+		id: ProductId("123"),
 		name: "Test Product",
-		parent_product_id: null,
+		parent_product_id: undefined,
 		child_product_ids: [],
-	};
+	});
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -39,7 +39,7 @@ describe("ProductCard", () => {
 	it("renders parent product chip when parent_product_id exists", () => {
 		const productWithParent: Product = {
 			...mockProduct,
-			parent_product_id: "parent-123",
+			parent_product_id: ProductId("parent-123"),
 		};
 
 		const container = renderCard(productWithParent);
@@ -77,7 +77,7 @@ describe("ProductCard", () => {
 	it("links the parent chip to the parent detail page", () => {
 		const productWithParent: Product = {
 			...mockProduct,
-			parent_product_id: "parent-123",
+			parent_product_id: ProductId("parent-123"),
 		};
 
 		const container = renderCard(productWithParent);
@@ -89,7 +89,7 @@ describe("ProductCard", () => {
 	it("shows variant count chip when product has children", () => {
 		const productWithChildren: Product = {
 			...mockProduct,
-			child_product_ids: ["child-1", "child-2"],
+			child_product_ids: [ProductId("child-1"), ProductId("child-2")],
 		};
 
 		const container = renderCard(productWithChildren);

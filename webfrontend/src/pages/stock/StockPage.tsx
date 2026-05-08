@@ -1,17 +1,14 @@
+import Box from "@suid/material/Box";
+import Typography from "@suid/material/Typography";
 import { createInfiniteQuery, type InfiniteData } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createMemo } from "solid-js";
-import {
-	fetchStock,
-	type StockListResponse,
-	type StockSummary,
-} from "../api/stock";
-import StockHero from "../components/StockHero";
-import StockPanel from "../components/StockPanel";
+import { fetchStock, type StockListResponse } from "../../data/stock/stock";
 import {
 	flattenPaginatedItems,
 	readPaginatedTotal,
-} from "./paginated_query_helpers";
+} from "../paginated_query_helpers";
+import StockPanel from "./StockPanel";
 
 const PAGE_SIZE = 6;
 
@@ -37,14 +34,20 @@ const StockPage: Component = () => {
 		staleTime: 1000 * 60 * 60,
 	}));
 
-	const stock = createMemo(() =>
-		flattenPaginatedItems<StockSummary, StockListResponse>(stockQuery.data),
-	);
+	const stock = createMemo(() => flattenPaginatedItems(stockQuery.data));
 	const total = createMemo(() => readPaginatedTotal(stockQuery.data));
 
 	return (
 		<>
-			<StockHero />
+			<Box sx={{ display: "flex" }}>
+				<Typography
+					variant="h2"
+					component="h1"
+					sx={{ flexGrow: 1, fontWeight: 700 }}
+				>
+					Stock
+				</Typography>
+			</Box>
 			<StockPanel
 				error={stockQuery.error}
 				hasNextPage={stockQuery.hasNextPage}

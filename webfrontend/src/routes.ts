@@ -37,7 +37,7 @@ export const routes = {
 	stock: {
 		name: "Stock",
 		...buildSimplePath("/stock"),
-		component: lazy(() => import("./pages/StockPage")),
+		component: lazy(() => import("./pages/stock/StockPage")),
 		subs: {},
 	},
 } as const satisfies Record<string, Route>;

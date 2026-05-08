@@ -1,17 +1,9 @@
 import { Typography } from "@suid/material";
 import Box from "@suid/material/Box";
-import {
-	createInfiniteQuery,
-	type InfiniteData,
-	useQueryClient,
-} from "@tanstack/solid-query";
+import { createInfiniteQuery, useQueryClient } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
-import { createEffect, createMemo } from "solid-js";
-import {
-	fetchProducts,
-	type Product,
-	type ProductListResponse,
-} from "../../api/products";
+import { createMemo } from "solid-js";
+import { productListQueryOptions } from "../../data/product/list/query";
 import {
 	flattenPaginatedItems,
 	readPaginatedTotal,
@@ -19,47 +11,16 @@ import {
 import CreateProductFab from "./CreateProductFab";
 import ProductsPanel from "./ProductsPanel";
 
-const PAGE_SIZE = 6;
-
 const CatalogPage: Component = () => {
 	const queryClient = useQueryClient();
 
-	const productsQuery = createInfiniteQuery<
-		ProductListResponse,
-		Error,
-		InfiniteData<ProductListResponse, number>,
-		readonly ["products", "infinite"],
-		number
-	>(() => ({
-		getNextPageParam: (lastPage) => {
-			const nextOffset = lastPage.offset + lastPage.data.length;
-			return nextOffset < lastPage.total ? nextOffset : undefined;
-		},
-		initialPageParam: 0,
-		queryFn: ({ pageParam }) =>
-			fetchProducts({
-				limit: PAGE_SIZE,
-				offset: pageParam,
-			}),
-		queryKey: ["products", "infinite"] as const,
-		staleTime: 1000 * 60 * 60,
-	}));
+	const productsQuery = createInfiniteQuery(productListQueryOptions);
 
-	const products = createMemo(() =>
-		flattenPaginatedItems<Product, ProductListResponse>(productsQuery.data),
-	);
+	const products = createMemo(() => flattenPaginatedItems(productsQuery.data));
 	const total = createMemo(() => readPaginatedTotal(productsQuery.data));
 	const productsById = createMemo(
 		() => new Map(products().map((product) => [product.id, product])),
 	);
-
-	createEffect(() => {
-		products().forEach((product) => {
-			queryClient.setQueryData(["products", "detail", product.id], {
-				data: product,
-			});
-		});
-	});
 
 	const handleProductCreated = async () => {
 		await queryClient.invalidateQueries({

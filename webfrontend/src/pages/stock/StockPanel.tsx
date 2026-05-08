@@ -7,7 +7,7 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
-import type { StockSummary } from "../api/stock";
+import type { StockSummary } from "../../data/stock/stock";
 import StockCard from "./StockCard";
 
 type StockPanelProps = Readonly<{
