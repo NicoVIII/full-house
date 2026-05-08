@@ -25,7 +25,7 @@ jobs:
           rebar3-version: "3"
           # elixir-version: "1"
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: backend/build/packages
           key: ${{ runner.os }}-gleam-${{ hashFiles('backcd .. && end/manifest.toml') }}
