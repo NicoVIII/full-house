@@ -14,71 +14,37 @@ import { deleteProductMutationOptions } from "../../../data/product/delete/mutat
 import { productQueryOptions } from "../../../data/product/get/query";
 import { Product, ProductId } from "../../../data/product/product";
 import { routes } from "../../../routes";
+import ParentLink from "./ParentLink";
+import VariantRow from "./VariantRow";
 
 const usePageParams = () => {
 	const params = useParams();
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	const productId = createMemo(() => ProductId(params.productId!));
-	return {
-		productId,
-	};
+	return { productId };
 };
 
 const ProductDetailPage: Component = () => {
 	const navigate = useNavigate();
-
 	const { productId } = usePageParams();
 
-	// Feature: Load product details
 	const productQuery = useQuery(() => productQueryOptions(productId()));
-	const product = createMemo(() => productQuery.data);
+	const product = () => productQuery.data;
 
-	// Feature: Show parent
-	const parentProductId = createMemo(() => product()?.parent_product_id);
-	const parentQuery = useQuery(() =>
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		productQueryOptions(parentProductId()!, {
-			enabled: parentProductId() !== undefined,
-		}),
-	);
-	const parent = createMemo(() => parentQuery.data);
-
-	// Feature: Show children
-	const childQueries = () =>
-		product()?.child_product_ids.map((childId) =>
-			useQuery(() => productQueryOptions(childId)),
-		) ?? [];
-
-	const childrenAreLoading = createMemo(() =>
-		childQueries().some((q) => q.isPending),
-	);
-	const childrenError = createMemo(
-		() => childQueries().find((q) => q.isError)?.error ?? null,
-	);
-	const children = createMemo(() =>
-		childQueries()
-			.filter((q) => q.data !== undefined)
-			.map((q) => q.data),
-	);
-
-	// Feature: Delete
 	const deleteMutation = useMutation(() =>
-		deleteProductMutationOptions(productId(), {
+		deleteProductMutationOptions(productId()),
+	);
+
+	const handleDelete = (p: Product) => {
+		if (!window.confirm(`Delete product "${p.name}"?`)) return;
+		deleteMutation.mutate(undefined, {
 			onSuccess: () => {
 				navigate(routes.catalog.build());
 			},
 			onError: (error) => {
 				console.error("Delete failed:", error);
 			},
-		}),
-	);
-	const handleDelete = (product: Product) => {
-		const confirmed = window.confirm(`Delete product "${product.name}"?`);
-		if (!confirmed) {
-			return;
-		}
-
-		deleteMutation.mutate();
+		});
 	};
 
 	return (
@@ -130,24 +96,14 @@ const ProductDetailPage: Component = () => {
 											<Typography color="text.secondary" variant="body2">
 												{product().id}
 											</Typography>
-											<Show when={parentProductId()}>
-												{(parentProductId) => (
-													<Typography variant="body2" color="text.secondary">
-														Parent:{" "}
-														<A
-															class="product-inline-link product-inline-link-strong"
-															href={`/products/${parentProductId()}`}
-														>
-															{parent()?.name ?? parentProductId()}
-														</A>
-													</Typography>
-												)}
+											<Show when={product().parent_product_id}>
+												{(parentId) => <ParentLink parentId={parentId()} />}
 											</Show>
 										</Stack>
 									</Stack>
 									<span
 										title={
-											children().length > 0
+											product().child_product_ids.length > 0
 												? "Cannot delete: this product has variants. Remove them first."
 												: "Delete product"
 										}
@@ -157,7 +113,8 @@ const ProductDetailPage: Component = () => {
 											aria-label="Delete product"
 											color="error"
 											disabled={
-												children().length > 0 || deleteMutation.isPending
+												product().child_product_ids.length > 0 ||
+												deleteMutation.isPending
 											}
 											onClick={() => {
 												handleDelete(product());
@@ -174,45 +131,30 @@ const ProductDetailPage: Component = () => {
 				</Stack>
 			</Paper>
 
-			<Show when={product() !== undefined && !productQuery.isError}>
-				<Paper elevation={0} sx={{ p: 3 }}>
-					<Stack spacing={2}>
-						<Stack
-							direction={{ xs: "column", sm: "row" }}
-							spacing={1}
-							sx={{
-								alignItems: { xs: "flex-start", sm: "center" },
-								justifyContent: "space-between",
-							}}
-						>
-							<Typography variant="h6" sx={{ fontWeight: 600 }}>
-								Variants
-							</Typography>
-							<Typography color="text.secondary" variant="body2">
-								{product()?.child_product_ids.length ?? 0} variant
-								{(product()?.child_product_ids.length ?? 0) === 1 ? "" : "s"}
-							</Typography>
-						</Stack>
+			<Show when={!productQuery.isError}>
+				<Show when={product()}>
+					{(p) => (
+						<Paper elevation={0} sx={{ p: 3 }}>
+							<Stack spacing={2}>
+								<Stack
+									direction={{ xs: "column", sm: "row" }}
+									spacing={1}
+									sx={{
+										alignItems: { xs: "flex-start", sm: "center" },
+										justifyContent: "space-between",
+									}}
+								>
+									<Typography variant="h6" sx={{ fontWeight: 600 }}>
+										Variants
+									</Typography>
+									<Typography color="text.secondary" variant="body2">
+										{p().child_product_ids.length} variant
+										{p().child_product_ids.length === 1 ? "" : "s"}
+									</Typography>
+								</Stack>
 
-						<Show
-							when={childrenError() === null}
-							fallback={
-								<Alert severity="error">
-									{childrenError()?.message ?? "Failed to load variants."}
-								</Alert>
-							}
-						>
-							<Show
-								when={!childrenAreLoading()}
-								fallback={
-									<Stack spacing={2} sx={{ alignItems: "center", py: 3 }}>
-										<CircularProgress size={28} />
-										<Typography>Loading variants...</Typography>
-									</Stack>
-								}
-							>
 								<Show
-									when={children().length > 0}
+									when={p().child_product_ids.length > 0}
 									fallback={
 										<Typography color="text.secondary">
 											No variants linked to this product.
@@ -220,43 +162,15 @@ const ProductDetailPage: Component = () => {
 									}
 								>
 									<Stack spacing={1}>
-										<For each={children()}>
-											{(child) => (
-												<Box class="product-detail-child-row">
-													<Stack
-														direction={{ xs: "column", sm: "row" }}
-														spacing={1}
-														sx={{
-															alignItems: { xs: "flex-start", sm: "center" },
-															justifyContent: "space-between",
-														}}
-													>
-														<Stack spacing={0.25}>
-															<A
-																class="product-inline-link product-inline-link-strong"
-																href={routes.catalog.subs.detail.build(
-																	child.id,
-																)}
-															>
-																{child.name}
-															</A>
-															<Typography
-																color="text.secondary"
-																variant="body2"
-															>
-																{child.id}
-															</Typography>
-														</Stack>
-													</Stack>
-												</Box>
-											)}
+										<For each={p().child_product_ids}>
+											{(childId) => <VariantRow id={childId} />}
 										</For>
 									</Stack>
 								</Show>
-							</Show>
-						</Show>
-					</Stack>
-				</Paper>
+							</Stack>
+						</Paper>
+					)}
+				</Show>
 			</Show>
 		</Stack>
 	);
