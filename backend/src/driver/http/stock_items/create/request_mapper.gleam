@@ -1,28 +1,26 @@
 import common/product_id
-import gleam/dynamic.{type Dynamic}
-import gleam/dynamic/decode
+import driver/skirout/stock as skir_stock
 import gleam/result
-
-fn payload_decoder() -> decode.Decoder(String) {
-  use product_id <- decode.field("product_id", decode.string)
-  decode.success(product_id)
-}
+import skir_client/serializer
 
 pub type Error {
   ParseError
   ProductIdError
 }
 
-pub fn map_payload(payload: Dynamic) -> Result(product_id.T, Error) {
-  use raw_product_id <- result.try(case decode.run(payload, payload_decoder()) {
-    Ok(decoded) -> Ok(decoded)
-    Error(_) -> Error(ParseError)
-  })
+pub fn map_payload(body: String) -> Result(product_id.T, Error) {
+  use req <- result.try(
+    serializer.from_json_code(
+      skir_stock.create_stock_item_request_serializer(),
+      body,
+    )
+    // nolint: error_context_lost
+    |> result.map_error(fn(_) { ParseError }),
+  )
 
-  case product_id.new(raw_product_id) {
-    Ok(id) -> Ok(id)
-    Error(Nil) -> Error(ProductIdError)
-  }
+  product_id.new(req.product_id)
+  // nolint: error_context_lost
+  |> result.map_error(fn(_) { ProductIdError })
 }
 
 pub fn error_to_string(error: Error) -> String {

@@ -1,12 +1,7 @@
+import { decode } from "../../../skir";
+import { Product as SkirProduct } from "../../../skirout/product";
 import { readApiErrorMessage } from "../api_helper";
 import { Product, ProductId } from "../product";
-
-type ProductResponse = Readonly<{
-	id: string;
-	name: string;
-	parent_product_id: string | null;
-	child_product_ids: string[];
-}>;
 
 // TODO: non-happy path: product doesn't exist
 export async function fetchProduct(productId: string): Promise<Product> {
@@ -17,13 +12,13 @@ export async function fetchProduct(productId: string): Promise<Product> {
 		throw new Error(await readApiErrorMessage(response, defaultMessage));
 	}
 
-	const data = (await response.json()) as ProductResponse;
+	const data = await decode(response, SkirProduct.serializer);
 	return Product({
 		id: ProductId(data.id),
 		name: data.name,
-		parent_product_id: data.parent_product_id
-			? ProductId(data.parent_product_id)
+		parent_product_id: data.parentProductId
+			? ProductId(data.parentProductId)
 			: undefined,
-		child_product_ids: data.child_product_ids.map(ProductId),
+		child_product_ids: data.childProductIds.map(ProductId),
 	});
 }

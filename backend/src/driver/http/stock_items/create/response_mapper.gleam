@@ -1,12 +1,25 @@
 import common/product_id
 import common/uuid
 import domain/stock_items/stock_item
-import gleam/json
+import driver/http/skir
+import driver/http/wire_format
+import driver/skirout/stock as skir_stock
+import wisp
 
-pub fn map_stock_item(item: stock_item.T) -> json.Json {
+fn map_stock_item(item: stock_item.T) -> skir_stock.StockItem {
   let stock_item.StockItem(id:, product_id:) = item
-  json.object([
-    #("id", json.string(uuid.value(id))),
-    #("product_id", json.string(product_id.value(product_id))),
-  ])
+  skir_stock.stock_item_new(uuid.value(id), product_id.value(product_id))
+}
+
+pub fn encode_stock_item(
+  response response: wisp.Response,
+  item item: stock_item.T,
+  format format: wire_format.T,
+) -> wisp.Response {
+  response
+  |> skir.encode(
+    map_stock_item(item),
+    skir_stock.stock_item_serializer(),
+    format,
+  )
 }

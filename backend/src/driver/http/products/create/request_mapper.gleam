@@ -1,35 +1,12 @@
 import common/product_id
 import domain/basics/non_empty_set
 import domain/products/product_name
-import gleam/dynamic.{type Dynamic}
-import gleam/dynamic/decode
+import driver/skirout/product as skir_product
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
-
-fn payload_decoder() -> decode.Decoder(#(String, Option(String))) {
-  {
-    use name <- decode.field("name", decode.string)
-    use parent_product_id <- decode.optional_field(
-      "parent_product_id",
-      None,
-      decode.optional(decode.string),
-    )
-    decode.success(#(name, parent_product_id))
-  }
-}
-
-fn parse_parent_product_id(
-  raw_parent_product_id: Option(String),
-) -> Result(Option(product_id.T), Nil) {
-  case raw_parent_product_id {
-    None -> Ok(None)
-    Some(raw_id) ->
-      product_id.new(raw_id)
-      |> result.map(Some)
-  }
-}
+import skir_client/serializer
 
 pub type Error {
   ParseError
@@ -38,23 +15,29 @@ pub type Error {
 }
 
 pub fn map_payload(
-  payload: Dynamic,
+  body: String,
 ) -> Result(#(product_name.T, Option(product_id.T)), Error) {
-  use #(raw_name, raw_parent_product_id) <- result.try(
-    case decode.run(payload, payload_decoder()) {
-      Ok(decoded) -> Ok(decoded)
-      Error(_) -> Error(ParseError)
-    },
+  use req <- result.try(
+    serializer.from_json_code(
+      skir_product.create_product_request_serializer(),
+      body,
+    )
+    // nolint: error_context_lost
+    |> result.map_error(fn(_) { ParseError }),
   )
+
   use name <- result.try(
-    product_name.from_user_input(raw_name) |> result.map_error(ProductNameError),
+    product_name.from_user_input(req.name) |> result.map_error(ProductNameError),
   )
-  use parent_product_id <- result.try(
-    case parse_parent_product_id(raw_parent_product_id) {
-      Ok(parent_product_id) -> Ok(parent_product_id)
-      Error(_) -> Error(ParentProductIdError)
-    },
-  )
+
+  use parent_product_id <- result.try(case req.parent_product_id {
+    None -> Ok(None)
+    Some(raw_id) ->
+      product_id.new(raw_id)
+      |> result.map(Some)
+      // nolint: error_context_lost
+      |> result.map_error(fn(_) { ParentProductIdError })
+  })
 
   Ok(#(name, parent_product_id))
 }

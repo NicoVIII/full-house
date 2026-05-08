@@ -2,6 +2,7 @@ import application/queries/list_stock_items
 import driver/http/handler_helpers
 import driver/http/pagination_request_mapper
 import driver/http/stock_items/list/response_mapper
+import driver/http/wire_format
 import gleam/http
 import wisp
 
@@ -24,6 +25,7 @@ pub fn handle(
     list_stock_items.execute(paging_params, port)
     |> handler_helpers.on_error_value(wisp.internal_server_error())
 
-  let body = response_mapper.map_list_stock_response(result)
-  wisp.json_response(body, 200)
+  let format = wire_format.from_accept_header(request)
+  wisp.response(200)
+  |> response_mapper.map_list_stock_response(result, format)
 }

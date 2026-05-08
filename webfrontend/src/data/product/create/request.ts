@@ -1,14 +1,12 @@
+import { buildHeader, decode, encode } from "../../../skir";
+import {
+	CreateProductRequest,
+	Product as SkirProduct,
+} from "../../../skirout/product";
 import { readApiErrorMessage } from "../api_helper";
 import { Product, ProductId } from "../product";
 
-export type ProductData = Readonly<{
-	id: string;
-	name: string;
-	parent_product_id: string | null;
-	child_product_ids: string[];
-}>;
-
-export type CreateProductRequest = Readonly<{
+export type Request = Readonly<{
 	name: string;
 	parent_product_id?: string | undefined;
 }>;
@@ -16,16 +14,19 @@ export type CreateProductRequest = Readonly<{
 export async function createProduct({
 	name,
 	parent_product_id,
-}: CreateProductRequest): Promise<Product> {
+}: Request): Promise<Product> {
+	const body = encode(
+		CreateProductRequest.serializer,
+		CreateProductRequest.create({
+			name,
+			parentProductId: parent_product_id ?? null,
+		}),
+	);
+
 	const response = await fetch("/api/v1/products", {
 		method: "POST",
-		headers: {
-			"content-type": "application/json",
-		},
-		body: JSON.stringify({
-			name,
-			parent_product_id: parent_product_id ?? null,
-		}),
+		headers: buildHeader(),
+		body,
 	});
 
 	if (!response.ok) {
@@ -33,13 +34,13 @@ export async function createProduct({
 		throw new Error(await readApiErrorMessage(response, defaultMessage));
 	}
 
-	const data = (await response.json()) as ProductData;
+	const data = await decode(response, SkirProduct.serializer);
 	return Product({
 		id: ProductId(data.id),
 		name: data.name,
-		parent_product_id: data.parent_product_id
-			? ProductId(data.parent_product_id)
+		parent_product_id: data.parentProductId
+			? ProductId(data.parentProductId)
 			: undefined,
-		child_product_ids: data.child_product_ids.map(ProductId),
+		child_product_ids: data.childProductIds.map(ProductId),
 	});
 }

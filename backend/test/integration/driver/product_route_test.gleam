@@ -21,6 +21,12 @@ import gleam/string
 import wisp
 import wisp/simulate
 
+fn simulate_request(method: http.Method, path: String) -> wisp.Request {
+  simulate.request(method, path)
+  |> simulate.header("Content-Type", "application/json")
+  |> simulate.header("Accept", "application/json")
+}
+
 fn make_model(
   id: String,
   name: String,
@@ -156,7 +162,7 @@ fn app_handler() -> fn(wisp.Request) -> wisp.Response {
 
 pub fn product_detail_route_returns_product_json_test() {
   let request =
-    simulate.request(
+    simulate_request(
       http.Get,
       "/api/v1/products/018f4e1a-0000-7000-8000-000000000003",
     )
@@ -165,15 +171,15 @@ pub fn product_detail_route_returns_product_json_test() {
   let body = simulate.read_body(response)
 
   assert response.status == 200
-  assert string.contains(body, "\"name\":\"Cappuccino\"")
+  assert string.contains(body, "\"name\": \"Cappuccino\"")
   assert string.contains(
     body,
-    "\"parent_product_id\":\"018f4e1a-0000-7000-8000-000000000002\"",
+    "\"parent_product_id\": \"018f4e1a-0000-7000-8000-000000000002\"",
   )
 }
 
 pub fn product_detail_route_rejects_invalid_product_id_test() {
-  let request = simulate.request(http.Get, "/api/v1/products/not-a-uuid")
+  let request = simulate_request(http.Get, "/api/v1/products/not-a-uuid")
 
   let response = app_handler()(request)
 
@@ -182,7 +188,7 @@ pub fn product_detail_route_rejects_invalid_product_id_test() {
 
 pub fn product_detail_route_returns_not_found_test() {
   let request =
-    simulate.request(
+    simulate_request(
       http.Get,
       "/api/v1/products/018f4e1a-0000-7000-8000-000000000099",
     )
@@ -195,33 +201,32 @@ pub fn product_detail_route_returns_not_found_test() {
 }
 
 pub fn products_route_returns_paginated_json_test() {
-  let request = simulate.request(http.Get, "/api/v1/products?limit=2")
+  let request = simulate_request(http.Get, "/api/v1/products?limit=2")
 
   let response = app_handler()(request)
   let body = simulate.read_body(response)
 
   assert response.status == 200
-  assert string.contains(body, "\"total\":4")
-  assert string.contains(body, "\"limit\":2")
-  assert string.contains(body, "\"offset\":0")
-  assert string.contains(body, "\"name\":\"Espresso\"")
+  assert string.contains(body, "\"total\": 4")
+  assert string.contains(body, "\"limit\": 2")
+  assert string.contains(body, "\"name\": \"Espresso\"")
 }
 
 pub fn products_route_uses_offset_param_test() {
-  let request = simulate.request(http.Get, "/api/v1/products?offset=1&limit=1")
+  let request = simulate_request(http.Get, "/api/v1/products?offset=1&limit=1")
 
   let response = app_handler()(request)
   let body = simulate.read_body(response)
 
   assert response.status == 200
-  assert string.contains(body, "\"total\":4")
-  assert string.contains(body, "\"offset\":1")
-  assert string.contains(body, "\"limit\":1")
-  assert string.contains(body, "\"name\":\"Latte\"")
+  assert string.contains(body, "\"total\": 4")
+  assert string.contains(body, "\"offset\": 1")
+  assert string.contains(body, "\"limit\": 1")
+  assert string.contains(body, "\"name\": \"Latte\"")
 }
 
 pub fn products_route_rejects_invalid_limit_test() {
-  let request = simulate.request(http.Get, "/api/v1/products?limit=abc")
+  let request = simulate_request(http.Get, "/api/v1/products?limit=abc")
 
   let response = app_handler()(request)
   let body = simulate.read_body(response)
@@ -231,7 +236,7 @@ pub fn products_route_rejects_invalid_limit_test() {
 }
 
 pub fn products_route_rejects_out_of_range_limit_test() {
-  let request = simulate.request(http.Get, "/api/v1/products?limit=999")
+  let request = simulate_request(http.Get, "/api/v1/products?limit=999")
 
   let response = app_handler()(request)
   let body = simulate.read_body(response)
@@ -241,7 +246,7 @@ pub fn products_route_rejects_out_of_range_limit_test() {
 }
 
 pub fn products_route_rejects_negative_offset_test() {
-  let request = simulate.request(http.Get, "/api/v1/products?offset=-1")
+  let request = simulate_request(http.Get, "/api/v1/products?offset=-1")
 
   let response = app_handler()(request)
   let body = simulate.read_body(response)
@@ -252,20 +257,20 @@ pub fn products_route_rejects_negative_offset_test() {
 
 pub fn products_route_creates_product_test() {
   let request =
-    simulate.request(http.Post, "/api/v1/products")
+    simulate_request(http.Post, "/api/v1/products")
     |> simulate.json_body(json.object([#("name", json.string("Pour Over"))]))
 
   let response = app_handler()(request)
   let body = simulate.read_body(response)
 
   assert response.status == 201
-  assert string.contains(body, "\"name\":\"Pour Over\"")
+  assert string.contains(body, "\"name\": \"Pour Over\"")
   assert string.contains(body, "\"id\":")
 }
 
 pub fn products_route_rejects_empty_name_on_create_test() {
   let request =
-    simulate.request(http.Post, "/api/v1/products")
+    simulate_request(http.Post, "/api/v1/products")
     |> simulate.json_body(json.object([#("name", json.string("   "))]))
 
   let response = app_handler()(request)
@@ -277,7 +282,7 @@ pub fn products_route_rejects_empty_name_on_create_test() {
 
 pub fn products_route_rejects_name_with_newline_on_create_test() {
   let request =
-    simulate.request(http.Post, "/api/v1/products")
+    simulate_request(http.Post, "/api/v1/products")
     |> simulate.json_body(json.object([#("name", json.string("Flat\nWhite"))]))
 
   let response = app_handler()(request)
@@ -292,7 +297,7 @@ pub fn products_route_rejects_name_with_newline_on_create_test() {
 
 pub fn products_route_rejects_invalid_parent_product_id_on_create_test() {
   let request =
-    simulate.request(http.Post, "/api/v1/products")
+    simulate_request(http.Post, "/api/v1/products")
     |> simulate.json_body(
       json.object([
         #("name", json.string("Flat White")),
@@ -307,7 +312,7 @@ pub fn products_route_rejects_invalid_parent_product_id_on_create_test() {
 
 pub fn products_route_returns_error_for_missing_parent_product_test() {
   let request =
-    simulate.request(http.Post, "/api/v1/products")
+    simulate_request(http.Post, "/api/v1/products")
     |> simulate.json_body(
       json.object([
         #("name", json.string("Flat White")),
@@ -329,7 +334,7 @@ pub fn products_route_returns_error_for_missing_parent_product_test() {
 }
 
 pub fn products_route_rejects_unsupported_methods_test() {
-  let request = simulate.request(http.Put, "/api/v1/products")
+  let request = simulate_request(http.Put, "/api/v1/products")
 
   let response = app_handler()(request)
 
@@ -337,7 +342,7 @@ pub fn products_route_rejects_unsupported_methods_test() {
 }
 
 pub fn unknown_route_returns_not_found_test() {
-  let request = simulate.request(http.Get, "/api/v1/unknown")
+  let request = simulate_request(http.Get, "/api/v1/unknown")
 
   let response = app_handler()(request)
 

@@ -18,7 +18,7 @@ describe("fetchStock", () => {
 		global.fetch = vi.fn(() =>
 			Promise.resolve({
 				ok: true,
-				json: () => Promise.resolve(mockResponse),
+				text: () => Promise.resolve(JSON.stringify(mockResponse)),
 			} as Response),
 		);
 

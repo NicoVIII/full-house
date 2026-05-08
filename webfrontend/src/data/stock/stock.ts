@@ -1,3 +1,6 @@
+import { decode } from "../../skir";
+import { StockListResponse as SkirStockListResponse } from "../../skirout/stock";
+
 export type StockSummary = Readonly<{
 	product_id: string;
 	product_name: string;
@@ -34,5 +37,15 @@ export async function fetchStock({
 		);
 	}
 
-	return (await response.json()) as StockListResponse;
+	const parsed = await decode(response, SkirStockListResponse.serializer);
+	return {
+		data: parsed.data.map((s) => ({
+			product_id: s.productId,
+			product_name: s.productName,
+			quantity: s.quantity,
+		})),
+		total: parsed.total,
+		offset: parsed.offset,
+		limit: parsed.limit,
+	};
 }

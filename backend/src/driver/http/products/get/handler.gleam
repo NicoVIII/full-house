@@ -2,7 +2,8 @@ import application/queries/get_product
 import application/shared/infrastructure_error
 import common/product_id
 import driver/http/handler_helpers
-import driver/http/products/product_json
+import driver/http/products/skir
+import driver/http/wire_format
 import gleam/json
 import wisp
 
@@ -25,6 +26,7 @@ fn error_response(error: get_product.GetProductError) -> wisp.Response {
 
 pub fn handle(
   id_raw id_raw: String,
+  request request: wisp.Request,
   port port: get_product.GetProductPort,
 ) -> wisp.Response {
   use id <-
@@ -34,11 +36,11 @@ pub fn handle(
     ))
 
   case get_product.execute(id, port) {
-    Ok(found_product) ->
-      wisp.json_response(
-        product_json.map_product_query_model(found_product) |> json.to_string,
-        200,
-      )
+    Ok(found_product) -> {
+      let format = wire_format.from_accept_header(request)
+      wisp.response(200)
+      |> skir.encode_product(found_product, format)
+    }
     Error(error) -> error_response(error)
   }
 }

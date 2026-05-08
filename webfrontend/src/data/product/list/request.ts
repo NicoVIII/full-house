@@ -1,19 +1,7 @@
+import { buildHeader, decode } from "../../../skir";
+import { ProductListResponse as SkirProductListResponse } from "../../../skirout/product";
 import { ListResponse, readApiErrorMessage } from "../api_helper";
 import { Product, ProductId } from "../product";
-
-type ProductData = Readonly<{
-	id: string;
-	name: string;
-	parent_product_id: string | null;
-	child_product_ids: string[];
-}>;
-
-type ProductListResponse = Readonly<{
-	data: ProductData[];
-	total: number;
-	offset: number;
-	limit: number;
-}>;
 
 type FetchProductsParams = Readonly<{
 	offset: number;
@@ -30,26 +18,29 @@ export async function fetchProducts({
 		offset: String(offset),
 	});
 
-	const response = await fetch(`/api/v1/products?${searchParams.toString()}`);
+	const response = await fetch(`/api/v1/products?${searchParams.toString()}`, {
+		headers: buildHeader(),
+	});
 
 	if (!response.ok) {
 		const defaultMessage = `Products request failed with status ${String(response.status)}`;
 		throw new Error(await readApiErrorMessage(response, defaultMessage));
 	}
 
-	const parsedResponse = (await response.json()) as ProductListResponse;
-	const data = parsedResponse.data;
+	const parsed = await decode(response, SkirProductListResponse.serializer);
 	return {
-		...parsedResponse,
-		data: data.map((product) =>
+		data: parsed.data.map((p) =>
 			Product({
-				id: ProductId(product.id),
-				name: product.name,
-				parent_product_id: product.parent_product_id
-					? ProductId(product.parent_product_id)
+				id: ProductId(p.id),
+				name: p.name,
+				parent_product_id: p.parentProductId
+					? ProductId(p.parentProductId)
 					: undefined,
-				child_product_ids: product.child_product_ids.map(ProductId),
+				child_product_ids: p.childProductIds.map(ProductId),
 			}),
 		),
+		total: parsed.total,
+		offset: parsed.offset,
+		limit: parsed.limit,
 	};
 }

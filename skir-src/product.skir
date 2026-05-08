@@ -1,0 +1,18 @@
+struct Product {
+  id: string = 0;
+  name: string = 1;
+  parent_product_id: string? = 2;
+  child_product_ids: [string] = 3;
+}
+
+struct CreateProductRequest {
+  name: string = 0;
+  parent_product_id: string? = 1;
+}
+
+struct ProductListResponse {
+  data: [Product] = 0;
+  total: int32 = 1;
+  offset: int32 = 2;
+  limit: int32 = 3;
+}

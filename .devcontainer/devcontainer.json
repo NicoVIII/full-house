@@ -32,7 +32,8 @@
 				"FanaticPythoner.better-todo-tree",
 				"dbaeumer.vscode-eslint",
 				"MermaidChart.vscode-mermaid-chart",
-				"fronterior.biome-monorepo"
+				"fronterior.biome-monorepo",
+				"TylerFibonacci.skir-language"
 			]
 		}
 	}

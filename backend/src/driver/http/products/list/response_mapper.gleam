@@ -1,22 +1,29 @@
 import application/queries/common/page_limit
 import application/queries/common/page_offset
-import application/queries/common/product_query_model
 import application/queries/list_products
-import driver/http/products/product_json
-import gleam/json
+import driver/http/products/skir as product_skir
+import driver/http/skir
+import driver/http/wire_format
+import driver/skirout/product as skir_product
+import gleam/list
+import wisp
 
-fn map_product_list(products: List(product_query_model.T)) -> json.Json {
-  json.array(products, product_json.map_product_query_model)
-}
-
-pub fn map_list_products_response(response: list_products.Response) -> String {
-  let data_json = map_product_list(response.data)
-
-  json.object([
-    #("data", data_json),
-    #("total", json.int(response.total)),
-    #("limit", json.int(page_limit.value(response.paging_params.limit))),
-    #("offset", json.int(page_offset.value(response.paging_params.offset))),
-  ])
-  |> json.to_string
+pub fn map_list_products_response(
+  response: wisp.Response,
+  list_product_response: list_products.Response,
+  format: wire_format.T,
+) -> wisp.Response {
+  let list_reponse =
+    skir_product.product_list_response_new(
+      list.map(list_product_response.data, product_skir.map_product),
+      page_limit.value(list_product_response.paging_params.limit),
+      page_offset.value(list_product_response.paging_params.offset),
+      list_product_response.total,
+    )
+  response
+  |> skir.encode(
+    list_reponse,
+    skir_product.product_list_response_serializer(),
+    format,
+  )
 }

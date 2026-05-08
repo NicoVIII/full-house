@@ -46,7 +46,8 @@ fn products_detail_route(
   case request.method {
     http.Delete ->
       products_delete_handler.handle(id_raw, context.delete_product_ports)
-    http.Get -> products_get_handler.handle(id_raw, context.get_product_port)
+    http.Get ->
+      products_get_handler.handle(id_raw, request, context.get_product_port)
     _ -> wisp.method_not_allowed(allowed: [http.Get, http.Delete])
   }
 }

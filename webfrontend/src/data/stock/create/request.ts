@@ -1,3 +1,8 @@
+import { buildHeader, encode } from "../../../skir";
+import {
+	CreateStockItemRequest as SkirCreateStockItemRequest,
+	StockItem as SkirStockItem,
+} from "../../../skirout/stock";
 import { readApiErrorMessage } from "../../product/api_helper";
 
 export type CreateStockItemRequest = Readonly<{
@@ -12,12 +17,15 @@ export type StockItemData = Readonly<{
 export async function createStockItem({
 	product_id,
 }: CreateStockItemRequest): Promise<StockItemData> {
+	const body = encode(
+		SkirCreateStockItemRequest.serializer,
+		SkirCreateStockItemRequest.create({ productId: product_id }),
+	);
+
 	const response = await fetch("/api/v1/stock_items", {
 		method: "POST",
-		headers: {
-			"content-type": "application/json",
-		},
-		body: JSON.stringify({ product_id }),
+		headers: buildHeader(),
+		body,
 	});
 
 	if (!response.ok) {
@@ -25,5 +33,6 @@ export async function createStockItem({
 		throw new Error(await readApiErrorMessage(response, defaultMessage));
 	}
 
-	return (await response.json()) as StockItemData;
+	const data = SkirStockItem.serializer.fromJsonCode(await response.text());
+	return { id: data.id, product_id: data.productId };
 }

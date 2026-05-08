@@ -3,8 +3,8 @@ import application/shared/infrastructure_error
 import driver/http/handler_helpers
 import driver/http/stock_items/create/request_mapper
 import driver/http/stock_items/create/response_mapper
+import driver/http/wire_format
 import gleam/http
-import gleam/json
 import wisp
 
 fn create_error_response(error: create_stock_item.Error) -> wisp.Response {
@@ -23,9 +23,9 @@ pub fn handle(
   ports ports: create_stock_item.Ports,
 ) -> wisp.Response {
   use <- wisp.require_method(request, http.Post)
-  use payload <- wisp.require_json(request)
+  use body <- wisp.require_string_body(request)
   use product_id <-
-    request_mapper.map_payload(payload)
+    request_mapper.map_payload(body)
     |> handler_helpers.on_error(fn(error) {
       request_mapper.error_to_string(error) |> handler_helpers.bad_request
     })
@@ -36,7 +36,7 @@ pub fn handle(
     create_stock_item.execute(command, ports)
     |> handler_helpers.on_error(create_error_response)
 
-  response_mapper.map_stock_item(result)
-  |> json.to_string
-  |> wisp.json_response(201)
+  let format = wire_format.from_accept_header(request)
+  wisp.response(201)
+  |> response_mapper.encode_stock_item(result, format)
 }

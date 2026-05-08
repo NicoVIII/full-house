@@ -1,0 +1,21 @@
+struct StockSummary {
+  product_id: string = 0;
+  product_name: string = 1;
+  quantity: int32 = 2;
+}
+
+struct CreateStockItemRequest {
+  product_id: string = 0;
+}
+
+struct StockItem {
+  id: string = 0;
+  product_id: string = 1;
+}
+
+struct StockListResponse {
+  data: [StockSummary] = 0;
+  total: int32 = 1;
+  offset: int32 = 2;
+  limit: int32 = 3;
+}
