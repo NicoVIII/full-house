@@ -1,4 +1,5 @@
 import application/commands/create_product
+import application/commands/create_stock_item
 import application/commands/delete_product
 import application/queries/common/page_limit
 import application/queries/common/page_offset
@@ -139,6 +140,10 @@ fn mock_app_context() -> composition.AppContext {
       get_deletion_properties: get_deletion_properties_mock,
       delete: delete_product_mock,
       load_product: fn(_id) { Error(delete_product.LoadProductNotFound) },
+    ),
+    create_stock_item_ports: create_stock_item.Ports(
+      does_product_exist: fn(_) { panic as "not mocked" },
+      create: fn(_) { panic as "not mocked" },
     ),
     list_stock_items_port: list_stock_mock,
   )

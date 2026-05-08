@@ -1,10 +1,12 @@
 import application/commands/create_product
+import application/commands/create_stock_item
 import application/commands/delete_product
 import application/queries/get_product
 import application/queries/list_products
 import application/queries/list_stock_items
 import infrastructure/adapter/commands/create_product/create_adapter
 import infrastructure/adapter/commands/create_product/product_existence_adapter
+import infrastructure/adapter/commands/create_stock_item/create_adapter as stock_item_create_adapter
 import infrastructure/adapter/commands/delete_product/delete_adapter
 import infrastructure/adapter/commands/delete_product/deletion_properties_adapter
 import infrastructure/adapter/commands/delete_product/load_product_adapter
@@ -17,6 +19,7 @@ import sqlight
 pub type AppContext {
   AppContext(
     create_product_ports: create_product.Ports,
+    create_stock_item_ports: create_stock_item.Ports,
     delete_product_ports: delete_product.Ports,
     get_product_port: get_product.GetProductPort,
     list_products_port: list_products.ListProductsPort,
@@ -28,6 +31,10 @@ pub fn compose_app_context(db_connection: sqlight.Connection) -> AppContext {
   AppContext(
     create_product_ports: create_product.Ports(
       create: create_adapter.new(db_connection),
+      does_product_exist: product_existence_adapter.new(db_connection),
+    ),
+    create_stock_item_ports: create_stock_item.Ports(
+      create: stock_item_create_adapter.new(db_connection),
       does_product_exist: product_existence_adapter.new(db_connection),
     ),
     delete_product_ports: delete_product.Ports(

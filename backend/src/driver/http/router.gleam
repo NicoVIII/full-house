@@ -3,6 +3,7 @@ import driver/http/products/create/handler as products_create_handler
 import driver/http/products/delete/handler as products_delete_handler
 import driver/http/products/get/handler as products_get_handler
 import driver/http/products/list/handler as products_list_handler
+import driver/http/stock_items/create/handler as stock_items_create_handler
 import driver/http/stock_items/list/handler as stock_items_list_handler
 import envoy
 import gleam/http
@@ -57,7 +58,12 @@ fn stock_items_route(
   case request.method {
     http.Get ->
       stock_items_list_handler.handle(request, context.list_stock_items_port)
-    _ -> wisp.method_not_allowed(allowed: [http.Get])
+    http.Post ->
+      stock_items_create_handler.handle(
+        request,
+        context.create_stock_item_ports,
+      )
+    _ -> wisp.method_not_allowed(allowed: [http.Get, http.Post])
   }
 }
 

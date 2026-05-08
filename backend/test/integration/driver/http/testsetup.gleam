@@ -1,4 +1,5 @@
 import application/commands/create_product
+import application/commands/create_stock_item
 import application/commands/delete_product
 import composition
 import full_house
@@ -16,6 +17,10 @@ fn mock_app_context() -> composition.AppContext {
       get_deletion_properties: fn(_) { panic as "not mocked" },
       delete: fn(_) { panic as "not mocked" },
       load_product: fn(_) { panic as "not mocked" },
+    ),
+    create_stock_item_ports: create_stock_item.Ports(
+      does_product_exist: fn(_) { panic as "not mocked" },
+      create: fn(_) { panic as "not mocked" },
     ),
     list_stock_items_port: fn(_) { panic as "not mocked" },
   )

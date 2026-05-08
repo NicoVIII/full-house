@@ -6,19 +6,19 @@
 
 ```bash
 cd backend
-gleam build
-gleam test   # uses wisp/simulate — no server needed
-gleam format --check
 gleam check
+gleam format --check
+gleam run -m lint
+gleam test
 ```
 
 ## Frontend
 
 ```bash
 cd webfrontend
-bun run dev         # start dev server
-bun run build       # build for production
-bun run lint:fix    # lint with auto-fix
-bun run test:run    # run tests
-bun run type-check  # type check
+bun run dev
+bun run build
+bun run lint:fix
+bun run test:run
+bun run type-check
 ```
