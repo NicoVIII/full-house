@@ -19,8 +19,8 @@ pre-commit:
       glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
       run: cd webfrontend && bun x --no-install tsc --noEmit
     - name: "frontend-lint"
-      glob: "{lefthook.yml,webfrontend/src/**/*.{ts,tsx}}"
+      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx}}"
       run: cd webfrontend && bun run lint
     - name: "frontend-test"
-      glob: "{lefthook.yml,webfrontend/src/**/*.{ts,tsx}}"
+      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
       run: cd webfrontend && bun run test:run
