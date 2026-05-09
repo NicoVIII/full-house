@@ -9,6 +9,9 @@ import wisp
 
 fn create_error_response(error: create_product.Error) -> wisp.Response {
   case error {
+    create_product.InvalidName -> handler_helpers.bad_request("name invalid")
+    create_product.InvalidParentId ->
+      handler_helpers.bad_request("parent_product_id invalid")
     create_product.ParentDoesNotExist ->
       handler_helpers.bad_request(
         "parent_product_id does not reference an existing product",
@@ -24,14 +27,14 @@ pub fn handle(
 ) -> wisp.Response {
   use <- wisp.require_method(request, http.Post)
   use body <- wisp.require_string_body(request)
+
   use #(name, parent_product_id) <-
     request_mapper.map_payload(body)
     |> handler_helpers.on_error(fn(error) {
       request_mapper.error_to_string(error) |> handler_helpers.bad_request
     })
 
-  let command =
-    create_product.Command(name: name, parent_product_id: parent_product_id)
+  let command = create_product.Command(name:, parent_product_id:)
 
   use result <-
     create_product.execute(command, ports)

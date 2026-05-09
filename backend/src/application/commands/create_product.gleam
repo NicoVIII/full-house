@@ -17,10 +17,12 @@ pub type Ports {
 }
 
 pub type Command {
-  Command(name: product_name.T, parent_product_id: Option(product_id.T))
+  Command(name: String, parent_product_id: Option(String))
 }
 
 pub type Error {
+  InvalidName
+  InvalidParentId
   ParentDoesNotExist
   InfrastructureError(infrastructure_error.T)
 }
@@ -31,10 +33,21 @@ pub fn execute(
 ) -> Result(product.T, Error) {
   let Command(name, parent_product_id_opt) = command
 
+  // Validate inputs
+  use name <- result.try(
+    product_name.new(name)
+    |> result.map_error(fn(_) { InvalidName }),
+  )
+
   // Prepare parent product id if provided
   use parent_product_id <- result.try(case parent_product_id_opt {
     None -> Ok(None)
     Some(parent_id) -> {
+      use parent_id <- result.try(
+        product_id.new(parent_id)
+        |> result.map_error(fn(_) { InvalidParentId }),
+      )
+
       use parent_exists <- result.try(
         ports.does_product_exist(parent_id)
         |> result.map_error(InfrastructureError),

@@ -1,9 +1,12 @@
 import composition
-import driver/http/router
+import driver/http/router as http_router
+import driver/skir/router as skir_router
+import driver/skir/setup
 import envoy
 import gleam/erlang/process
 import gleam/int
 import mist
+import simplifile
 import sqlight
 import wisp
 import wisp/wisp_mist
@@ -33,10 +36,36 @@ fn port() -> Int {
   }
 }
 
+fn static_dir() -> String {
+  case envoy.get("STATIC_DIR") {
+    Ok(dir) -> dir
+    Error(Nil) -> "./static"
+  }
+}
+
+fn serve_index(dir: String) -> wisp.Response {
+  case simplifile.read(dir <> "/index.html") {
+    Ok(html) -> wisp.html_response(html, 200)
+    // nolint: thrown_away_error
+    Error(_) -> wisp.internal_server_error()
+  }
+}
+
 pub fn build_handler(
   app_context: composition.AppContext,
+  server_name: setup.ServerName,
 ) -> fn(wisp.Request) -> wisp.Response {
-  fn(request) { router.handle_request(request, app_context) }
+  fn(request) {
+    let dir = static_dir()
+    use <- wisp.serve_static(request, under: "/", from: dir)
+    case wisp.path_segments(request) {
+      ["api", "skir", ..] ->
+        skir_router.handle_rpc_message(request, server_name)
+      ["api", "rest", ..] | ["api", ..] ->
+        http_router.handle_api_request(request, app_context)
+      _ -> serve_index(dir)
+    }
+  }
 }
 
 pub fn main() -> Nil {
@@ -46,9 +75,22 @@ pub fn main() -> Nil {
   let assert Ok(connection) = sqlight.open(database_path())
   let assert Ok(_) = sqlight.exec("pragma foreign_keys = on", on: connection)
 
+  let context = composition.compose_app_context(connection)
+
+  // Start the SkirRPC server
+  let rpc_service = setup.make_service()
+  let server_name = process.new_name("skir_rpc_server")
+  let _server_pid =
+    process.spawn(fn() {
+      setup.start_server_loop(
+        server_name,
+        setup.ServerState(service: rpc_service, context:),
+      )
+    })
+
   let assert Ok(_) =
-    composition.compose_app_context(connection)
-    |> build_handler
+    context
+    |> build_handler(server_name)
     |> wisp_mist.handler(secret_key_base())
     |> mist.new
     |> mist.bind("0.0.0.0")

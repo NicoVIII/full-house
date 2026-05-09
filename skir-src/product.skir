@@ -16,3 +16,7 @@ struct ProductListResponse {
   offset: int32 = 2;
   limit: int32 = 3;
 }
+
+method CreateProduct(
+  CreateProductRequest
+): Product = 1;

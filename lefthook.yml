@@ -1,5 +1,11 @@
 pre-commit:
   jobs:
+    - name: "skir-format"
+      glob: "{lefthook.yml,skir-src/**/*.skir}"
+      run: bunx skir@1.2 format --ci
+    - name: "skir-snapshot"
+      glob: "{lefthook.yml,skir-src/**/*.skir}"
+      run: bunx skir@1.2 snapshot --ci
     - name: "backend-format"
       glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
       run: cd backend && gleam format --check

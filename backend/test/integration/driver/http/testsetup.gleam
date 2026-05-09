@@ -3,6 +3,7 @@ import application/commands/create_stock_item
 import application/commands/delete_product
 import composition
 import full_house
+import gleam/erlang/process
 import wisp
 
 fn mock_app_context() -> composition.AppContext {
@@ -31,5 +32,5 @@ pub fn build_handler(
 ) -> fn(wisp.Request) -> wisp.Response {
   mock_app_context()
   |> mock_context
-  |> full_house.build_handler
+  |> full_house.build_handler(process.new_name("test_mock"))
 }

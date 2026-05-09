@@ -16,3 +16,14 @@ EOF
 sudo apt-get -y update
 sudo apt-get install -y erlang-dev rebar3 sqlite3
 python3 scripts/setup_dev_db.py --seed
+
+# Install skir
+bun install -g skir@1.2
+
+# Ensure Bun global binaries are available in all future shells.
+bun_path_line='export PATH="/home/vscode/.bun/bin:$PATH"'
+for rc_file in /home/vscode/.bashrc /home/vscode/.zshrc; do
+	if [ -f "$rc_file" ] && ! grep -Fqx "$bun_path_line" "$rc_file"; then
+		echo "$bun_path_line" >> "$rc_file"
+	fi
+done

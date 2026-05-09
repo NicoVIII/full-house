@@ -9,7 +9,19 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  skir-validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run Skir format checker
+        run: npx skir@1.2 format --ci
+      - name: Ensure Skir snapshot up-to-date
+        run: npx skir@1.2 snapshot --ci
+
   backend-test:
+    needs: [skir-validate]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,6 +57,7 @@ jobs:
         run: gleam test
 
   frontend-test:
+    needs: [skir-validate]
     runs-on: ubuntu-latest
     permissions:
       contents: read

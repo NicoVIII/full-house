@@ -1,9 +1,5 @@
-import { buildHeader, decode, encode } from "../../../skir";
-import {
-	CreateProductRequest,
-	Product as SkirProduct,
-} from "../../../skirout/product";
-import { readApiErrorMessage } from "../api_helper";
+import { CreateProduct, CreateProductRequest } from "../../../skirout/product";
+import { skirServiceClient } from "../api_helper";
 import { Product, ProductId } from "../product";
 
 export type Request = Readonly<{
@@ -15,32 +11,20 @@ export async function createProduct({
 	name,
 	parent_product_id,
 }: Request): Promise<Product> {
-	const body = encode(
-		CreateProductRequest.serializer,
+	const product = await skirServiceClient.invokeRemote(
+		CreateProduct,
 		CreateProductRequest.create({
 			name,
 			parentProductId: parent_product_id ?? null,
 		}),
 	);
 
-	const response = await fetch("/api/v1/products", {
-		method: "POST",
-		headers: buildHeader(),
-		body,
-	});
-
-	if (!response.ok) {
-		const defaultMessage = `Create product request failed with status ${String(response.status)}`;
-		throw new Error(await readApiErrorMessage(response, defaultMessage));
-	}
-
-	const data = await decode(response, SkirProduct.serializer);
 	return Product({
-		id: ProductId(data.id),
-		name: data.name,
-		parent_product_id: data.parentProductId
-			? ProductId(data.parentProductId)
+		id: ProductId(product.id),
+		name: product.name,
+		parent_product_id: product.parentProductId
+			? ProductId(product.parentProductId)
 			: undefined,
-		child_product_ids: data.childProductIds.map(ProductId),
+		child_product_ids: product.childProductIds.map(ProductId),
 	});
 }

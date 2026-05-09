@@ -68,8 +68,6 @@ pub fn main() {
     #(Layer(Composition), "composition"),
     #(Packages(StdLib), "gleam"),
     #(Packages(InfraPackages), "sqlight"),
-    #(Packages(DriverPackages), "envoy"),
-    #(Packages(DriverPackages), "simplifile"),
     #(Packages(DriverPackages), "skir_client"),
     #(Packages(DriverPackages), "wisp"),
     #(Packages(OpaquePackages), "youid"),

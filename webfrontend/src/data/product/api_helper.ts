@@ -1,3 +1,5 @@
+import { ServiceClient } from "skir-client";
+
 export async function readApiErrorMessage(
 	response: Response,
 	fallback: string,
@@ -16,3 +18,7 @@ export type ListResponse<T> = Readonly<{
 	offset: number;
 	total: number;
 }>;
+
+export const skirServiceClient = new ServiceClient(
+	window.location.origin + "/api/skir",
+);
