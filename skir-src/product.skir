@@ -17,6 +17,33 @@ struct ProductListResponse {
   limit: int32 = 3;
 }
 
+struct GetProductRequest {
+  id: string = 0;
+}
+
+struct ListProductsRequest {
+  offset: int32 = 0;
+  limit: int32 = 1;
+}
+
+struct DeleteProductRequest {
+  id: string = 0;
+}
+
+struct DeleteProductResponse {}
+
 method CreateProduct(
   CreateProductRequest
 ): Product = 1;
+
+method GetProduct(
+  GetProductRequest
+): Product = 2;
+
+method ListProducts(
+  ListProductsRequest
+): ProductListResponse = 3;
+
+method DeleteProduct(
+  DeleteProductRequest
+): DeleteProductResponse = 4;

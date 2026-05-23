@@ -1,18 +1,14 @@
-import { decode } from "../../../skir";
-import { Product as SkirProduct } from "../../../skirout/product";
-import { readApiErrorMessage } from "../api_helper";
+import { GetProduct, GetProductRequest } from "../../../skirout/product";
+import { skirServiceClient } from "../../api_helper";
 import { Product, ProductId } from "../product";
 
 // TODO: non-happy path: product doesn't exist
 export async function fetchProduct(productId: string): Promise<Product> {
-	const response = await fetch(`/api/v1/products/${productId}`);
+	const data = await skirServiceClient.invokeRemote(
+		GetProduct,
+		GetProductRequest.create({ id: productId }),
+	);
 
-	if (!response.ok) {
-		const defaultMessage = `Product request failed with status ${String(response.status)}`;
-		throw new Error(await readApiErrorMessage(response, defaultMessage));
-	}
-
-	const data = await decode(response, SkirProduct.serializer);
 	return Product({
 		id: ProductId(data.id),
 		name: data.name,

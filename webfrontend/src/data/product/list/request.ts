@@ -1,6 +1,5 @@
-import { buildHeader, decode } from "../../../skir";
-import { ProductListResponse as SkirProductListResponse } from "../../../skirout/product";
-import { ListResponse, readApiErrorMessage } from "../api_helper";
+import { ListProducts, ListProductsRequest } from "../../../skirout/product";
+import { ListResponse, skirServiceClient } from "../../api_helper";
 import { Product, ProductId } from "../product";
 
 type FetchProductsParams = Readonly<{
@@ -13,21 +12,11 @@ export async function fetchProducts({
 	limit,
 	offset,
 }: FetchProductsParams): Promise<ListResponse<Product>> {
-	const searchParams = new URLSearchParams({
-		limit: String(limit),
-		offset: String(offset),
-	});
+	const parsed = await skirServiceClient.invokeRemote(
+		ListProducts,
+		ListProductsRequest.create({ limit, offset }),
+	);
 
-	const response = await fetch(`/api/v1/products?${searchParams.toString()}`, {
-		headers: buildHeader(),
-	});
-
-	if (!response.ok) {
-		const defaultMessage = `Products request failed with status ${String(response.status)}`;
-		throw new Error(await readApiErrorMessage(response, defaultMessage));
-	}
-
-	const parsed = await decode(response, SkirProductListResponse.serializer);
 	return {
 		data: parsed.data.map((p) =>
 			Product({

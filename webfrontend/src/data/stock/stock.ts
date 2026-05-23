@@ -1,5 +1,5 @@
-import { decode } from "../../skir";
-import { StockListResponse as SkirStockListResponse } from "../../skirout/stock";
+import { ListStockItems, ListStockItemsRequest } from "../../skirout/stock";
+import { skirServiceClient } from "../api_helper";
 
 export type StockSummary = Readonly<{
 	product_id: string;
@@ -23,21 +23,11 @@ export async function fetchStock({
 	offset,
 	limit,
 }: FetchStockParams): Promise<StockListResponse> {
-	const searchParams = new URLSearchParams({
-		offset: String(offset),
-		limit: String(limit),
-	});
-	const response = await fetch(
-		`/api/v1/stock_items?${searchParams.toString()}`,
+	const parsed = await skirServiceClient.invokeRemote(
+		ListStockItems,
+		ListStockItemsRequest.create({ limit, offset }),
 	);
 
-	if (!response.ok) {
-		throw new Error(
-			`Stock request failed with status ${String(response.status)}`,
-		);
-	}
-
-	const parsed = await decode(response, SkirStockListResponse.serializer);
 	return {
 		data: parsed.data.map((s) => ({
 			product_id: s.productId,

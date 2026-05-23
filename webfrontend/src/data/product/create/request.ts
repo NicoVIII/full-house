@@ -1,5 +1,5 @@
 import { CreateProduct, CreateProductRequest } from "../../../skirout/product";
-import { skirServiceClient } from "../api_helper";
+import { skirServiceClient } from "../../api_helper";
 import { Product, ProductId } from "../product";
 
 export type Request = Readonly<{

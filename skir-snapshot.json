@@ -15,20 +15,24 @@
     "To verify the snapshot is up-to-date in CI:",
     "  npx skir snapshot --ci"
   ],
-  "lastChange": "2026-05-09T05:45:55.171Z",
+  "lastChange": "2026-05-22T18:33:03.334Z",
   "trackedRecordIds": [
     "product.skir:CreateProductRequest",
-    "product.skir:Product"
-  ],
-  "untrackedRecordIds": [
+    "product.skir:DeleteProductRequest",
+    "product.skir:DeleteProductResponse",
+    "product.skir:GetProductRequest",
+    "product.skir:ListProductsRequest",
+    "product.skir:Product",
     "product.skir:ProductListResponse",
     "stock.skir:CreateStockItemRequest",
+    "stock.skir:ListStockItemsRequest",
     "stock.skir:StockItem",
     "stock.skir:StockListResponse",
     "stock.skir:StockSummary"
   ],
+  "untrackedRecordIds": [],
   "modules": {
-    "stock.skir": "struct StockSummary {\n  product_id: string = 0;\n  product_name: string = 1;\n  quantity: int32 = 2;\n}\n\nstruct CreateStockItemRequest {\n  product_id: string = 0;\n}\n\nstruct StockItem {\n  id: string = 0;\n  product_id: string = 1;\n}\n\nstruct StockListResponse {\n  data: [StockSummary] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n",
-    "product.skir": "struct Product {\n  id: string = 0;\n  name: string = 1;\n  parent_product_id: string? = 2;\n  child_product_ids: [string] = 3;\n}\n\nstruct CreateProductRequest {\n  name: string = 0;\n  parent_product_id: string? = 1;\n}\n\nstruct ProductListResponse {\n  data: [Product] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nmethod CreateProduct(\n  CreateProductRequest\n): Product = 1;\n"
+    "stock.skir": "struct StockSummary {\n  product_id: string = 0;\n  product_name: string = 1;\n  quantity: int32 = 2;\n}\n\nstruct CreateStockItemRequest {\n  product_id: string = 0;\n}\n\nstruct StockItem {\n  id: string = 0;\n  product_id: string = 1;\n}\n\nstruct StockListResponse {\n  data: [StockSummary] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nstruct ListStockItemsRequest {\n  offset: int32 = 0;\n  limit: int32 = 1;\n}\n\nmethod CreateStockItem(\n  CreateStockItemRequest\n): StockItem = 5;\n\nmethod ListStockItems(\n  ListStockItemsRequest\n): StockListResponse = 6;\n",
+    "product.skir": "struct Product {\n  id: string = 0;\n  name: string = 1;\n  parent_product_id: string? = 2;\n  child_product_ids: [string] = 3;\n}\n\nstruct CreateProductRequest {\n  name: string = 0;\n  parent_product_id: string? = 1;\n}\n\nstruct ProductListResponse {\n  data: [Product] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nstruct GetProductRequest {\n  id: string = 0;\n}\n\nstruct ListProductsRequest {\n  offset: int32 = 0;\n  limit: int32 = 1;\n}\n\nstruct DeleteProductRequest {\n  id: string = 0;\n}\n\nstruct DeleteProductResponse {}\n\nmethod CreateProduct(\n  CreateProductRequest\n): Product = 1;\n\nmethod GetProduct(\n  GetProductRequest\n): Product = 2;\n\nmethod ListProducts(\n  ListProductsRequest\n): ProductListResponse = 3;\n\nmethod DeleteProduct(\n  DeleteProductRequest\n): DeleteProductResponse = 4;\n"
   }
 }

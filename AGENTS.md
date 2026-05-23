@@ -5,6 +5,7 @@
 ## API
 
 ```bash
+bunx skir gen
 bunx skir format
 bunx skir snapshot
 ```

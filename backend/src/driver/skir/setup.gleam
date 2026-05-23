@@ -1,6 +1,12 @@
 import composition
 import driver/skir/product/create
+import driver/skir/product/delete
+import driver/skir/product/get
+import driver/skir/product/list
+import driver/skir/stock/create as stock_create
+import driver/skir/stock/list as stock_list
 import driver/skirout/product
+import driver/skirout/stock
 import gleam/erlang/process
 import skir_client/service
 
@@ -25,6 +31,26 @@ pub fn make_service() -> RpcService {
   |> service.add_method(
     product.create_product_method(),
     simplify_handle(create.handle),
+  )
+  |> service.add_method(
+    product.get_product_method(),
+    simplify_handle(get.handle),
+  )
+  |> service.add_method(
+    product.list_products_method(),
+    simplify_handle(list.handle),
+  )
+  |> service.add_method(
+    product.delete_product_method(),
+    simplify_handle(delete.handle),
+  )
+  |> service.add_method(
+    stock.create_stock_item_method(),
+    simplify_handle(stock_create.handle),
+  )
+  |> service.add_method(
+    stock.list_stock_items_method(),
+    simplify_handle(stock_list.handle),
   )
 }
 
