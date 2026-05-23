@@ -77,6 +77,8 @@ jobs:
         run: bun run type-check
       - name: Lint
         run: bun run lint
+      - name: Dead code check
+        run: bun run check:deadcode
       - name: Run tests
         run: bun run test:run
 

@@ -29,6 +29,7 @@ bun run dev
 bun run build
 bun run format:fix
 bun run lint:fix
+bun run check:deadcode
 bun run test:run
 bun run type-check
 ```

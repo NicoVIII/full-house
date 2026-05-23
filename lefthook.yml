@@ -27,6 +27,9 @@ pre-commit:
     - name: "webclient-lint"
       glob: "{lefthook.yml,client-web/**/*.{ts,tsx}}"
       run: cd client-web && bun run lint
+    - name: "webclient-deadcode"
+      glob: "{lefthook.yml,client-web/.kniprc.json,client-web/package.json,client-web/**/*.{ts,tsx}}"
+      run: cd client-web && bun run check:deadcode
     - name: "webclient-test"
       glob: "{lefthook.yml,client-web/**/*.{ts,tsx,json}}"
       run: cd client-web && bun run test:run

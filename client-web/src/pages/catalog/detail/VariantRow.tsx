@@ -11,7 +11,7 @@ import { productQueryOptions } from "../../../data/product/get/query";
 import { ProductId } from "../../../data/product/product";
 import { routes } from "../../../routes";
 
-export type Props = Readonly<{
+type Props = Readonly<{
 	id: ProductId;
 }>;
 
