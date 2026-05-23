@@ -28,6 +28,7 @@ def main() -> int:
     webclient_dir = repo_root() / "client-web"
     commands = [
         ["bun", "x", "--no-install", "tsc", "--noEmit"],
+        ["bun", "run", "format:fix"],
         ["bun", "run", "lint"],
         ["bun", "run", "test:run"],
     ]

@@ -33,16 +33,16 @@ def main() -> int:
             "Server hook blocked progress after a server Gleam edit.",
         )
 
-    if run_command(["gleam", "test"], cwd=server_dir):
-        log_hook_run("server", payload, "passed")
-        print("[hook:server] gleam format + gleam test passed")
-        return 0
+    if not run_command(["gleam", "test"], cwd=server_dir):
+        log_hook_run("server", payload, "blocked")
+        return block(
+            "gleam test failed — fix compilation or test errors before continuing",
+            "Server hook blocked progress after a server Gleam edit.",
+        )
 
-    log_hook_run("server", payload, "blocked")
-    return block(
-        "gleam test failed — fix compilation or test errors before continuing",
-        "Server hook blocked progress after a server Gleam edit.",
-    )
+    log_hook_run("server", payload, "passed")
+    print("[hook:server] gleam format + gleam test passed")
+    return 0
 
 
 if __name__ == "__main__":
