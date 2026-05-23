@@ -11,17 +11,40 @@ from typing import Any
 WRITE_TOOL_NAMES = {
     "apply_patch",
     "create_file",
-    "replace_string_in_file",
-    "multi_replace_string_in_file",
+    "edit_file",
+    "str_replace",
+    "insert",
+    "delete",
+    "rename",
     "edit_notebook_file",
     "create_new_jupyter_notebook",
 }
 
 
+READ_ONLY_TOOL_NAMES = {
+    "read_file",
+    "list_dir",
+    "file_search",
+    "grep_search",
+    "semantic_search",
+    "get_errors",
+    "memory",
+    "fetch_webpage",
+    "view_image",
+    "copilot_getNotebookSummary",
+    "read_notebook_cell_output",
+    "run_notebook_cell",
+    "run_task",
+    "run_in_terminal",
+    "get_terminal_output",
+    "terminal_last_command",
+    "terminal_selection",
+    "testFailure",
+    "vscode_listCodeUsages",
+}
+
+
 WRITE_INPUT_KEYS = {
-    "filePath",
-    "filePaths",
-    "path",
     "old_path",
     "new_path",
     "oldPath",
@@ -47,9 +70,20 @@ def load_payload() -> dict[str, Any]:
 
 def should_process_write_tool(payload: dict[str, Any]) -> bool:
     tool_name = normalize_tool_name(get_payload_field(payload, "tool_name", "toolName"))
-    print(f"[hook_utils] detected tool name: {tool_name}")
+
     if tool_name in WRITE_TOOL_NAMES:
         return True
+
+    if tool_name in READ_ONLY_TOOL_NAMES:
+        return False
+
+    if tool_name == "parallel":
+        return payload_parallel_contains_write(payload)
+
+    if tool_name:
+        # For known tool names we don't explicitly classify as write tools,
+        # prefer a safe default to avoid long-running false positives.
+        return False
 
     # Fallback for hook payload variants: if the payload shape clearly looks
     # like a file write/edit operation, treat it as a write tool.
@@ -97,6 +131,37 @@ def payload_looks_like_write(tool_input: Any) -> bool:
     return False
 
 
+def payload_parallel_contains_write(payload: dict[str, Any]) -> bool:
+    tool_input = get_tool_input(payload)
+    if not isinstance(tool_input, dict):
+        return False
+
+    tool_uses = tool_input.get("tool_uses")
+    if not isinstance(tool_uses, list):
+        return False
+
+    for tool_use in tool_uses:
+        if not isinstance(tool_use, dict):
+            continue
+
+        recipient_name = tool_use.get("recipient_name")
+        if not isinstance(recipient_name, str):
+            continue
+
+        normalized = normalize_tool_name(recipient_name)
+        if normalized in WRITE_TOOL_NAMES:
+            return True
+
+        if normalized == "memory":
+            parameters = tool_use.get("parameters")
+            if isinstance(parameters, dict):
+                command = parameters.get("command")
+                if command in {"create", "str_replace", "insert", "delete", "rename"}:
+                    return True
+
+    return False
+
+
 def iter_strings(value: Any):
     if isinstance(value, str):
         yield value
@@ -137,7 +202,14 @@ def repo_root() -> Path:
 
 
 def run_command(command: list[str], cwd: Path) -> bool:
-    completed = subprocess.run(command, cwd=cwd, check=False)
+    # Keep hook stdout clean so a blocking JSON response is parseable.
+    completed = subprocess.run(
+        command,
+        cwd=cwd,
+        check=False,
+        stdout=sys.stderr,
+        stderr=sys.stderr,
+    )
     return completed.returncode == 0
 
 
