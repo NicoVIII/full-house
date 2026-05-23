@@ -1,3 +1,4 @@
+import Button from "@suid/material/Button";
 import Card from "@suid/material/Card";
 import CardContent from "@suid/material/CardContent";
 import Chip from "@suid/material/Chip";
@@ -8,6 +9,8 @@ import type { StockSummary } from "../../data/stock/stock";
 
 type StockCardProps = Readonly<{
 	stock: StockSummary;
+	onRemove: (stock: StockSummary) => void;
+	isRemoving: boolean;
 }>;
 
 function formatBestBeforeDate(isoDate: string): string {
@@ -55,6 +58,16 @@ const StockCard: Component<StockCardProps> = (props) => {
 						sx={{ alignSelf: "flex-start" }}
 						variant="outlined"
 					/>
+					<Button
+						disabled={props.isRemoving}
+						onClick={() => {
+							props.onRemove(props.stock);
+						}}
+						variant="outlined"
+						sx={{ alignSelf: "flex-start" }}
+					>
+						{props.isRemoving ? "Removing..." : "Remove one"}
+					</Button>
 				</Stack>
 			</CardContent>
 		</Card>

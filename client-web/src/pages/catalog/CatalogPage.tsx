@@ -1,6 +1,6 @@
 import { Typography } from "@suid/material";
 import Box from "@suid/material/Box";
-import { createInfiniteQuery, useQueryClient } from "@tanstack/solid-query";
+import { createInfiniteQuery } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createMemo } from "solid-js";
 import { productListQueryOptions } from "../../data/product/list/query";
@@ -12,8 +12,6 @@ import CreateProductFab from "./CreateProductFab";
 import ProductsPanel from "./ProductsPanel";
 
 const CatalogPage: Component = () => {
-	const queryClient = useQueryClient();
-
 	const productsQuery = createInfiniteQuery(productListQueryOptions);
 
 	const products = createMemo(() => flattenPaginatedItems(productsQuery.data));
@@ -21,12 +19,6 @@ const CatalogPage: Component = () => {
 	const productsById = createMemo(
 		() => new Map(products().map((product) => [product.id, product])),
 	);
-
-	const handleProductCreated = async () => {
-		await queryClient.invalidateQueries({
-			queryKey: ["products", "infinite"],
-		});
-	};
 
 	return (
 		<>
@@ -39,7 +31,7 @@ const CatalogPage: Component = () => {
 					Products
 				</Typography>
 				<Box sx={{ alignItems: "center", display: "flex" }}>
-					<CreateProductFab onCreated={handleProductCreated} />
+					<CreateProductFab />
 				</Box>
 			</Box>
 			<ProductsPanel

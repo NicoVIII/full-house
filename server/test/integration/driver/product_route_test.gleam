@@ -152,6 +152,7 @@ fn mock_app_context() -> composition.AppContext {
       does_product_exist: fn(_) { panic as "not mocked" },
       create: fn(_) { panic as "not mocked" },
     ),
+    remove_stock_item_port: fn(_, _) { panic as "not mocked" },
     list_stock_items_port: list_stock_mock,
   )
 }

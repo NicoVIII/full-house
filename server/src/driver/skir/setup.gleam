@@ -5,6 +5,7 @@ import driver/skir/product/get
 import driver/skir/product/list
 import driver/skir/stock/create as stock_create
 import driver/skir/stock/list as stock_list
+import driver/skir/stock/remove as stock_remove
 import driver/skirout/product
 import driver/skirout/stock
 import gleam/erlang/process
@@ -51,6 +52,10 @@ pub fn make_service() -> RpcService {
   |> service.add_method(
     stock.list_stock_items_method(),
     simplify_handle(stock_list.handle),
+  )
+  |> service.add_method(
+    stock.remove_stock_item_method(),
+    simplify_handle(stock_remove.handle),
   )
 }
 

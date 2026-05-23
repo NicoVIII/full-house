@@ -15,11 +15,7 @@ import type { Component } from "solid-js";
 import { createSignal, Show } from "solid-js";
 import { createProductMutationOptions } from "../../data/product/create/mutation";
 
-type CreateProductDialogProps = Readonly<{
-	onCreated: () => void | Promise<void>;
-}>;
-
-const CreateProductFab: Component<CreateProductDialogProps> = (props) => {
+const CreateProductFab: Component = () => {
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [name, setName] = createSignal("");
 	const [parentProductId, setParentProductId] = createSignal("");
@@ -40,20 +36,20 @@ const CreateProductFab: Component<CreateProductDialogProps> = (props) => {
 		setParentProductId("");
 	};
 
-	const createProductMutation = useMutation(() => ({
-		...createProductMutationOptions(),
-		onSuccess: async () => {
-			await props.onCreated();
-			reset();
-			close();
-		},
-		onError: (error: Readonly<Error>) => {
-			setSubmitError(error.message);
-		},
-		onSettled: () => {
-			setIsSubmitting(false);
-		},
-	}));
+	const createProductMutation = useMutation(() =>
+		createProductMutationOptions({
+			onSuccess: () => {
+				reset();
+				close();
+			},
+			onError: (error: Readonly<Error>) => {
+				setSubmitError(error.message);
+			},
+			onSettled: () => {
+				setIsSubmitting(false);
+			},
+		}),
+	);
 	const handleSubmit = () => {
 		const trimmedName = name().trim();
 		const trimmedParent = parentProductId().trim();

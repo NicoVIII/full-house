@@ -28,6 +28,17 @@ struct ListStockItemsRequest {
   limit: int32 = 1;
 }
 
+struct RemoveStockItemRequest {
+  product_id: string = 0;
+  best_before_date: string = 1;
+}
+
+struct RemoveStockItemResponse {
+  product_id: string = 0;
+  best_before_date: string = 1;
+  quantity: int32 = 2;
+}
+
 method CreateStockItem(
   CreateStockItemRequest
 ): StockItem = 5;
@@ -35,3 +46,7 @@ method CreateStockItem(
 method ListStockItems(
   ListStockItemsRequest
 ): StockListResponse = 6;
+
+method RemoveStockItem(
+  RemoveStockItemRequest
+): RemoveStockItemResponse = 7;

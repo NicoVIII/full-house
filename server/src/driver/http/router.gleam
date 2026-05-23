@@ -5,6 +5,7 @@ import driver/http/products/get/handler as products_get_handler
 import driver/http/products/list/handler as products_list_handler
 import driver/http/stock_items/create/handler as stock_items_create_handler
 import driver/http/stock_items/list/handler as stock_items_list_handler
+import driver/http/stock_items/remove/handler as stock_items_remove_handler
 import gleam/http
 import wisp
 
@@ -51,6 +52,24 @@ fn stock_items_route(
   }
 }
 
+fn stock_items_detail_route(
+  product_id_raw product_id_raw: String,
+  best_before_date_raw best_before_date_raw: String,
+  request request: wisp.Request,
+  context context: composition.AppContext,
+) -> wisp.Response {
+  case request.method {
+    http.Delete ->
+      stock_items_remove_handler.handle(
+        product_id_raw,
+        best_before_date_raw,
+        request,
+        context.remove_stock_item_port,
+      )
+    _ -> wisp.method_not_allowed(allowed: [http.Delete])
+  }
+}
+
 pub fn handle_api_request(
   request request: wisp.Request,
   ctx ctx: composition.AppContext,
@@ -60,6 +79,13 @@ pub fn handle_api_request(
     ["api", "v1", "products", id_raw] ->
       products_detail_route(id_raw:, request:, ctx:)
     ["api", "v1", "stock_items"] -> stock_items_route(request, ctx)
+    ["api", "v1", "stock_items", product_id_raw, best_before_date_raw] ->
+      stock_items_detail_route(
+        product_id_raw:,
+        best_before_date_raw:,
+        request:,
+        context: ctx,
+      )
     _ -> wisp.not_found()
   }
 }

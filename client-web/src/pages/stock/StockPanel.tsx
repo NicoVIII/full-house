@@ -16,7 +16,10 @@ type StockPanelProps = Readonly<{
 	isError: boolean;
 	isFetchingNextPage: boolean;
 	isPending: boolean;
+	isRemovingKey: string | null;
 	onLoadMore: () => void;
+	onRemoveOne: (stock: StockSummary) => void;
+	removeError: string | null;
 	stock: StockSummary[];
 	total: number;
 }>;
@@ -50,6 +53,10 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 				}
 			>
 				<Stack spacing={3}>
+					<Show when={props.removeError !== null}>
+						<Alert severity="error">{props.removeError}</Alert>
+					</Show>
+
 					<Paper elevation={0} sx={{ p: 3 }}>
 						<Stack
 							direction={{ xs: "column", sm: "row" }}
@@ -70,7 +77,16 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 
 					<Box class="product-grid">
 						<For each={props.stock}>
-							{(stock) => <StockCard stock={stock} />}
+							{(stock) => (
+								<StockCard
+									stock={stock}
+									onRemove={props.onRemoveOne}
+									isRemoving={
+										props.isRemovingKey ===
+										`${stock.product_id}|${stock.best_before_date}`
+									}
+								/>
+							)}
 						</For>
 					</Box>
 
