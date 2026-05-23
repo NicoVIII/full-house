@@ -24,6 +24,7 @@ sqlight = ">= 1.1.0 and < 2.0.0"
 simplifile = ">= 2.4.0 and < 3.0.0"
 envoy = ">= 1.2.0 and < 2.0.0"
 skir_client = ">= 1.0.1 and < 2.0.0"
+gtempo = ">= 7.3.0 and < 8.0.0"
 
 [dev_dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"

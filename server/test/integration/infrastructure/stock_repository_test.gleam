@@ -17,7 +17,8 @@ fn setup_in_memory_database() -> sqlight.Connection {
 
       create table stock_items (
         id text primary key,
-        product_id text not null references products(id)
+        product_id text not null references products(id),
+        best_before_date text not null
       );
 
       insert into products (id, name, parent_product_id) values
@@ -25,10 +26,10 @@ fn setup_in_memory_database() -> sqlight.Connection {
         ('018f4e1a-0000-7000-8000-000000000002', 'Cappuccino', null),
         ('018f4e1a-0000-7000-8000-000000000003', 'Latte', null);
 
-      insert into stock_items (id, product_id) values
-        ('018f4e1a-1000-7000-8000-000000000001', '018f4e1a-0000-7000-8000-000000000001'),
-        ('018f4e1a-1000-7000-8000-000000000002', '018f4e1a-0000-7000-8000-000000000001'),
-        ('018f4e1a-1000-7000-8000-000000000003', '018f4e1a-0000-7000-8000-000000000002');
+      insert into stock_items (id, product_id, best_before_date) values
+        ('018f4e1a-1000-7000-8000-000000000001', '018f4e1a-0000-7000-8000-000000000001', '2026-08-20'),
+        ('018f4e1a-1000-7000-8000-000000000002', '018f4e1a-0000-7000-8000-000000000001', '2026-09-20'),
+        ('018f4e1a-1000-7000-8000-000000000003', '018f4e1a-0000-7000-8000-000000000002', '2026-10-20');
       ",
       on: connection,
     )

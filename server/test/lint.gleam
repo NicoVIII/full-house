@@ -71,6 +71,7 @@ pub fn main() {
     #(Packages(DriverPackages), "skir_client"),
     #(Packages(DriverPackages), "wisp"),
     #(Packages(OpaquePackages), "youid"),
+    #(Packages(OpaquePackages), "tempo"),
   ]
 
   let source_map = source_map.build_source_map("./src")

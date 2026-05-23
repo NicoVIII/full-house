@@ -1,6 +1,7 @@
 import application/shared/infrastructure_error
 import common/product_id
 import common/uuid
+import domain/stock_items/best_before_date
 import domain/stock_items/stock_item
 import gleam/bool
 import gleam/result
@@ -16,7 +17,7 @@ pub type Ports {
 }
 
 pub type Command {
-  Command(product_id: product_id.T)
+  Command(product_id: product_id.T, best_before_date: best_before_date.T)
 }
 
 pub type Error {
@@ -28,7 +29,7 @@ pub fn execute(
   command command: Command,
   ports ports: Ports,
 ) -> Result(stock_item.T, Error) {
-  let Command(product_id:) = command
+  let Command(product_id:, best_before_date:) = command
 
   use product_exists <- result.try(
     ports.does_product_exist(product_id)
@@ -37,7 +38,8 @@ pub fn execute(
 
   use <- bool.guard(!product_exists, Error(ProductDoesNotExist))
 
-  let new_item = stock_item.StockItem(id: uuid.generate_v7(), product_id:)
+  let new_item =
+    stock_item.StockItem(id: uuid.generate_v7(), product_id:, best_before_date:)
 
   use Nil <- result.try(
     ports.create(new_item)

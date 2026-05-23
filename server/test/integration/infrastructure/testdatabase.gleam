@@ -14,7 +14,8 @@ pub fn setup() -> sqlight.Connection {
 
       create table stock_items (
         id text primary key,
-        product_id text not null references products(id)
+        product_id text not null references products(id),
+        best_before_date text not null
       );
 
       insert into products (id, name, parent_product_id) values
@@ -22,8 +23,8 @@ pub fn setup() -> sqlight.Connection {
         ('018f4e1a-0000-7000-8000-000000000002', 'Latte', null),
         ('018f4e1a-0000-7000-8000-000000000003', 'Oat Latte', '018f4e1a-0000-7000-8000-000000000002');
 
-      insert into stock_items (id, product_id) values
-        ('018f4e1a-0000-7000-8000-0000000000f1', '018f4e1a-0000-7000-8000-000000000001');
+      insert into stock_items (id, product_id, best_before_date) values
+        ('018f4e1a-0000-7000-8000-0000000000f1', '018f4e1a-0000-7000-8000-000000000001', '2026-12-31');
       ",
       on: connection,
     )

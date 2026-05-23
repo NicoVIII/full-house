@@ -24,11 +24,13 @@ const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
 ) => {
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [productId, setProductId] = createSignal("");
+	const [bestBeforeDate, setBestBeforeDate] = createSignal("");
 	const [submitError, setSubmitError] = createSignal<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
 	const open = () => {
 		setProductId(props.productId);
+		setBestBeforeDate("");
 		setIsOpen(true);
 	};
 
@@ -55,7 +57,10 @@ const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
 	const handleSubmit = () => {
 		setSubmitError(null);
 		setIsSubmitting(true);
-		mutation.mutate({ product_id: productId() });
+		mutation.mutate({
+			product_id: productId(),
+			best_before_date: bestBeforeDate(),
+		});
 	};
 
 	return (
@@ -75,6 +80,17 @@ const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
 				>
 					<DialogContent>
 						<Stack spacing={2}>
+							<TextField
+								disabled={isSubmitting()}
+								label="Best Before Date"
+								onChange={(event) => {
+									setBestBeforeDate(event.target.value);
+								}}
+								required
+								type="date"
+								value={bestBeforeDate()}
+								InputLabelProps={{ shrink: true }}
+							/>
 							<TextField
 								autoFocus
 								disabled={isSubmitting()}

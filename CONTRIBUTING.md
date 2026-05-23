@@ -27,6 +27,12 @@ If you prefer a local setup, you need:
 python scripts/setup_dev_db.py
 ```
 
+Database migrations are the source of truth for schema changes.
+
+- Create and apply schema changes via dbmate migrations in `server/db/migrations/`.
+- Treat `server/db/schema.sql` as generated output from dbmate.
+- Do not edit `server/db/schema.sql` manually.
+
 ## Running the Project Locally
 
 ### Server

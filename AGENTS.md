@@ -13,6 +13,7 @@ bunx skir snapshot
 ## Server
 
 ```bash
+./scripts/setup_dev_db.py # Execute database migrations
 cd server
 gleam check
 gleam format

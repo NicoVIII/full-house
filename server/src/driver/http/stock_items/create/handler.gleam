@@ -24,13 +24,14 @@ pub fn handle(
 ) -> wisp.Response {
   use <- wisp.require_method(request, http.Post)
   use body <- wisp.require_string_body(request)
-  use product_id <-
+  use payload <-
     request_mapper.map_payload(body)
     |> handler_helpers.on_error(fn(error) {
       request_mapper.error_to_string(error) |> handler_helpers.bad_request
     })
 
-  let command = create_stock_item.Command(product_id:)
+  let request_mapper.Payload(product_id:, best_before_date:) = payload
+  let command = create_stock_item.Command(product_id:, best_before_date:)
 
   use result <-
     create_stock_item.execute(command, ports)

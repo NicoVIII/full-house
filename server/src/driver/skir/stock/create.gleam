@@ -3,6 +3,7 @@ import application/shared/infrastructure_error
 import common/product_id
 import common/uuid
 import composition
+import domain/stock_items/best_before_date
 import domain/stock_items/stock_item
 import driver/skirout/stock
 import gleam/result
@@ -24,8 +25,12 @@ fn map_error(error: create_stock_item.Error) -> service.ServiceError {
 }
 
 fn map_stock_item(item: stock_item.T) -> stock.StockItem {
-  let stock_item.StockItem(id, item_product_id) = item
-  stock.stock_item_new(uuid.value(id), product_id.value(item_product_id))
+  let stock_item.StockItem(id, item_product_id, item_best_before_date) = item
+  stock.stock_item_new(
+    best_before_date.value(item_best_before_date),
+    uuid.value(id),
+    product_id.value(item_product_id),
+  )
 }
 
 pub fn handle(
@@ -39,8 +44,34 @@ pub fn handle(
     }),
   )
 
+  use item_best_before_date <- result.try(
+    best_before_date.new(request.best_before_date)
+    |> result.map_error(fn(error) {
+      case error {
+        best_before_date.Empty ->
+          service.ServiceError(
+            service.E400xBadRequest,
+            "best_before_date is required",
+          )
+        best_before_date.InvalidFormat ->
+          service.ServiceError(
+            service.E400xBadRequest,
+            "best_before_date must use format YYYY-MM-DD",
+          )
+        best_before_date.InvalidDate ->
+          service.ServiceError(
+            service.E400xBadRequest,
+            "best_before_date is not a valid calendar date",
+          )
+      }
+    }),
+  )
+
   create_stock_item.execute(
-    create_stock_item.Command(product_id: id),
+    create_stock_item.Command(
+      product_id: id,
+      best_before_date: item_best_before_date,
+    ),
     context.create_stock_item_ports,
   )
   |> result.map(map_stock_item)

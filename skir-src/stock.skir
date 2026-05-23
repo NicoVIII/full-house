@@ -6,11 +6,13 @@ struct StockSummary {
 
 struct CreateStockItemRequest {
   product_id: string = 0;
+  best_before_date: string = 1;
 }
 
 struct StockItem {
   id: string = 0;
   product_id: string = 1;
+  best_before_date: string = 2;
 }
 
 struct StockListResponse {
