@@ -12,9 +12,15 @@ fn to_skir(summary: stock_item_query_model.T) -> skir_stock.StockSummary {
   let stock_item_query_model.StockItemQueryModel(
     product_id:,
     product_name:,
+    best_before_date:,
     quantity:,
   ) = summary
-  skir_stock.stock_summary_new(product_id, product_name, quantity)
+  skir_stock.stock_summary_new(
+    best_before_date,
+    product_id,
+    product_name,
+    quantity,
+  )
 }
 
 pub fn map_list_stock_response(

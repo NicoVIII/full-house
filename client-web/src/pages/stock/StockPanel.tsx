@@ -60,7 +60,7 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 							}}
 						>
 							<Typography variant="h6" sx={{ fontWeight: 600 }}>
-								{props.total} products available
+								{props.total} stock entries available
 							</Typography>
 							<Typography color="text.secondary">
 								Showing {shownCount()} of {props.total}
@@ -84,7 +84,7 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 							>
 								{props.isFetchingNextPage
 									? "Loading more..."
-									: "Load more products"}
+									: "Load more stock"}
 							</Button>
 							<Typography color="text.secondary" variant="body2">
 								<Show

@@ -20,7 +20,7 @@ fn query_total(
         select p.id
         from stock_items as s
         inner join products as p on p.id = s.product_id
-        group by p.id
+        group by p.id, s.best_before_date
       ) as stocked_products
       ",
       on: connection,
@@ -39,10 +39,12 @@ fn query_total(
 fn stock_item_decoder() -> decode.Decoder(stock_item_query_model.T) {
   use product_id <- decode.field(0, decode.string)
   use product_name <- decode.field(1, decode.string)
-  use quantity <- decode.field(2, decode.int)
+  use best_before_date <- decode.field(2, decode.string)
+  use quantity <- decode.field(3, decode.int)
   decode.success(stock_item_query_model.StockItemQueryModel(
     product_id: product_id,
     product_name: product_name,
+    best_before_date: best_before_date,
     quantity: quantity,
   ))
 }
@@ -54,11 +56,11 @@ fn query_stock_item_list(
   let query_result =
     sqlight.query(
       "
-      SELECT p.id, p.name, count(s.id)
+      SELECT p.id, p.name, s.best_before_date, count(s.id)
       FROM stock_items AS s
       INNER JOIN products AS p ON p.id = s.product_id
-      GROUP BY p.id, p.name
-      ORDER BY p.name
+      GROUP BY p.id, p.name, s.best_before_date
+      ORDER BY s.best_before_date ASC
       LIMIT ? OFFSET ?
       ",
       on: connection,

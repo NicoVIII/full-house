@@ -4,6 +4,7 @@ import { skirServiceClient } from "../api_helper";
 export type StockSummary = Readonly<{
 	product_id: string;
 	product_name: string;
+	best_before_date: string;
 	quantity: number;
 }>;
 
@@ -32,6 +33,7 @@ export async function fetchStock({
 		data: parsed.data.map((s) => ({
 			product_id: s.productId,
 			product_name: s.productName,
+			best_before_date: s.bestBeforeDate,
 			quantity: s.quantity,
 		})),
 		total: parsed.total,

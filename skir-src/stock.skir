@@ -2,6 +2,7 @@ struct StockSummary {
   product_id: string = 0;
   product_name: string = 1;
   quantity: int32 = 2;
+  best_before_date: string = 3;
 }
 
 struct CreateStockItemRequest {

@@ -44,11 +44,16 @@ pub fn sqlite_stock_adapter_returns_aggregated_quantities_test() {
   let assert Ok(result) = port(create.paging_params(10, 0))
 
   let assert [first, ..] = result.data
-  let stock_item_query_model.StockItemQueryModel(product_name:, quantity:, ..) =
-    first
+  let stock_item_query_model.StockItemQueryModel(
+    product_name:,
+    best_before_date:,
+    quantity:,
+    ..,
+  ) = first
 
-  assert result.total == 2
-  assert product_name == "Cappuccino"
+  assert result.total == 3
+  assert product_name == "Espresso"
+  assert best_before_date == "2026-08-20"
   assert quantity == 1
 }
 
@@ -59,10 +64,15 @@ pub fn sqlite_stock_adapter_supports_pagination_test() {
   let assert Ok(result) = port(create.paging_params(1, 1))
 
   let assert [first] = result.data
-  let stock_item_query_model.StockItemQueryModel(product_name:, quantity:, ..) =
-    first
+  let stock_item_query_model.StockItemQueryModel(
+    product_name:,
+    best_before_date:,
+    quantity:,
+    ..,
+  ) = first
 
-  assert result.total == 2
+  assert result.total == 3
   assert product_name == "Espresso"
-  assert quantity == 2
+  assert best_before_date == "2026-09-20"
+  assert quantity == 1
 }

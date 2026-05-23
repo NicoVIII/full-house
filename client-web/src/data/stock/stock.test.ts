@@ -18,7 +18,14 @@ describe("fetchStock", () => {
 
 	it("fetches stock summaries with correct offset and limit", async () => {
 		const mockRpcResponse = {
-			data: [{ productId: "1", productName: "Espresso", quantity: 4 }],
+			data: [
+				{
+					productId: "1",
+					productName: "Espresso",
+					bestBeforeDate: "2026-10-15",
+					quantity: 4,
+				},
+			],
 			total: 1,
 			offset: 0,
 			limit: 10,
@@ -29,7 +36,14 @@ describe("fetchStock", () => {
 		const result = await fetchStock({ offset: 0, limit: 10 });
 
 		expect(result).toEqual({
-			data: [{ product_id: "1", product_name: "Espresso", quantity: 4 }],
+			data: [
+				{
+					product_id: "1",
+					product_name: "Espresso",
+					best_before_date: "2026-10-15",
+					quantity: 4,
+				},
+			],
 			total: 1,
 			offset: 0,
 			limit: 10,

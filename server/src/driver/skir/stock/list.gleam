@@ -42,7 +42,12 @@ fn validate_offset(offset: Int) -> Result(page_offset.T, service.ServiceError) {
 }
 
 fn map_stock_summary(model: stock_item_query_model.T) -> stock.StockSummary {
-  stock.stock_summary_new(model.product_id, model.product_name, model.quantity)
+  stock.stock_summary_new(
+    model.best_before_date,
+    model.product_id,
+    model.product_name,
+    model.quantity,
+  )
 }
 
 fn map_response(
