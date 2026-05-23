@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing or refactoring backend Gleam modules with hexagonal architecture and CQS. Keep domain pure, define outbound ports in application modules, and separate command and query use cases."
-applyTo: "backend/src/**/*.gleam"
+applyTo: "server/src/**/*.gleam"
 ---
 # Backend CQS And Hexagonal Architecture
 

@@ -20,14 +20,14 @@ jobs:
       - name: Ensure Skir snapshot up-to-date
         run: npx skir@1.2 snapshot --ci
 
-  backend-test:
+  server-test:
     needs: [skir-validate]
     runs-on: ubuntu-latest
     permissions:
       contents: read
     defaults:
       run:
-        working-directory: backend
+        working-directory: server
     steps:
       - uses: actions/checkout@v6
       - uses: erlef/setup-beam@v1
@@ -39,8 +39,8 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v5
         with:
-          path: backend/build/packages
-          key: ${{ runner.os }}-gleam-${{ hashFiles('backcd .. && end/manifest.toml') }}
+          path: server/build/packages
+          key: ${{ runner.os }}-gleam-${{ hashFiles('server/manifest.toml') }}
           restore-keys: |
             ${{ runner.os }}-gleam-
       - name: Check format
@@ -63,7 +63,7 @@ jobs:
       contents: read
     defaults:
       run:
-        working-directory: webfrontend
+        working-directory: client-web
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
@@ -81,7 +81,7 @@ jobs:
         run: bun run test:run
 
   build-and-push:
-    needs: [backend-test, frontend-test]
+    needs: [server-test, frontend-test]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     permissions:

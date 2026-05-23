@@ -1,6 +1,6 @@
 ---
 description: "Use when designing domain models and application types. Avoid primitive obsession by introducing validated opaque value objects."
-applyTo: "backend/src/**/*.gleam"
+applyTo: "server/src/**/*.gleam"
 ---
 
 # Value Objects Over Primitives

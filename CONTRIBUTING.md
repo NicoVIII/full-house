@@ -6,10 +6,10 @@ Thank you for your interest in contributing! This document explains how to get s
 
 The repository consists of two main parts:
 
-- [backend/](backend/) — Gleam/Wisp HTTP API with a SQLite database
-- [webfrontend/](webfrontend/) — SolidJS/TypeScript frontend built with Vite and Bun
+- [server/](server/) — Gleam/Wisp HTTP API with a SQLite database
+- [client-web/](client-web/) — SolidJS/TypeScript webclient built with Vite and Bun
 
-For a visual overview of the repository layout, see the Mermaid treemap diagrams in [docs/dev/overview.md](docs/dev/overview.md). They show the full project, the backend, and the frontend as proportional treemaps so you can quickly orient yourself.
+For a visual overview of the repository layout, see the Mermaid treemap diagrams in [docs/dev/overview.md](docs/dev/overview.md). They show the full project, the server, and the webclient as proportional treemaps so you can quickly orient yourself.
 
 ## Development Environment
 
@@ -17,8 +17,8 @@ The repository ships with a Dev Container configuration. Opening it in VS Code w
 
 If you prefer a local setup, you need:
 
-- [Gleam](https://gleam.run/getting-started/installing/) and Erlang/OTP for the backend
-- [Bun](https://bun.sh/) for the frontend
+- [Gleam](https://gleam.run/getting-started/installing/) and Erlang/OTP for the server
+- [Bun](https://bun.sh/) for the webclient
 - [Python 3](https://www.python.org/) for the dev database setup script
 
 ### Setting up the development database
@@ -29,17 +29,17 @@ python scripts/setup_dev_db.py
 
 ## Running the Project Locally
 
-### Backend
+### Server
 
 ```sh
-cd backend
+cd server
 gleam run
 ```
 
-### Frontend
+### Webclient
 
 ```sh
-cd webfrontend
+cd client-web
 bun run dev
 ```
 
@@ -52,20 +52,20 @@ If you don't use the devcontainer, install lefthook once to have them run automa
 lefthook install
 ```
 
-### Backend
+### Server
 
 ```sh
-cd backend
+cd server
 gleam format --check
 gleam check         # type check
 gleam run -m lint   # architecture lint
 gleam test          # unit and integration tests
 ```
 
-### Frontend
+### Webclient
 
 ```sh
-cd webfrontend
+cd client-web
 bun run format:check
 bun x --no-install tsc --noEmit   # type check
 bun run lint

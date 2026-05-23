@@ -9,22 +9,22 @@ RUN bunx skir@1.2 gen
 
 FROM oven/bun:1-alpine AS frontend-builder
 WORKDIR /app
-COPY webfrontend/package.json webfrontend/bun.lock ./
+COPY client-web/package.json client-web/bun.lock ./
 RUN bun install --frozen-lockfile
-COPY webfrontend/ .
-COPY --from=skir-gen /app/webfrontend/src/skirout/ ./src/skirout/
+COPY client-web/ .
+COPY --from=skir-gen /app/client-web/src/skirout/ ./src/skirout/
 RUN bun run build
 
 # Gleam stage
 FROM ghcr.io/gleam-lang/gleam:${GLEAM_VERSION}-scratch AS gleam
 
-FROM erlang:${ERLANG_VERSION}-alpine AS backend-builder
+FROM erlang:${ERLANG_VERSION}-alpine AS server-builder
 RUN apk add --no-cache build-base
 COPY --from=gleam /bin/gleam /bin/gleam
 WORKDIR /app
-COPY backend/ .
+COPY server/ .
 RUN gleam deps download
-COPY --from=skir-gen /app/backend/src/driver/skirout/ ./src/driver/skirout/
+COPY --from=skir-gen /app/server/src/driver/skirout/ ./src/driver/skirout/
 RUN gleam export erlang-shipment
 
 FROM alpine AS dbmate-downloader
@@ -43,9 +43,9 @@ RUN \
   && mkdir -p /data \
   && chown webapp:webapp /data
 USER webapp
-COPY --from=backend-builder /app/build/erlang-shipment /app/
+COPY --from=server-builder /app/build/erlang-shipment /app/
 COPY --from=frontend-builder /app/dist /app/static
-COPY backend/db/migrations /app/db/migrations
+COPY server/db/migrations /app/db/migrations
 
 ENV STATIC_DIR=/app/static
 ENV DATABASE_PATH=/data/full_house.db

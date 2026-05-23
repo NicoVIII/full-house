@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing backend Gleam boundaries between driver and application, or application and infrastructure. Enforce anti-corruption layers (ACLs) so external layer models do not leak across boundaries."
-applyTo: "backend/src/**/*.gleam"
+applyTo: "server/src/**/*.gleam"
 ---
 # Backend Anti-Corruption Layers (ACL)
 

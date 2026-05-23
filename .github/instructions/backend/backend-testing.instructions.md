@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing or changing backend Gleam features. Prefer strong endpoint integration coverage and focused infrastructure adapter tests (unit or focused integration)."
-applyTo: "backend/src/**/*.gleam, backend/test/**/*.gleam"
+applyTo: "server/src/**/*.gleam, server/test/**/*.gleam"
 ---
 # Backend Testing Strategy
 
@@ -30,9 +30,9 @@ When organizing infrastructure adapters (see `backend-layer-structure.instructio
 
 ## Test Organization
 
-1. Endpoint integration tests under `backend/test/integration/**`
-2. Domain unit/property tests under `backend/test/unit/domain/**`
-3. Focused infrastructure adapter tests under `backend/test/integration/infrastructure/**` or `backend/test/unit/infrastructure/**` depending on test style
+1. Endpoint integration tests under `server/test/integration/**`
+2. Domain unit/property tests under `server/test/unit/domain/**`
+3. Focused infrastructure adapter tests under `server/test/integration/infrastructure/**` or `server/test/unit/infrastructure/**` depending on test style
 
 ## Review Checklist
 

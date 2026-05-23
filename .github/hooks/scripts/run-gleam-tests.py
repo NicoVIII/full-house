@@ -8,7 +8,7 @@ from hook_utils import (
     block,
     load_payload,
     log_hook_run,
-    payload_touches_backend_gleam,
+    payload_touches_server_gleam,
     repo_root,
     run_command,
     should_process_write_tool,
@@ -20,28 +20,28 @@ def main() -> int:
     if not should_process_write_tool(payload):
         return 0
 
-    if not payload_touches_backend_gleam(payload):
+    if not payload_touches_server_gleam(payload):
         return 0
 
-    log_hook_run("backend", payload, "started")
+    log_hook_run("server", payload, "started")
 
-    backend_dir = repo_root() / "backend"
-    if not run_command(["gleam", "format"], cwd=backend_dir):
-        log_hook_run("backend", payload, "blocked")
+    server_dir = repo_root() / "server"
+    if not run_command(["gleam", "format"], cwd=server_dir):
+        log_hook_run("server", payload, "blocked")
         return block(
             "gleam format failed — fix formatting errors before continuing",
-            "Backend hook blocked progress after a backend Gleam edit.",
+            "Server hook blocked progress after a server Gleam edit.",
         )
 
-    if run_command(["gleam", "test"], cwd=backend_dir):
-        log_hook_run("backend", payload, "passed")
-        print("[hook:backend] gleam format + gleam test passed")
+    if run_command(["gleam", "test"], cwd=server_dir):
+        log_hook_run("server", payload, "passed")
+        print("[hook:server] gleam format + gleam test passed")
         return 0
 
-    log_hook_run("backend", payload, "blocked")
+    log_hook_run("server", payload, "blocked")
     return block(
         "gleam test failed — fix compilation or test errors before continuing",
-        "Backend hook blocked progress after a backend Gleam edit.",
+        "Server hook blocked progress after a server Gleam edit.",
     )
 
 

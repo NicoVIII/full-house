@@ -20,7 +20,7 @@ def resolve_repo_root() -> Path:
 
 
 def resolve_default_db_path(repo_root: Path) -> Path:
-    return repo_root / "backend" / "db" / "data" / "full_house.db"
+    return repo_root / "server" / "db" / "data" / "full_house.db"
 
 
 def map_architecture(machine: str) -> str:
@@ -102,7 +102,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     repo_root = resolve_repo_root()
-    backend_dir = repo_root / "backend"
+    server_dir = repo_root / "server"
 
     db_path = Path(
         args.db_path
@@ -110,8 +110,8 @@ def main() -> int:
         or resolve_default_db_path(repo_root)
     ).expanduser()
 
-    migrations_dir = backend_dir / "db" / "migrations"
-    dev_seed_file = backend_dir / "db" / "seeds" / "dev" / "dev_seed.sql"
+    migrations_dir = server_dir / "db" / "migrations"
+    dev_seed_file = server_dir / "db" / "seeds" / "dev" / "dev_seed.sql"
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -124,7 +124,7 @@ def main() -> int:
     run(
         ["dbmate", "--migrations-dir", str(migrations_dir), "up"],
         env=env,
-        cwd=backend_dir,
+        cwd=server_dir,
     )
 
     if args.seed:

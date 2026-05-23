@@ -1,6 +1,6 @@
 ---
 description: "Use when writing, reviewing, or refactoring backend Gleam or frontend TypeScript code. Prefer code that is both readable and concise; when those goals pull apart, keep the version that preserves clarity fastest."
-applyTo: "backend/**/*.gleam, webfrontend/src/**/*.ts, webfrontend/src/**/*.tsx"
+applyTo: "server/**/*.gleam, client-web/src/**/*.ts, client-web/src/**/*.tsx"
 ---
 
 # Readability First

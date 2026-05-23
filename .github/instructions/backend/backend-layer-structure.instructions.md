@@ -1,6 +1,6 @@
 ---
 description: "Use when organizing code within hexagonal architecture layers. Organize by business feature or domain concern, not by technical type."
-applyTo: "backend/src/**/*.gleam"
+applyTo: "server/src/**/*.gleam"
 ---
 
 # Backend Layer Structure

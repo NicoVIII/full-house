@@ -14,9 +14,9 @@ build_map() {
 
 echo "# Overview" > "$file_path"
 build_map .
-echo "## Backend" >> "$file_path"
-build_map ./backend
-build_map ./backend/src
-echo "## Frontend" >> "$file_path"
-build_map ./webfrontend
-build_map ./webfrontend/src
+echo "## Server" >> "$file_path"
+build_map ./server
+build_map ./server/src
+echo "## Webclient" >> "$file_path"
+build_map ./client-web
+build_map ./client-web/src

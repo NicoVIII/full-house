@@ -1,6 +1,6 @@
 ---
 description: "Use when adding or reviewing imports in backend Gleam files. Enforce allowed and forbidden layer dependencies for domain, application, infrastructure, and driver."
-applyTo: "backend/src/**/*.gleam"
+applyTo: "server/src/**/*.gleam"
 ---
 
 # Backend Layer Import Rules

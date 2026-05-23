@@ -112,22 +112,22 @@ def iter_strings(value: Any):
             yield from iter_strings(nested_value)
 
 
-def payload_touches_backend_gleam(payload: dict[str, Any]) -> bool:
+def payload_touches_server_gleam(payload: dict[str, Any]) -> bool:
     tool_input = get_tool_input(payload)
     for text in iter_strings(tool_input):
         if (
-            "/backend/" in text
-            or text.startswith("backend/")
-            or "backend/" in text
+            "/server/" in text
+            or text.startswith("server/")
+            or "server/" in text
         ) and ".gleam" in text:
             return True
     return False
 
 
-def payload_touches_webfrontend(payload: dict[str, Any]) -> bool:
+def payload_touches_client_web(payload: dict[str, Any]) -> bool:
     tool_input = get_tool_input(payload)
     for text in iter_strings(tool_input):
-        if "/webfrontend/" in text or text.startswith("webfrontend/") or "webfrontend/" in text:
+        if "/client-web/" in text or text.startswith("client-web/") or "client-web/" in text:
             return True
     return False
 

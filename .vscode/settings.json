@@ -1,22 +1,22 @@
 {
     "chat.tools.terminal.autoApprove": {
-        "/^cd /workspaces/full-house/backend && gleam test$/": {
+        "/^cd /workspaces/full-house/server && gleam test$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^cd /workspaces/full-house/backend && gleam check$/": {
+        "/^cd /workspaces/full-house/server && gleam check$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^cd /workspaces/full-house/webfrontend && bun x --no-install tsc --noEmit$/": {
+        "/^cd /workspaces/full-house/client-web && bun x --no-install tsc --noEmit$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^cd /workspaces/full-house/webfrontend && bun run lint$/": {
+        "/^cd /workspaces/full-house/client-web && bun run lint$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^cd /workspaces/full-house/webfrontend && bun run test:run$/": {
+        "/^cd /workspaces/full-house/client-web && bun run test:run$/": {
             "approve": true,
             "matchCommandLine": true
         }

@@ -6,27 +6,27 @@ pre-commit:
     - name: "skir-snapshot"
       glob: "{lefthook.yml,skir-src/**/*.skir}"
       run: bunx skir@1.2 snapshot --ci
-    - name: "backend-format"
-      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
-      run: cd backend && gleam format --check
-    - name: "backend-type-check"
-      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
-      run: cd backend && gleam check
-    - name: "backend-lint"
-      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
-      run: cd backend && gleam run -m lint
-    - name: "backend-test"
-      glob: "{lefthook.yml,backend/**/*.{gleam,toml}}"
-      run: cd backend && gleam test
-    - name: "frontend-format"
-      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
-      run: cd webfrontend && bun run format:check
-    - name: "frontend-type-check"
-      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
-      run: cd webfrontend && bun x --no-install tsc --noEmit
-    - name: "frontend-lint"
-      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx}}"
-      run: cd webfrontend && bun run lint
-    - name: "frontend-test"
-      glob: "{lefthook.yml,webfrontend/**/*.{ts,tsx,json}}"
-      run: cd webfrontend && bun run test:run
+    - name: "server-format"
+      glob: "{lefthook.yml,server/**/*.{gleam,toml}}"
+      run: cd server && gleam format --check
+    - name: "server-type-check"
+      glob: "{lefthook.yml,server/**/*.{gleam,toml}}"
+      run: cd server && gleam check
+    - name: "server-lint"
+      glob: "{lefthook.yml,server/**/*.{gleam,toml}}"
+      run: cd server && gleam run -m lint
+    - name: "server-test"
+      glob: "{lefthook.yml,server/**/*.{gleam,toml}}"
+      run: cd server && gleam test
+    - name: "webclient-format"
+      glob: "{lefthook.yml,client-web/**/*.{ts,tsx,json}}"
+      run: cd client-web && bun run format:check
+    - name: "webclient-type-check"
+      glob: "{lefthook.yml,client-web/**/*.{ts,tsx,json}}"
+      run: cd client-web && bun x --no-install tsc --noEmit
+    - name: "webclient-lint"
+      glob: "{lefthook.yml,client-web/**/*.{ts,tsx}}"
+      run: cd client-web && bun run lint
+    - name: "webclient-test"
+      glob: "{lefthook.yml,client-web/**/*.{ts,tsx,json}}"
+      run: cd client-web && bun run test:run

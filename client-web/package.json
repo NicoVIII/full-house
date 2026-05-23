@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "full-house-webfrontend",
+	"name": "full-house-client-web",
 	"type": "module",
 	"scripts": {
 		"start": "vite",

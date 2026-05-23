@@ -24,7 +24,7 @@ Help users reduce food waste, avoid stockouts and shop with a clear, practical l
 
 Current implementation is an early foundation and does not yet cover the full grocery-management vision.
 
-- Backend and frontend foundations are in place.
+- Server and webclient foundations are in place.
 - Product and stock management basics are implemented.
 - Best-before tracking, household target stock goals, and automated restock suggestions are planned next steps.
 

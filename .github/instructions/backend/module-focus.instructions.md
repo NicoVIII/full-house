@@ -1,6 +1,6 @@
 ---
 description: "Use when creating or reviewing modules in the backend. Keep modules focused on a single concept or responsibility. Split modules that cover multiple separable concerns."
-applyTo: "backend/src/**/*.gleam"
+applyTo: "server/src/**/*.gleam"
 ---
 
 # Concise, Focused Modules

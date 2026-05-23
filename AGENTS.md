@@ -1,6 +1,6 @@
 # Full House — Agent Guide
 
-`backend/` — Gleam/Wisp API. `webfrontend/` — Solid/TypeScript/Vite.
+`server/` — Gleam/Wisp API. `client-web/` — Solid/TypeScript/Vite.
 
 ## API
 
@@ -10,20 +10,20 @@ bunx skir format
 bunx skir snapshot
 ```
 
-## Backend
+## Server
 
 ```bash
-cd backend
+cd server
 gleam check
 gleam format
 gleam run -m lint
 gleam test
 ```
 
-## Frontend
+## Webclient
 
 ```bash
-cd webfrontend
+cd client-web
 bun run dev
 bun run build
 bun run format:fix

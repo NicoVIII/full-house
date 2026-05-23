@@ -9,12 +9,83 @@ treemap-beta
 "full-house"
   ".devcontainer"
     "devcontainer-lock.json": 24
-    "devcontainer.json": 41
-    "post_create.sh": 18
+    "devcontainer.json": 43
+    "post_create.sh": 29
   ".vscode"
-    "settings.json": 24
+    "settings.json": 42
     "tasks.json": 65
-  "backend"
+  "client-web"
+    "src"
+      "components"
+        "AppBar.tsx": 35
+      "data"
+        "product"
+          "create"
+            "mutation.ts": 13
+            "request.ts": 30
+          "delete"
+            "mutation.ts": 21
+            "request.ts": 10
+          "get"
+            "query.ts": 23
+            "request.ts": 20
+          "list"
+            "query.ts": 27
+            "request.ts": 35
+          "product.ts": 16
+        "stock"
+          "create"
+            "mutation.ts": 16
+            "request.ts": 25
+          "stock.test.ts": 51
+          "stock.ts": 41
+        "api_helper.ts": 24
+        "tanstack_helper.ts": 19
+      "pages"
+        "catalog"
+          "detail"
+            "CatalogDetailPage.tsx": 207
+            "CreateStockItemButton.tsx": 108
+            "ParentLink.tsx": 28
+            "VariantRow.tsx": 61
+          "CatalogPage.tsx": 60
+          "CreateProductFab.tsx": 156
+          "ProductCard.test.tsx": 99
+          "ProductCard.tsx": 83
+          "ProductsPanel.tsx": 119
+        "stock"
+          "StockCard.test.tsx": 26
+          "StockCard.tsx": 33
+          "StockHero.tsx": 20
+          "StockPage.tsx": 65
+          "StockPanel.tsx": 105
+        "paginated_query_helpers.ts": 20
+      "App.tsx": 17
+      "index.tsx": 41
+      "routes.ts": 50
+      "skir.ts": 64
+      "styles.css": 133
+    ".env.development": 1
+    "biome.json": 31
+    "bun.lock": 925
+    "eslint.config.ts": 51
+    "index.html": 18
+    "package.json": 50
+    "tsconfig.json": 23
+    "vite.config.ts": 25
+    "vitest.config.ts": 11
+  "deploy"
+    "healthcheck.sh": 17
+    "start.sh": 4
+  "docs"
+    "dev"
+      "overview.md": 2
+  "scripts"
+    "build_treemaps.sh": 22
+    "setup_dev_db.py": 146
+    "treemap.py": 81
+  "server"
+    "data"
     "db"
       "migrations"
         "0001_create_products.sql": 9
@@ -34,7 +105,8 @@ treemap-beta
     "src"
       "application"
         "commands"
-          "create_product.gleam": 63
+          "create_product.gleam": 76
+          "create_stock_item.gleam": 48
           "delete_product.gleam": 71
         "queries"
           "common"
@@ -66,30 +138,49 @@ treemap-beta
         "http"
           "products"
             "create"
-              "handler.gleam": 43
-              "request_mapper.gleam": 81
-              "response_mapper.gleam": 22
+              "handler.gleam": 46
+              "request_mapper.gleam": 27
+              "response_mapper.gleam": 29
             "delete"
               "handler.gleam": 68
             "get"
-              "handler.gleam": 44
+              "handler.gleam": 46
             "list"
-              "handler.gleam": 29
-              "response_mapper.gleam": 22
-            "product_json.gleam": 17
+              "handler.gleam": 31
+              "response_mapper.gleam": 29
+            "skir.gleam": 18
           "stock_items"
+            "create"
+              "handler.gleam": 42
+              "request_mapper.gleam": 31
+              "response_mapper.gleam": 25
             "list"
-              "handler.gleam": 29
-              "response_mapper.gleam": 34
+              "handler.gleam": 31
+              "response_mapper.gleam": 38
           "handler_helpers.gleam": 39
           "pagination_request_mapper.gleam": 86
-          "router.gleam": 58
+          "router.gleam": 65
+          "skir.gleam": 30
+          "wire_format.gleam": 30
+        "skir"
+          "product"
+            "create.gleam": 53
+            "delete.gleam": 43
+            "get.gleam": 45
+            "list.gleam": 84
+          "stock"
+            "create.gleam": 48
+            "list.gleam": 79
+          "router.gleam": 59
+          "setup.gleam": 96
       "infrastructure"
         "adapter"
           "commands"
             "create_product"
               "create_adapter.gleam": 42
               "product_existence_adapter.gleam": 42
+            "create_stock_item"
+              "create_adapter.gleam": 37
             "delete_product"
               "delete_adapter.gleam": 35
               "deletion_properties_adapter.gleam": 82
@@ -102,16 +193,16 @@ treemap-beta
             "list_stock_items"
               "list_stock_items_adapter.gleam": 92
           "decoder.gleam": 57
-      "composition.gleam": 42
-      "full_house.gleam": 40
+      "composition.gleam": 49
+      "full_house.gleam": 101
     "test"
       "integration"
         "driver"
           "http"
             "products"
               "delete_test.gleam": 132
-            "testsetup.gleam": 30
-          "product_route_test.gleam": 340
+            "testsetup.gleam": 36
+          "product_route_test.gleam": 344
         "infrastructure"
           "commands"
             "create_product"
@@ -128,60 +219,24 @@ treemap-beta
           "product_name_property_test.gleam": 62
           "product_name_test.gleam": 54
       "full_house_test.gleam": 5
-      "lint.gleam": 82
+      "lint.gleam": 83
     ".editorconfig": 3
-    "gleam.toml": 30
-    "manifest.toml": 56
-  "docs"
-    "dev"
-      "overview.md": 2
-  "scripts"
-    "build_treemaps.sh": 22
-    "setup_dev_db.py": 146
-    "treemap.py": 81
-  "webfrontend"
-    "src"
-      "api"
-        "create_product.test.ts": 101
-        "products.test.ts": 294
-        "products.ts": 112
-        "stock.test.ts": 46
-        "stock.ts": 38
-      "components"
-        "CreateProductDialog.tsx": 133
-        "ProductCard.test.tsx": 99
-        "ProductCard.tsx": 80
-        "ProductsHero.test.tsx": 21
-        "ProductsHero.tsx": 20
-        "ProductsPanel.tsx": 118
-        "StockCard.test.tsx": 26
-        "StockCard.tsx": 33
-        "StockHero.tsx": 20
-        "StockPanel.tsx": 105
-      "pages"
-        "ProductDetailPage.tsx": 308
-        "ProductsPage.tsx": 91
-        "StockPage.tsx": 62
-        "paginated_query_helpers.ts": 21
-      "App.tsx": 39
-      "index.tsx": 34
-      "styles.css": 133
-    "biome.json": 31
-    "bun.lock": 904
-    "eslint.config.ts": 51
-    "index.html": 18
-    "package.json": 49
-    "tsconfig.json": 23
-    "vite.config.ts": 25
-    "vitest.config.ts": 11
+    "gleam.toml": 38
+    "manifest.toml": 59
+  "skir-src"
+    "product.skir": 49
+    "stock.skir": 34
   ".editorconfig": 5
-  "AGENTS.md": 24
+  "AGENTS.md": 33
+  "CONTRIBUTING.md": 85
+  "Dockerfile": 57
   "LICENSE": 21
-  "README.md": 29
-  "lefthook.yml": 26
-  "output.txt": 79
+  "README.md": 83
+  "lefthook.yml": 32
+  "skir-snapshot.json": 38
+  "skir.yml": 7
 ```
-## Backend
+## Server
 ```mermaid
 ---
 config:
@@ -189,7 +244,8 @@ config:
     showValues: false
 ---
 treemap-beta
-"backend"
+"server"
+  "data"
   "db"
     "migrations"
       "0001_create_products.sql": 9
@@ -209,7 +265,8 @@ treemap-beta
   "src"
     "application"
       "commands"
-        "create_product.gleam": 63
+        "create_product.gleam": 76
+        "create_stock_item.gleam": 48
         "delete_product.gleam": 71
       "queries"
         "common"
@@ -241,30 +298,49 @@ treemap-beta
       "http"
         "products"
           "create"
-            "handler.gleam": 43
-            "request_mapper.gleam": 81
-            "response_mapper.gleam": 22
+            "handler.gleam": 46
+            "request_mapper.gleam": 27
+            "response_mapper.gleam": 29
           "delete"
             "handler.gleam": 68
           "get"
-            "handler.gleam": 44
+            "handler.gleam": 46
           "list"
-            "handler.gleam": 29
-            "response_mapper.gleam": 22
-          "product_json.gleam": 17
+            "handler.gleam": 31
+            "response_mapper.gleam": 29
+          "skir.gleam": 18
         "stock_items"
+          "create"
+            "handler.gleam": 42
+            "request_mapper.gleam": 31
+            "response_mapper.gleam": 25
           "list"
-            "handler.gleam": 29
-            "response_mapper.gleam": 34
+            "handler.gleam": 31
+            "response_mapper.gleam": 38
         "handler_helpers.gleam": 39
         "pagination_request_mapper.gleam": 86
-        "router.gleam": 58
+        "router.gleam": 65
+        "skir.gleam": 30
+        "wire_format.gleam": 30
+      "skir"
+        "product"
+          "create.gleam": 53
+          "delete.gleam": 43
+          "get.gleam": 45
+          "list.gleam": 84
+        "stock"
+          "create.gleam": 48
+          "list.gleam": 79
+        "router.gleam": 59
+        "setup.gleam": 96
     "infrastructure"
       "adapter"
         "commands"
           "create_product"
             "create_adapter.gleam": 42
             "product_existence_adapter.gleam": 42
+          "create_stock_item"
+            "create_adapter.gleam": 37
           "delete_product"
             "delete_adapter.gleam": 35
             "deletion_properties_adapter.gleam": 82
@@ -277,16 +353,16 @@ treemap-beta
           "list_stock_items"
             "list_stock_items_adapter.gleam": 92
         "decoder.gleam": 57
-    "composition.gleam": 42
-    "full_house.gleam": 40
+    "composition.gleam": 49
+    "full_house.gleam": 101
   "test"
     "integration"
       "driver"
         "http"
           "products"
             "delete_test.gleam": 132
-          "testsetup.gleam": 30
-        "product_route_test.gleam": 340
+          "testsetup.gleam": 36
+        "product_route_test.gleam": 344
       "infrastructure"
         "commands"
           "create_product"
@@ -303,10 +379,10 @@ treemap-beta
         "product_name_property_test.gleam": 62
         "product_name_test.gleam": 54
     "full_house_test.gleam": 5
-    "lint.gleam": 82
+    "lint.gleam": 83
   ".editorconfig": 3
-  "gleam.toml": 30
-  "manifest.toml": 56
+  "gleam.toml": 38
+  "manifest.toml": 59
 ```
 ```mermaid
 ---
@@ -318,7 +394,8 @@ treemap-beta
 "src"
   "application"
     "commands"
-      "create_product.gleam": 63
+      "create_product.gleam": 76
+      "create_stock_item.gleam": 48
       "delete_product.gleam": 71
     "queries"
       "common"
@@ -350,30 +427,49 @@ treemap-beta
     "http"
       "products"
         "create"
-          "handler.gleam": 43
-          "request_mapper.gleam": 81
-          "response_mapper.gleam": 22
+          "handler.gleam": 46
+          "request_mapper.gleam": 27
+          "response_mapper.gleam": 29
         "delete"
           "handler.gleam": 68
         "get"
-          "handler.gleam": 44
+          "handler.gleam": 46
         "list"
-          "handler.gleam": 29
-          "response_mapper.gleam": 22
-        "product_json.gleam": 17
+          "handler.gleam": 31
+          "response_mapper.gleam": 29
+        "skir.gleam": 18
       "stock_items"
+        "create"
+          "handler.gleam": 42
+          "request_mapper.gleam": 31
+          "response_mapper.gleam": 25
         "list"
-          "handler.gleam": 29
-          "response_mapper.gleam": 34
+          "handler.gleam": 31
+          "response_mapper.gleam": 38
       "handler_helpers.gleam": 39
       "pagination_request_mapper.gleam": 86
-      "router.gleam": 58
+      "router.gleam": 65
+      "skir.gleam": 30
+      "wire_format.gleam": 30
+    "skir"
+      "product"
+        "create.gleam": 53
+        "delete.gleam": 43
+        "get.gleam": 45
+        "list.gleam": 84
+      "stock"
+        "create.gleam": 48
+        "list.gleam": 79
+      "router.gleam": 59
+      "setup.gleam": 96
   "infrastructure"
     "adapter"
       "commands"
         "create_product"
           "create_adapter.gleam": 42
           "product_existence_adapter.gleam": 42
+        "create_stock_item"
+          "create_adapter.gleam": 37
         "delete_product"
           "delete_adapter.gleam": 35
           "deletion_properties_adapter.gleam": 82
@@ -386,10 +482,10 @@ treemap-beta
         "list_stock_items"
           "list_stock_items_adapter.gleam": 92
       "decoder.gleam": 57
-  "composition.gleam": 42
-  "full_house.gleam": 40
+  "composition.gleam": 49
+  "full_house.gleam": 101
 ```
-## Frontend
+## Webclient
 ```mermaid
 ---
 config:
@@ -397,38 +493,63 @@ config:
     showValues: false
 ---
 treemap-beta
-"webfrontend"
+"client-web"
   "src"
-    "api"
-      "create_product.test.ts": 101
-      "products.test.ts": 294
-      "products.ts": 112
-      "stock.test.ts": 46
-      "stock.ts": 38
     "components"
-      "CreateProductDialog.tsx": 133
-      "ProductCard.test.tsx": 99
-      "ProductCard.tsx": 80
-      "ProductsHero.test.tsx": 21
-      "ProductsHero.tsx": 20
-      "ProductsPanel.tsx": 118
-      "StockCard.test.tsx": 26
-      "StockCard.tsx": 33
-      "StockHero.tsx": 20
-      "StockPanel.tsx": 105
+      "AppBar.tsx": 35
+    "data"
+      "product"
+        "create"
+          "mutation.ts": 13
+          "request.ts": 30
+        "delete"
+          "mutation.ts": 21
+          "request.ts": 10
+        "get"
+          "query.ts": 23
+          "request.ts": 20
+        "list"
+          "query.ts": 27
+          "request.ts": 35
+        "product.ts": 16
+      "stock"
+        "create"
+          "mutation.ts": 16
+          "request.ts": 25
+        "stock.test.ts": 51
+        "stock.ts": 41
+      "api_helper.ts": 24
+      "tanstack_helper.ts": 19
     "pages"
-      "ProductDetailPage.tsx": 308
-      "ProductsPage.tsx": 91
-      "StockPage.tsx": 62
-      "paginated_query_helpers.ts": 21
-    "App.tsx": 39
-    "index.tsx": 34
+      "catalog"
+        "detail"
+          "CatalogDetailPage.tsx": 207
+          "CreateStockItemButton.tsx": 108
+          "ParentLink.tsx": 28
+          "VariantRow.tsx": 61
+        "CatalogPage.tsx": 60
+        "CreateProductFab.tsx": 156
+        "ProductCard.test.tsx": 99
+        "ProductCard.tsx": 83
+        "ProductsPanel.tsx": 119
+      "stock"
+        "StockCard.test.tsx": 26
+        "StockCard.tsx": 33
+        "StockHero.tsx": 20
+        "StockPage.tsx": 65
+        "StockPanel.tsx": 105
+      "paginated_query_helpers.ts": 20
+    "App.tsx": 17
+    "index.tsx": 41
+    "routes.ts": 50
+    "skir.ts": 64
     "styles.css": 133
+  ".env.development": 1
   "biome.json": 31
-  "bun.lock": 904
+  "bun.lock": 925
   "eslint.config.ts": 51
   "index.html": 18
-  "package.json": 49
+  "package.json": 50
   "tsconfig.json": 23
   "vite.config.ts": 25
   "vitest.config.ts": 11
@@ -441,29 +562,53 @@ config:
 ---
 treemap-beta
 "src"
-  "api"
-    "create_product.test.ts": 101
-    "products.test.ts": 294
-    "products.ts": 112
-    "stock.test.ts": 46
-    "stock.ts": 38
   "components"
-    "CreateProductDialog.tsx": 133
-    "ProductCard.test.tsx": 99
-    "ProductCard.tsx": 80
-    "ProductsHero.test.tsx": 21
-    "ProductsHero.tsx": 20
-    "ProductsPanel.tsx": 118
-    "StockCard.test.tsx": 26
-    "StockCard.tsx": 33
-    "StockHero.tsx": 20
-    "StockPanel.tsx": 105
+    "AppBar.tsx": 35
+  "data"
+    "product"
+      "create"
+        "mutation.ts": 13
+        "request.ts": 30
+      "delete"
+        "mutation.ts": 21
+        "request.ts": 10
+      "get"
+        "query.ts": 23
+        "request.ts": 20
+      "list"
+        "query.ts": 27
+        "request.ts": 35
+      "product.ts": 16
+    "stock"
+      "create"
+        "mutation.ts": 16
+        "request.ts": 25
+      "stock.test.ts": 51
+      "stock.ts": 41
+    "api_helper.ts": 24
+    "tanstack_helper.ts": 19
   "pages"
-    "ProductDetailPage.tsx": 308
-    "ProductsPage.tsx": 91
-    "StockPage.tsx": 62
-    "paginated_query_helpers.ts": 21
-  "App.tsx": 39
-  "index.tsx": 34
+    "catalog"
+      "detail"
+        "CatalogDetailPage.tsx": 207
+        "CreateStockItemButton.tsx": 108
+        "ParentLink.tsx": 28
+        "VariantRow.tsx": 61
+      "CatalogPage.tsx": 60
+      "CreateProductFab.tsx": 156
+      "ProductCard.test.tsx": 99
+      "ProductCard.tsx": 83
+      "ProductsPanel.tsx": 119
+    "stock"
+      "StockCard.test.tsx": 26
+      "StockCard.tsx": 33
+      "StockHero.tsx": 20
+      "StockPage.tsx": 65
+      "StockPanel.tsx": 105
+    "paginated_query_helpers.ts": 20
+  "App.tsx": 17
+  "index.tsx": 41
+  "routes.ts": 50
+  "skir.ts": 64
   "styles.css": 133
 ```

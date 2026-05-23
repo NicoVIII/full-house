@@ -14,7 +14,7 @@ include = ["../src/"]
 [tools.glinter.rules]
 # unused_exports cannot resolve cross-module references correctly when scanning
 # via a relative "../src/" path, so disable it here. Run `gleam run -m glinter`
-# from the backend/ directory if you want unused_exports checking.
+# from the server/ directory if you want unused_exports checking.
 unused_exports = "off"
 
 domain_no_application = "error"

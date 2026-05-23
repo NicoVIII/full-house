@@ -8,7 +8,7 @@ from hook_utils import (
     block,
     load_payload,
     log_hook_run,
-    payload_touches_webfrontend,
+    payload_touches_client_web,
     repo_root,
     run_command,
     should_process_write_tool,
@@ -20,12 +20,12 @@ def main() -> int:
     if not should_process_write_tool(payload):
         return 0
 
-    if not payload_touches_webfrontend(payload):
+    if not payload_touches_client_web(payload):
         return 0
 
-    log_hook_run("frontend", payload, "started")
+    log_hook_run("webclient", payload, "started")
 
-    frontend_dir = repo_root() / "webfrontend"
+    webclient_dir = repo_root() / "client-web"
     commands = [
         ["bun", "x", "--no-install", "tsc", "--noEmit"],
         ["bun", "run", "lint"],
@@ -33,15 +33,15 @@ def main() -> int:
     ]
 
     for command in commands:
-        if not run_command(command, cwd=frontend_dir):
-            log_hook_run("frontend", payload, "blocked")
+        if not run_command(command, cwd=webclient_dir):
+            log_hook_run("webclient", payload, "blocked")
             return block(
-                "Frontend quality checks failed — fix type, lint, or test errors before continuing.",
-                "Frontend quality hook blocked progress after a webfrontend edit.",
+                "Webclient quality checks failed — fix type, lint, or test errors before continuing.",
+                "Webclient quality hook blocked progress after a client-web edit.",
             )
 
-    log_hook_run("frontend", payload, "passed")
-    print("[hook:frontend] type-check + lint + tests passed")
+    log_hook_run("webclient", payload, "passed")
+    print("[hook:webclient] type-check + lint + tests passed")
     return 0
 
 

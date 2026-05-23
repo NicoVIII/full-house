@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing error handling, input validation, or fallback logic in any Gleam or TypeScript code. Ensure invalid inputs and failures are surfaced, not silently absorbed."
-applyTo: "backend/**/*.gleam, webfrontend/src/**/*.ts, webfrontend/src/**/*.tsx"
+applyTo: "server/**/*.gleam, client-web/src/**/*.ts, client-web/src/**/*.tsx"
 ---
 
 # Predictable Behavior
