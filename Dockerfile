@@ -6,7 +6,7 @@ WORKDIR /app
 COPY skir.yml ./
 COPY skir.sh ./
 COPY skir-src/ ./skir-src/
-RUN chmod +x ./skir.sh && ./skir.sh gen
+RUN chmod +x ./skir.sh && CI=1 ./skir.sh gen
 
 FROM oven/bun:1-alpine AS frontend-builder
 WORKDIR /app

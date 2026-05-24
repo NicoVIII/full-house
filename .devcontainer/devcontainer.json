@@ -3,7 +3,7 @@
 {
 	"name": "Full House Dev Container",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+	"image": "mcr.microsoft.com/devcontainers/base:3-resolute",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/git-lfs:1": { },
@@ -15,7 +15,9 @@
 		// Frontend
 		"ghcr.io/devcontainers-extra/features/bun:1": { },
 		// Deployment
-		"ghcr.io/devcontainers/features/docker-in-docker:3": { }
+		"ghcr.io/devcontainers/features/docker-in-docker:3": {
+			"moby": false
+		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

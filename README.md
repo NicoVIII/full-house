@@ -67,17 +67,16 @@ The application is then available at `http://localhost:8000`.
 
 ### Environment variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_PATH` | `./db/data/full_house.db` | Path to the SQLite database file |
-| `PORT` | `8000` (dev) / `80` (Docker) | Port the HTTP server listens on |
-| `SECRET_KEY_BASE` | *(dev fallback)* | Secret used for request signing — **set this in production** |
-| `STATIC_DIR` | `./static` | Directory from which the frontend assets are served |
+| Variable          | Default                      | Description                                                  |
+| ----------------- | ---------------------------- | ------------------------------------------------------------ |
+| `DATABASE_PATH`   | `./db/data/full_house.db`    | Path to the SQLite database file                             |
+| `PORT`            | `8000` (dev) / `80` (Docker) | Port the HTTP server listens on                              |
+| `SECRET_KEY_BASE` | _(dev fallback)_             | Secret used for request signing — **set this in production** |
+| `STATIC_DIR`      | `./static`                   | Directory from which the frontend assets are served          |
 
 ### Image tags
 
-| Tag | When published |
-|---|---|
-| `main` | Every push to the `main` branch |
-| `sha-<short>` | Every push (pinnable SHA tag) |
+| Tag                           | When published                    |
+| ----------------------------- | --------------------------------- |
+| `main`                        | Every push to the `main` branch   |
 | `1.2.3`, `1.2`, `1`, `latest` | When a `v1.2.3` git tag is pushed |
