@@ -2,6 +2,7 @@ import { A } from "@solidjs/router";
 import Typography from "@suid/material/Typography";
 import { useQuery } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
+
 import { productQueryOptions } from "../../../data/product/get/query";
 import { ProductId } from "../../../data/product/product";
 import { routes } from "../../../routes";

@@ -1,8 +1,4 @@
-import {
-	QueryKey,
-	SolidMutationOptions,
-	UndefinedInitialDataOptions,
-} from "@tanstack/solid-query";
+import { QueryKey, SolidMutationOptions, UndefinedInitialDataOptions } from "@tanstack/solid-query";
 
 export type QueryOptions<TData, TQueryKey extends QueryKey> = Readonly<
 	Omit<
@@ -12,8 +8,5 @@ export type QueryOptions<TData, TQueryKey extends QueryKey> = Readonly<
 >;
 
 export type MutationOptions<TData, TVariables> = Readonly<
-	Omit<
-		SolidMutationOptions<TData, Error, TVariables>,
-		"mutationKey" | "mutationFn"
-	>
+	Omit<SolidMutationOptions<TData, Error, TVariables>, "mutationKey" | "mutationFn">
 >;

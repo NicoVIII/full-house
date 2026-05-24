@@ -1,10 +1,7 @@
 import { mutationOptions } from "@tanstack/solid-query";
+
 import { MutationOptions } from "../../tanstack_helper";
-import {
-	RemoveStockItemData,
-	RemoveStockItemRequest,
-	removeStockItem,
-} from "./request";
+import { RemoveStockItemData, RemoveStockItemRequest, removeStockItem } from "./request";
 
 export const removeStockItemMutationOptions = (
 	options?: MutationOptions<RemoveStockItemData, RemoveStockItemRequest>,

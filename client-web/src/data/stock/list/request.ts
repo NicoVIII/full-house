@@ -7,10 +7,7 @@ type FetchStockParams = Readonly<{
 	limit: number;
 }>;
 
-export async function fetchStock({
-	offset,
-	limit,
-}: FetchStockParams): Promise<StockListResponse> {
+export async function fetchStock({ offset, limit }: FetchStockParams): Promise<StockListResponse> {
 	const parsed = await skirServiceClient.invokeRemote(
 		ListStockItems,
 		ListStockItemsRequest.create({ limit, offset }),

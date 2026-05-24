@@ -24,12 +24,16 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				// General
 				"editorconfig.editorconfig",
 				"FanaticPythoner.better-todo-tree",
-				"dbaeumer.vscode-eslint",
+				// Docs
 				"MermaidChart.vscode-mermaid-chart",
-				"fronterior.biome-monorepo",
-				"TylerFibonacci.skir-language"
+				// API
+				"TylerFibonacci.skir-language",
+				// Webclient
+				"oxc.oxc-vscode",
+				"dbaeumer.vscode-eslint"
 			]
 		}
 	}

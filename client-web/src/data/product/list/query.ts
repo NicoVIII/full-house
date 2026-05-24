@@ -1,4 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/solid-query";
+
 import { setProductQueryData } from "../get/query";
 import { fetchProducts } from "./request";
 

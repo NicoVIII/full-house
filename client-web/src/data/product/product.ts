@@ -1,16 +1,17 @@
-declare const _brand: unique symbol;
+import { Branded, newBranded } from "../brand";
 
-export type ProductId = string & Readonly<{ [_brand]: "ProductId" }>;
+export type ProductId = Branded<string, "ProductId">;
 
-export const ProductId = (id: string): ProductId => id as ProductId;
+export const ProductId = newBranded<ProductId>;
 
-export type Product = Readonly<{
-	id: ProductId;
-	name: string;
-	parent_product_id: ProductId | undefined;
-	child_product_ids: ProductId[];
-	[_brand]: "Product";
-}>;
+export type Product = Branded<
+	Readonly<{
+		id: ProductId;
+		name: string;
+		parent_product_id: ProductId | undefined;
+		child_product_ids: ProductId[];
+	}>,
+	"Product"
+>;
 
-export const Product = (data: Omit<Product, typeof _brand>): Product =>
-	data as Product;
+export const Product = newBranded<Product>;

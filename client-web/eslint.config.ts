@@ -1,9 +1,13 @@
 import js from "@eslint/js";
 import type { Linter } from "eslint";
-import { defineConfig } from "eslint/config";
 import functional from "eslint-plugin-functional";
+import oxlint from "eslint-plugin-oxlint";
 import solidPlugin from "eslint-plugin-solid";
+import { defineConfig } from "eslint/config";
+import { OxlintConfig } from "oxlint";
 import tseslint from "typescript-eslint";
+
+import oxlintConfig from "./oxlint.config";
 
 export default defineConfig([
 	{
@@ -26,10 +30,7 @@ export default defineConfig([
 		// We have to make some adjustments to the functional plugin rules to
 		// accommodate the way Solid components are structured
 		rules: {
-			"functional/functional-parameters": [
-				"error",
-				{ enforceParameterCount: false },
-			],
+			"functional/functional-parameters": ["error", { enforceParameterCount: false }],
 			"functional/no-expression-statements": "off",
 			"functional/no-mixed-types": "off",
 			"functional/no-return-void": "off",
@@ -48,4 +49,6 @@ export default defineConfig([
 		files: ["**/*.test.{ts,tsx}"],
 		rules: {},
 	},
+	// @ts-expect-error -- Works, but types are somehow twisted
+	...oxlint.buildFromOxlintConfig(oxlintConfig as OxlintConfig),
 ]);

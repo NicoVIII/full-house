@@ -5,6 +5,7 @@ import Chip from "@suid/material/Chip";
 import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
+
 import type { StockSummary } from "../../data/stock/stock";
 
 type StockCardProps = Readonly<{

@@ -28,9 +28,7 @@ export const routes = {
 				name: "Product",
 				path: "/catalog/:productId",
 				build: (productId: string) => `/catalog/${productId}`,
-				component: lazy(
-					() => import("./pages/catalog/detail/CatalogDetailPage"),
-				),
+				component: lazy(() => import("./pages/catalog/detail/CatalogDetailPage")),
 			},
 		},
 	},

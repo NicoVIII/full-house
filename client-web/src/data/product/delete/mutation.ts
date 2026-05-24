@@ -1,4 +1,5 @@
 import { mutationOptions } from "@tanstack/solid-query";
+
 import { MutationOptions } from "../../tanstack_helper";
 import { productQueryOptions } from "../get/query";
 import { productListQueryOptions } from "../list/query";

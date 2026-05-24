@@ -1,34 +1,35 @@
 import { Route, Router } from "@solidjs/router";
 import { render } from "solid-js/web";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { Product, ProductId } from "../../data/product/product";
 import ProductCard from "./ProductCard";
 
-describe("ProductCard", () => {
-	const mockProduct = Product({
-		id: ProductId("123"),
-		name: "Test Product",
-		parent_product_id: undefined,
-		child_product_ids: [],
-	});
+const mockProduct = Product({
+	id: ProductId("123"),
+	name: "Test Product",
+	parent_product_id: undefined,
+	child_product_ids: [],
+});
 
+const renderCard = (product: Product = mockProduct) => {
+	const container = document.createElement("div");
+	render(
+		() => (
+			<Router>
+				<Route path="/" component={() => <ProductCard product={product} />} />
+			</Router>
+		),
+		container,
+	);
+
+	return container;
+};
+
+describe("ProductCard", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-
-	const renderCard = (product: Product = mockProduct) => {
-		const container = document.createElement("div");
-		render(
-			() => (
-				<Router>
-					<Route path="/" component={() => <ProductCard product={product} />} />
-				</Router>
-			),
-			container,
-		);
-
-		return container;
-	};
 
 	it("renders product name", () => {
 		const container = renderCard();

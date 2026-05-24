@@ -7,6 +7,4 @@ export type ListResponse<T> = Readonly<{
 	total: number;
 }>;
 
-export const skirServiceClient = new ServiceClient(
-	window.location.origin + "/api/skir",
-);
+export const skirServiceClient = new ServiceClient(globalThis.location.origin + "/api/skir");

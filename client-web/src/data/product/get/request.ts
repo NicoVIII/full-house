@@ -12,9 +12,7 @@ export async function fetchProduct(productId: string): Promise<Product> {
 	return Product({
 		id: ProductId(data.id),
 		name: data.name,
-		parent_product_id: data.parentProductId
-			? ProductId(data.parentProductId)
-			: undefined,
+		parent_product_id: data.parentProductId ? ProductId(data.parentProductId) : undefined,
 		child_product_ids: data.childProductIds.map(ProductId),
 	});
 }

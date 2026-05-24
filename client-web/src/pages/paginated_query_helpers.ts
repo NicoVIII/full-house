@@ -13,8 +13,6 @@ export function flattenPaginatedItems<TItem>(
 	return queryData?.pages.flatMap((page) => page.data) ?? [];
 }
 
-export function readPaginatedTotal<TItem>(
-	queryData: PaginatedQueryData<TItem> | undefined,
-): number {
+export function readPaginatedTotal(queryData: PaginatedQueryData<unknown> | undefined): number {
 	return queryData?.pages[0]?.total ?? 0;
 }

@@ -7,6 +7,7 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
+
 import { Product } from "../../data/product/product";
 import ProductCard from "./ProductCard";
 
@@ -29,10 +30,7 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
 		<Show
 			when={!props.isPending}
 			fallback={
-				<Paper
-					elevation={0}
-					sx={{ p: 6, display: "grid", placeItems: "center" }}
-				>
+				<Paper elevation={0} sx={{ p: 6, display: "grid", placeItems: "center" }}>
 					<Stack spacing={2} sx={{ alignItems: "center" }}>
 						<CircularProgress />
 						<Typography>Loading products...</Typography>
@@ -44,9 +42,7 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
 				when={!props.isError}
 				fallback={
 					<Alert severity="error">
-						{props.error instanceof Error
-							? props.error.message
-							: "Failed to load products."}
+						{props.error instanceof Error ? props.error.message : "Failed to load products."}
 					</Alert>
 				}
 			>
@@ -74,16 +70,11 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
 						<For each={props.products}>
 							{(product) => {
 								const parentProduct =
-									product.parent_product_id !== undefined
-										? props.productsById.get(product.parent_product_id)
-										: undefined;
+									product.parent_product_id === undefined
+										? undefined
+										: props.productsById.get(product.parent_product_id);
 
-								return (
-									<ProductCard
-										parentProduct={parentProduct}
-										product={product}
-									/>
-								);
+								return <ProductCard parentProduct={parentProduct} product={product} />;
 							}}
 						</For>
 					</Box>
@@ -96,15 +87,10 @@ const ProductsPanel: Component<ProductsPanelProps> = (props) => {
 								size="large"
 								variant="contained"
 							>
-								{props.isFetchingNextPage
-									? "Loading more..."
-									: "Load more products"}
+								{props.isFetchingNextPage ? "Loading more..." : "Load more products"}
 							</Button>
 							<Typography color="text.secondary" variant="body2">
-								<Show
-									when={props.hasNextPage}
-									fallback={<span>All products loaded.</span>}
-								>
+								<Show when={props.hasNextPage} fallback={<span>All products loaded.</span>}>
 									More products available. Load the next batch.
 								</Show>
 							</Typography>

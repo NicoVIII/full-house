@@ -1,4 +1,5 @@
 import { QueryClient, queryOptions } from "@tanstack/solid-query";
+
 import { QueryOptions } from "../../tanstack_helper";
 import { Product, ProductId } from "../product";
 import { fetchProduct } from "./request";

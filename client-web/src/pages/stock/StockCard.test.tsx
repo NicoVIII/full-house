@@ -1,5 +1,6 @@
 import { render } from "solid-js/web";
 import { describe, expect, it, vi } from "vitest";
+
 import { StockSummary } from "../../data/stock/stock";
 import StockCard from "./StockCard";
 

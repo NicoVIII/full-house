@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { fetchStock } from "./list/request";
 import { removeStockItem } from "./remove/request";
 
@@ -59,9 +60,7 @@ describe("fetchStock", () => {
 	it("throws error on failed stock response", async () => {
 		invokeRemoteMock.mockRejectedValue(new Error("stock rpc failed"));
 
-		await expect(fetchStock({ offset: 0, limit: 10 })).rejects.toThrow(
-			"stock rpc failed",
-		);
+		await expect(fetchStock({ offset: 0, limit: 10 })).rejects.toThrow("stock rpc failed");
 	});
 });
 

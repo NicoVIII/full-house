@@ -6,6 +6,7 @@ import Button from "@suid/material/Button";
 import Toolbar from "@suid/material/Toolbar";
 import Typography from "@suid/material/Typography";
 import { For } from "solid-js";
+
 import { mainRoutes } from "../routes";
 
 export function FullHouseAppBar() {
@@ -19,11 +20,7 @@ export function FullHouseAppBar() {
 				<Box sx={{ flexGrow: 1, display: { xs: "flex" } }}>
 					<For each={mainRoutes}>
 						{({ name, build }) => (
-							<Button
-								component={A}
-								href={build()}
-								sx={{ my: 2, color: "white", display: "block" }}
-							>
+							<Button component={A} href={build()} sx={{ my: 2, color: "white", display: "block" }}>
 								{name}
 							</Button>
 						)}

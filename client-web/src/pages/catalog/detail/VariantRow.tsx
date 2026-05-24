@@ -7,6 +7,7 @@ import Typography from "@suid/material/Typography";
 import { useQuery } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { Show } from "solid-js";
+
 import { productQueryOptions } from "../../../data/product/get/query";
 import { ProductId } from "../../../data/product/product";
 import { routes } from "../../../routes";
@@ -24,9 +25,7 @@ const VariantRow: Component<Props> = (props) => {
 				fallback={
 					<Show when={query.isError} fallback={<CircularProgress size={20} />}>
 						<Alert severity="error">
-							{query.error instanceof Error
-								? query.error.message
-								: "Failed to load variant."}
+							{query.error instanceof Error ? query.error.message : "Failed to load variant."}
 						</Alert>
 					</Show>
 				}

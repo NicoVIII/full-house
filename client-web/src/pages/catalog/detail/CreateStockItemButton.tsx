@@ -11,6 +11,7 @@ import TextField from "@suid/material/TextField";
 import { useMutation } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createSignal, Show } from "solid-js";
+
 import type { ProductId } from "../../../data/product/product";
 import { createStockItemMutationOptions } from "../../../data/stock/create/mutation";
 
@@ -19,13 +20,11 @@ type CreateStockItemButtonProps = Readonly<{
 	onCreated: () => void | Promise<void>;
 }>;
 
-const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
-	props,
-) => {
+const CreateStockItemButton: Component<CreateStockItemButtonProps> = (props) => {
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [productId, setProductId] = createSignal("");
 	const [bestBeforeDate, setBestBeforeDate] = createSignal("");
-	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [submitError, setSubmitError] = createSignal<string>();
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
 	const open = () => {
@@ -36,7 +35,7 @@ const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
 
 	const close = () => {
 		setIsOpen(false);
-		setSubmitError(null);
+		setSubmitError(undefined);
 	};
 
 	const mutation = useMutation(() =>
@@ -55,7 +54,7 @@ const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
 	);
 
 	const handleSubmit = () => {
-		setSubmitError(null);
+		setSubmitError(undefined);
 		setIsSubmitting(true);
 		mutation.mutate({
 			product_id: productId(),
@@ -102,7 +101,7 @@ const CreateStockItemButton: Component<CreateStockItemButtonProps> = (
 								required
 								value={productId()}
 							/>
-							<Show when={submitError() !== null}>
+							<Show when={submitError() !== undefined}>
 								<Alert severity="error">{submitError()}</Alert>
 							</Show>
 						</Stack>

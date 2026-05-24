@@ -7,14 +7,12 @@ export type Request = Readonly<{
 	parent_product_id?: string | undefined;
 }>;
 
-export async function createProduct({
-	name,
-	parent_product_id,
-}: Request): Promise<Product> {
+export async function createProduct({ name, parent_product_id }: Request): Promise<Product> {
 	const product = await skirServiceClient.invokeRemote(
 		CreateProduct,
 		CreateProductRequest.create({
 			name,
+			// oxlint-disable-next-line unicorn/no-null
 			parentProductId: parent_product_id ?? null,
 		}),
 	);
@@ -22,9 +20,7 @@ export async function createProduct({
 	return Product({
 		id: ProductId(product.id),
 		name: product.name,
-		parent_product_id: product.parentProductId
-			? ProductId(product.parentProductId)
-			: undefined,
+		parent_product_id: product.parentProductId ? ProductId(product.parentProductId) : undefined,
 		child_product_ids: product.childProductIds.map(ProductId),
 	});
 }

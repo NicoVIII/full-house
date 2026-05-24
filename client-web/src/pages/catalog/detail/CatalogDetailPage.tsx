@@ -10,6 +10,7 @@ import Typography from "@suid/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createMemo, For, Show } from "solid-js";
+
 import { deleteProductMutationOptions } from "../../../data/product/delete/mutation";
 import { productQueryOptions } from "../../../data/product/get/query";
 import { Product, ProductId } from "../../../data/product/product";
@@ -20,7 +21,8 @@ import VariantRow from "./VariantRow";
 
 const usePageParams = () => {
 	const params = useParams();
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
+	// oxlint-disable-next-line typescript/no-non-null-assertion
 	const productId = createMemo(() => ProductId(params.productId!));
 	return { productId };
 };
@@ -33,15 +35,12 @@ const ProductDetailPage: Component = () => {
 	const productQuery = useQuery(() => productQueryOptions(productId()));
 	const product = () => productQuery.data;
 
-	const deleteMutation = useMutation(() =>
-		deleteProductMutationOptions(productId()),
-	);
+	const deleteMutation = useMutation(() => deleteProductMutationOptions(productId()));
 
-	const handleStockItemCreated = () =>
-		queryClient.invalidateQueries({ queryKey: ["stock"] });
+	const handleStockItemCreated = () => queryClient.invalidateQueries({ queryKey: ["stock"] });
 
 	const handleDelete = (p: Product) => {
-		if (!window.confirm(`Delete product "${p.name}"?`)) return;
+		if (!globalThis.confirm(`Delete product "${p.name}"?`)) return;
 		deleteMutation.mutate(undefined, {
 			onSuccess: () => {
 				navigate(routes.catalog.build());
@@ -117,10 +116,7 @@ const ProductDetailPage: Component = () => {
 										<IconButton
 											aria-label="Delete product"
 											color="error"
-											disabled={
-												product().child_product_ids.length > 0 ||
-												deleteMutation.isPending
-											}
+											disabled={product().child_product_ids.length > 0 || deleteMutation.isPending}
 											onClick={() => {
 												handleDelete(product());
 											}}
@@ -189,10 +185,7 @@ const ProductDetailPage: Component = () => {
 										<Typography variant="h6" sx={{ fontWeight: 600 }}>
 											Stock
 										</Typography>
-										<CreateStockItemButton
-											productId={p().id}
-											onCreated={handleStockItemCreated}
-										/>
+										<CreateStockItemButton productId={p().id} onCreated={handleStockItemCreated} />
 									</Stack>
 								</Stack>
 							</Paper>

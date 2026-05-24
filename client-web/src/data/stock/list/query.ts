@@ -1,4 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/solid-query";
+
 import { fetchStock } from "./request";
 
 const PAGE_SIZE = 6;

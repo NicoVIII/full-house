@@ -7,6 +7,7 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
+
 import type { StockSummary } from "../../data/stock/stock";
 import StockCard from "./StockCard";
 
@@ -16,10 +17,10 @@ type StockPanelProps = Readonly<{
 	isError: boolean;
 	isFetchingNextPage: boolean;
 	isPending: boolean;
-	isRemovingKey: string | null;
+	isRemovingKey: string | undefined;
 	onLoadMore: () => void;
 	onRemoveOne: (stock: StockSummary) => void;
-	removeError: string | null;
+	removeError: string | undefined;
 	stock: StockSummary[];
 	total: number;
 }>;
@@ -31,10 +32,7 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 		<Show
 			when={!props.isPending}
 			fallback={
-				<Paper
-					elevation={0}
-					sx={{ display: "grid", p: 6, placeItems: "center" }}
-				>
+				<Paper elevation={0} sx={{ display: "grid", p: 6, placeItems: "center" }}>
 					<Stack spacing={2} sx={{ alignItems: "center" }}>
 						<CircularProgress />
 						<Typography>Loading stock...</Typography>
@@ -46,14 +44,12 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 				when={!props.isError}
 				fallback={
 					<Alert severity="error">
-						{props.error instanceof Error
-							? props.error.message
-							: "Failed to load stock."}
+						{props.error instanceof Error ? props.error.message : "Failed to load stock."}
 					</Alert>
 				}
 			>
 				<Stack spacing={3}>
-					<Show when={props.removeError !== null}>
+					<Show when={props.removeError !== undefined}>
 						<Alert severity="error">{props.removeError}</Alert>
 					</Show>
 
@@ -82,8 +78,7 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 									stock={stock}
 									onRemove={props.onRemoveOne}
 									isRemoving={
-										props.isRemovingKey ===
-										`${stock.product_id}|${stock.best_before_date}`
+										props.isRemovingKey === `${stock.product_id}|${stock.best_before_date}`
 									}
 								/>
 							)}
@@ -98,15 +93,10 @@ const StockPanel: Component<StockPanelProps> = (props) => {
 								size="large"
 								variant="contained"
 							>
-								{props.isFetchingNextPage
-									? "Loading more..."
-									: "Load more stock"}
+								{props.isFetchingNextPage ? "Loading more..." : "Load more stock"}
 							</Button>
 							<Typography color="text.secondary" variant="body2">
-								<Show
-									when={props.hasNextPage}
-									fallback={<span>All stock loaded.</span>}
-								>
+								<Show when={props.hasNextPage} fallback={<span>All stock loaded.</span>}>
 									More stock data available. Load the next batch.
 								</Show>
 							</Typography>

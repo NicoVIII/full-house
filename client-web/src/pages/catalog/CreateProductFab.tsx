@@ -13,22 +13,21 @@ import TextField from "@suid/material/TextField";
 import { useMutation } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createSignal, Show } from "solid-js";
+
 import { createProductMutationOptions } from "../../data/product/create/mutation";
 
 const CreateProductFab: Component = () => {
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [name, setName] = createSignal("");
 	const [parentProductId, setParentProductId] = createSignal("");
-	const [validationError, setValidationError] = createSignal<string | null>(
-		null,
-	);
-	const [submitError, setSubmitError] = createSignal<string | null>(null);
+	const [validationError, setValidationError] = createSignal<string>();
+	const [submitError, setSubmitError] = createSignal<string>();
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
 	const close = () => {
 		setIsOpen(false);
-		setValidationError(null);
-		setSubmitError(null);
+		setValidationError(undefined);
+		setSubmitError(undefined);
 	};
 
 	const reset = () => {
@@ -59,13 +58,13 @@ const CreateProductFab: Component = () => {
 			return;
 		}
 
-		setValidationError(null);
-		setSubmitError(null);
+		setValidationError(undefined);
+		setSubmitError(undefined);
 		setIsSubmitting(true);
 
 		createProductMutation.mutate({
 			name: trimmedName,
-			parent_product_id: trimmedParent !== "" ? trimmedParent : undefined,
+			parent_product_id: trimmedParent === "" ? undefined : trimmedParent,
 		});
 	};
 
@@ -109,13 +108,13 @@ const CreateProductFab: Component = () => {
 							<TextField
 								autoFocus
 								disabled={isSubmitting()}
-								error={validationError() !== null}
+								error={validationError() !== undefined}
 								helperText={validationError() ?? "Required"}
 								label="Name"
 								onChange={(event) => {
 									setName(event.target.value);
 									setValidationError(
-										validationError() !== null ? null : validationError(),
+										validationError() === undefined ? validationError() : undefined,
 									);
 								}}
 								required
@@ -130,7 +129,7 @@ const CreateProductFab: Component = () => {
 								}}
 								value={parentProductId()}
 							/>
-							<Show when={submitError() !== null}>
+							<Show when={submitError() !== undefined}>
 								<Alert severity="error">{submitError()}</Alert>
 							</Show>
 						</Stack>

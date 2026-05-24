@@ -3,11 +3,9 @@ import Box from "@suid/material/Box";
 import { createInfiniteQuery } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createMemo } from "solid-js";
+
 import { productListQueryOptions } from "../../data/product/list/query";
-import {
-	flattenPaginatedItems,
-	readPaginatedTotal,
-} from "../paginated_query_helpers";
+import { flattenPaginatedItems, readPaginatedTotal } from "../paginated_query_helpers";
 import CreateProductFab from "./CreateProductFab";
 import ProductsPanel from "./ProductsPanel";
 
@@ -23,11 +21,7 @@ const CatalogPage: Component = () => {
 	return (
 		<>
 			<Box sx={{ display: "flex" }}>
-				<Typography
-					variant="h2"
-					component="h1"
-					sx={{ flexGrow: 1, fontWeight: 700 }}
-				>
+				<Typography variant="h2" component="h1" sx={{ flexGrow: 1, fontWeight: 700 }}>
 					Products
 				</Typography>
 				<Box sx={{ alignItems: "center", display: "flex" }}>

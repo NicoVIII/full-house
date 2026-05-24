@@ -22,9 +22,7 @@ export async function fetchProducts({
 			Product({
 				id: ProductId(p.id),
 				name: p.name,
-				parent_product_id: p.parentProductId
-					? ProductId(p.parentProductId)
-					: undefined,
+				parent_product_id: p.parentProductId ? ProductId(p.parentProductId) : undefined,
 				child_product_ids: p.childProductIds.map(ProductId),
 			}),
 		),

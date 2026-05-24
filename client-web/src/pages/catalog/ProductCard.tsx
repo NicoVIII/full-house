@@ -7,6 +7,7 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import type { Component } from "solid-js";
 import { Show } from "solid-js";
+
 import { Product } from "../../data/product/product";
 import { routes } from "../../routes";
 
@@ -19,14 +20,8 @@ const ProductCard: Component<ProductCardProps> = (props) => {
 	const childCount = () => props.product.child_product_ids.length;
 
 	return (
-		<Card
-			class="product-card"
-			elevation={0}
-			sx={{ display: "flex", flexDirection: "column" }}
-		>
-			<CardContent
-				sx={{ display: "flex", flexDirection: "column", flexGrow: 1, gap: 2 }}
-			>
+		<Card class="product-card" elevation={0} sx={{ display: "flex", flexDirection: "column" }}>
+			<CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1, gap: 2 }}>
 				<Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
 					<A
 						class="product-card-title-link"
@@ -38,11 +33,7 @@ const ProductCard: Component<ProductCardProps> = (props) => {
 
 				{/* Relationships section — consistent height placeholder */}
 				<Box class="product-card-relationships">
-					<Show
-						when={
-							props.product.parent_product_id !== undefined || childCount() > 0
-						}
-					>
+					<Show when={props.product.parent_product_id !== undefined || childCount() > 0}>
 						<Stack spacing={0.75}>
 							<Show when={props.product.parent_product_id}>
 								{(parentProductId) => (
@@ -63,7 +54,7 @@ const ProductCard: Component<ProductCardProps> = (props) => {
 							<Show when={childCount() > 0}>
 								<Chip
 									size="small"
-									label={`${String(childCount())} variant${childCount() !== 1 ? "s" : ""}`}
+									label={`${String(childCount())} variant${childCount() === 1 ? "" : "s"}`}
 									variant="filled"
 									sx={{
 										alignSelf: "flex-start",
