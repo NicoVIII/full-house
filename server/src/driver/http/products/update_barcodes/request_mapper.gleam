@@ -1,5 +1,4 @@
 import driver/skirout/product as skir_product
-import gleam/option.{type Option}
 import gleam/result
 import skir_client/serializer
 
@@ -9,17 +8,17 @@ pub type Error {
 
 pub fn map_payload(
   body: String,
-) -> Result(#(String, Option(String), List(String)), Error) {
+) -> Result(#(List(String), List(String)), Error) {
   use req <- result.try(
     serializer.from_json_code(
-      skir_product.create_product_request_serializer(),
+      skir_product.update_product_barcodes_patch_serializer(),
       body,
     )
     // nolint: error_context_lost
     |> result.map_error(fn(_) { ParseError }),
   )
 
-  Ok(#(req.name, req.parent_product_id, req.barcodes))
+  Ok(#(req.add_barcodes, req.remove_barcodes))
 }
 
 pub fn error_to_string(error: Error) -> String {

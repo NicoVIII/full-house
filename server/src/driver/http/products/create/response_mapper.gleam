@@ -1,10 +1,12 @@
 import application/queries/common/product_query_model
 import common/product_id
+import domain/products/barcode
 import domain/products/existing_product_id
 import domain/products/product
 import domain/products/product_name
 import driver/http/products/skir
 import driver/http/wire_format
+import gleam/list
 import gleam/option.{None, Some}
 import wisp
 
@@ -23,6 +25,7 @@ pub fn encode_product_without_children(
         None -> None
       },
       children_ids: [],
+      barcodes: list.map(p.barcodes, barcode.value),
     ),
     format,
   )

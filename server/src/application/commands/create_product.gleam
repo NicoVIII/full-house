@@ -1,8 +1,10 @@
 import application/shared/infrastructure_error
 import common/product_id
+import domain/products/barcode
 import domain/products/existing_product_id
 import domain/products/product
 import domain/products/product_name
+import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 
@@ -17,21 +19,36 @@ pub type Ports {
 }
 
 pub type Command {
-  Command(name: String, parent_product_id: Option(String))
+  Command(
+    name: String,
+    parent_product_id: Option(String),
+    barcodes: List(String),
+  )
 }
 
 pub type Error {
   InvalidName
   InvalidParentId
+  InvalidBarcode
   ParentDoesNotExist
   InfrastructureError(infrastructure_error.T)
+}
+
+fn parse_barcodes(
+  raw_barcodes: List(String),
+) -> Result(List(barcode.T), Error) {
+  raw_barcodes
+  |> list.try_map(fn(raw) {
+    barcode.from_user_input(raw)
+    |> result.map_error(fn(_) { InvalidBarcode })
+  })
 }
 
 pub fn execute(
   command command: Command,
   ports ports: Ports,
 ) -> Result(product.T, Error) {
-  let Command(name, parent_product_id_opt) = command
+  let Command(name, parent_product_id_opt, raw_barcodes) = command
 
   // Validate inputs
   use name <- result.try(
@@ -60,11 +77,14 @@ pub fn execute(
     }
   })
 
+  use parsed_barcodes <- result.try(parse_barcodes(raw_barcodes))
+
   let new_product =
     product.T(
       id: product_id.generate(),
       name: name,
       parent_product_id: parent_product_id,
+      barcodes: parsed_barcodes,
     )
 
   use Nil <- result.try(

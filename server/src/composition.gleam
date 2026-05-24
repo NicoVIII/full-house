@@ -2,7 +2,9 @@ import application/commands/create_product
 import application/commands/create_stock_item
 import application/commands/delete_product
 import application/commands/remove_stock_item
+import application/commands/update_product_barcodes
 import application/queries/get_product
+import application/queries/get_product_by_barcode
 import application/queries/list_products
 import application/queries/list_stock_items
 import infrastructure/adapter/commands/create_product/create_adapter
@@ -12,7 +14,9 @@ import infrastructure/adapter/commands/delete_product/delete_adapter
 import infrastructure/adapter/commands/delete_product/deletion_properties_adapter
 import infrastructure/adapter/commands/delete_product/load_product_adapter
 import infrastructure/adapter/commands/remove_stock_item/remove_adapter
+import infrastructure/adapter/commands/update_product_barcodes/update_adapter as update_product_barcodes_adapter
 import infrastructure/adapter/queries/get_product/get_product_adapter
+import infrastructure/adapter/queries/get_product_by_barcode/get_product_by_barcode_adapter
 import infrastructure/adapter/queries/list_products/list_products_adapter
 import infrastructure/adapter/queries/list_stock_items/list_stock_items_adapter
 import sqlight
@@ -24,7 +28,9 @@ pub type AppContext {
     create_stock_item_ports: create_stock_item.Ports,
     delete_product_ports: delete_product.Ports,
     remove_stock_item_port: remove_stock_item.RemovePort,
+    update_product_barcodes_port: update_product_barcodes.UpdateBarcodesPort,
     get_product_port: get_product.GetProductPort,
+    get_product_by_barcode_port: get_product_by_barcode.GetProductByBarcodePort,
     list_products_port: list_products.ListProductsPort,
     list_stock_items_port: list_stock_items.ListStockItemsPort,
   )
@@ -46,7 +52,13 @@ pub fn compose_app_context(db_connection: sqlight.Connection) -> AppContext {
       load_product: load_product_adapter.new(db_connection),
     ),
     remove_stock_item_port: remove_adapter.new(db_connection),
+    update_product_barcodes_port: update_product_barcodes_adapter.new(
+      db_connection,
+    ),
     get_product_port: get_product_adapter.new(db_connection),
+    get_product_by_barcode_port: get_product_by_barcode_adapter.new(
+      db_connection,
+    ),
     list_products_port: list_products_adapter.new(db_connection),
     list_stock_items_port: list_stock_items_adapter.new(db_connection),
   )

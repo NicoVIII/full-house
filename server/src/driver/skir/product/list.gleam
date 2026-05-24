@@ -11,6 +11,7 @@ import skir_client/service
 
 fn map_product(model: product_query_model.T) -> product.Product {
   product.product_new(
+    model.barcodes,
     model.children_ids,
     model.id,
     model.name,

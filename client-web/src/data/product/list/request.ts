@@ -24,6 +24,7 @@ export async function fetchProducts({
 				name: p.name,
 				parent_product_id: p.parentProductId ? ProductId(p.parentProductId) : undefined,
 				child_product_ids: p.childProductIds.map(ProductId),
+				barcodes: [...p.barcodes],
 			}),
 		),
 		total: parsed.total,

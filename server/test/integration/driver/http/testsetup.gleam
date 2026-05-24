@@ -2,7 +2,9 @@ import application/commands/create_product
 import application/commands/create_stock_item
 import application/commands/delete_product
 import application/commands/remove_stock_item
+import application/commands/update_product_barcodes
 import application/queries/get_product
+import application/queries/get_product_by_barcode
 import application/queries/list_products
 import application/queries/list_stock_items
 import composition
@@ -23,7 +25,9 @@ fn mock_app_context() -> composition.AppContext {
       delete: fn(_) { panic as "not mocked" },
       load_product: fn(_) { panic as "not mocked" },
     ),
+    update_product_barcodes_port: fn(_, _, _) { panic as "not mocked" },
     remove_stock_item_port: fn(_, _) { panic as "not mocked" },
+    get_product_by_barcode_port: fn(_) { panic as "not mocked" },
     create_stock_item_ports: create_stock_item.Ports(
       does_product_exist: fn(_) { panic as "not mocked" },
       create: fn(_) { panic as "not mocked" },
@@ -70,6 +74,14 @@ pub fn build_handler_with_get_product_port(
   })
 }
 
+pub fn build_handler_with_get_product_by_barcode_port(
+  mock_port: get_product_by_barcode.GetProductByBarcodePort,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(..ctx, get_product_by_barcode_port: mock_port)
+  })
+}
+
 pub fn build_handler_with_list_products_port(
   mock_port: list_products.ListProductsPort,
 ) -> fn(wisp.Request) -> wisp.Response {
@@ -86,6 +98,14 @@ pub fn build_handler_with_delete_product_ports(
       ..ctx,
       delete_product_ports: mock_ports(ctx.delete_product_ports),
     )
+  })
+}
+
+pub fn build_handler_with_update_product_barcodes_port(
+  mock_port: update_product_barcodes.UpdateBarcodesPort,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(..ctx, update_product_barcodes_port: mock_port)
   })
 }
 

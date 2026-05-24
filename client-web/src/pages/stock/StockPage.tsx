@@ -1,56 +1,26 @@
+import { useNavigate } from "@solidjs/router";
 import Box from "@suid/material/Box";
 import Typography from "@suid/material/Typography";
-import { createInfiniteQuery, useMutation } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
-import { createMemo, createSignal } from "solid-js";
 
-import { stockListQueryOptions } from "../../data/stock/list/query";
-import { removeStockItemMutationOptions } from "../../data/stock/remove/mutation";
-import { type StockSummary } from "../../data/stock/stock";
-import { flattenPaginatedItems, readPaginatedTotal } from "../paginated_query_helpers";
+import { routes } from "../../routes";
+import BarcodeWorkflowPanel from "./BarcodeWorkflowPanel";
 import StockPanel from "./StockPanel";
+import { useBarcodeStockWorkflow } from "./use_barcode_stock_workflow";
 
 const StockPage: Component = () => {
-	const [removeError, setRemoveError] = createSignal<string>();
-	const [removingKey, setRemovingKey] = createSignal<string>();
+	const navigate = useNavigate();
+	const workflow = useBarcodeStockWorkflow();
 
-	const stockQuery = createInfiniteQuery(stockListQueryOptions);
+	const handleCreateFromUnknownBarcode = () => {
+		const barcode = workflow.barcodeInput().trim();
 
-	const removeMutation = useMutation(() =>
-		removeStockItemMutationOptions({
-			onMutate: (variables) => {
-				setRemoveError(undefined);
-				setRemovingKey(`${variables.product_id}|${variables.best_before_date}`);
-			},
-			onSuccess: async (_result, _variables, _on_result, context) => {
-				await context.client.invalidateQueries(stockListQueryOptions());
-			},
-			onError: (error: Readonly<Error>) => {
-				setRemoveError(error.message);
-			},
-			onSettled: () => {
-				setRemovingKey(undefined);
-			},
-		}),
-	);
-
-	const handleRemoveOne = (item: StockSummary) => {
-		const confirmed = globalThis.confirm(
-			`Remove one item from stock for ${item.product_name} with best-before date ${item.best_before_date}?`,
-		);
-
-		if (!confirmed) {
+		if (barcode === "") {
 			return;
 		}
 
-		removeMutation.mutate({
-			product_id: item.product_id,
-			best_before_date: item.best_before_date,
-		});
+		navigate(`${routes.catalog.build()}?barcode=${encodeURIComponent(barcode)}`);
 	};
-
-	const stock = createMemo(() => flattenPaginatedItems(stockQuery.data));
-	const total = createMemo(() => readPaginatedTotal(stockQuery.data));
 
 	return (
 		<>
@@ -59,18 +29,43 @@ const StockPage: Component = () => {
 					Stock
 				</Typography>
 			</Box>
+			<BarcodeWorkflowPanel
+				mode={workflow.mode()}
+				onChangeMode={workflow.setMode}
+				barcodeInput={workflow.barcodeInput()}
+				onBarcodeInputChange={workflow.setBarcodeInput}
+				onLookup={workflow.handleScanSubmit}
+				lookupIsPending={workflow.lookupIsPending()}
+				onStartCamera={() => void workflow.startCamera()}
+				onStopCamera={workflow.stopCamera}
+				isCameraActive={workflow.isCameraActive()}
+				onVideoRef={workflow.setVideoRef}
+				cameraError={workflow.cameraError()}
+				scanError={workflow.scanError()}
+				resolvedProduct={workflow.resolvedProduct()}
+				bestBeforeDate={workflow.bestBeforeDate()}
+				onBestBeforeDateChange={workflow.setBestBeforeDate}
+				onAddStock={workflow.handleAddStockForResolvedProduct}
+				createIsPending={workflow.createIsPending()}
+				selectedBatchDate={workflow.selectedBatchDate()}
+				onSelectedBatchDateChange={workflow.setSelectedBatchDate}
+				visibleBatchesForResolvedProduct={workflow.visibleBatchesForResolvedProduct()}
+				onRemoveStock={workflow.handleRemoveStockForResolvedProduct}
+				removeIsPending={workflow.removeIsPending()}
+				onCreateFromUnknownBarcode={handleCreateFromUnknownBarcode}
+			/>
 			<StockPanel
-				error={stockQuery.error}
-				hasNextPage={stockQuery.hasNextPage}
-				isError={stockQuery.isError}
-				isFetchingNextPage={stockQuery.isFetchingNextPage}
-				isPending={stockQuery.isPending}
-				isRemovingKey={removingKey()}
-				onLoadMore={() => void stockQuery.fetchNextPage()}
-				onRemoveOne={handleRemoveOne}
-				removeError={removeError()}
-				stock={stock()}
-				total={total()}
+				error={workflow.stockQuery.error}
+				hasNextPage={workflow.stockQuery.hasNextPage}
+				isError={workflow.stockQuery.isError}
+				isFetchingNextPage={workflow.stockQuery.isFetchingNextPage}
+				isPending={workflow.stockQuery.isPending}
+				isRemovingKey={workflow.removingKey()}
+				onLoadMore={() => void workflow.stockQuery.fetchNextPage()}
+				onRemoveOne={workflow.handleRemoveOne}
+				removeError={workflow.removeError()}
+				stock={workflow.stock()}
+				total={workflow.total()}
 			/>
 		</>
 	);

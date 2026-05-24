@@ -1,25 +1,22 @@
+import { useSearchParams } from "@solidjs/router";
 import AddIcon from "@suid/icons-material/Add";
-import Alert from "@suid/material/Alert";
-import Box from "@suid/material/Box";
 import Button from "@suid/material/Button";
-import Dialog from "@suid/material/Dialog";
-import DialogActions from "@suid/material/DialogActions";
-import DialogContent from "@suid/material/DialogContent";
-import DialogTitle from "@suid/material/DialogTitle";
 import Fab from "@suid/material/Fab";
 import { Portal } from "@suid/material/Portal/Portal";
-import Stack from "@suid/material/Stack";
-import TextField from "@suid/material/TextField";
 import { useMutation } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
-import { createSignal, Show } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 
 import { createProductMutationOptions } from "../../data/product/create/mutation";
+import CreateProductDialog from "./CreateProductDialog";
 
 const CreateProductFab: Component = () => {
+	const [searchParams, setSearchParams] = useSearchParams();
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [name, setName] = createSignal("");
 	const [parentProductId, setParentProductId] = createSignal("");
+	const [barcodeInput, setBarcodeInput] = createSignal("");
+	const [hasHandledBarcodePrefill, setHasHandledBarcodePrefill] = createSignal(false);
 	const [validationError, setValidationError] = createSignal<string>();
 	const [submitError, setSubmitError] = createSignal<string>();
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
@@ -28,17 +25,42 @@ const CreateProductFab: Component = () => {
 		setIsOpen(false);
 		setValidationError(undefined);
 		setSubmitError(undefined);
+
+		if (searchParams.barcode === undefined) {
+			return;
+		}
+
+		setSearchParams({ barcode: undefined });
 	};
 
 	const reset = () => {
 		setName("");
 		setParentProductId("");
+		setBarcodeInput("");
+		setHasHandledBarcodePrefill(false);
 	};
+
+	createEffect(() => {
+		const barcodeRaw = searchParams.barcode;
+		const barcode = Array.isArray(barcodeRaw) ? barcodeRaw[0] : barcodeRaw;
+		const shouldPrefill = barcode !== undefined && !hasHandledBarcodePrefill();
+
+		// eslint-disable-next-line functional/no-conditional-statements
+		if (shouldPrefill) {
+			setBarcodeInput(barcode);
+			setIsOpen(true);
+			setHasHandledBarcodePrefill(true);
+		}
+	});
 
 	const createProductMutation = useMutation(() =>
 		createProductMutationOptions({
 			onSuccess: () => {
 				reset();
+				// eslint-disable-next-line functional/no-conditional-statements
+				if (searchParams.barcode !== undefined) {
+					setSearchParams({ barcode: undefined });
+				}
 				close();
 			},
 			onError: (error: Readonly<Error>) => {
@@ -52,6 +74,10 @@ const CreateProductFab: Component = () => {
 	const handleSubmit = () => {
 		const trimmedName = name().trim();
 		const trimmedParent = parentProductId().trim();
+		const barcodes = barcodeInput()
+			.split(/[\n,]/)
+			.map((value) => value.trim())
+			.filter((value, index, all) => value !== "" && all.indexOf(value) === index);
 
 		if (trimmedName === "") {
 			setValidationError("Product name must not be empty.");
@@ -65,6 +91,7 @@ const CreateProductFab: Component = () => {
 		createProductMutation.mutate({
 			name: trimmedName,
 			parent_product_id: trimmedParent === "" ? undefined : trimmedParent,
+			barcodes,
 		});
 	};
 
@@ -94,56 +121,23 @@ const CreateProductFab: Component = () => {
 				<AddIcon /> Product
 			</Button>
 
-			<Dialog fullWidth maxWidth="sm" open={isOpen()} onClose={close}>
-				<DialogTitle>Add Product</DialogTitle>
-				<Box
-					component="form"
-					onSubmit={(e) => {
-						e.preventDefault();
-						handleSubmit();
-					}}
-				>
-					<DialogContent>
-						<Stack spacing={2}>
-							<TextField
-								autoFocus
-								disabled={isSubmitting()}
-								error={validationError() !== undefined}
-								helperText={validationError() ?? "Required"}
-								label="Name"
-								onChange={(event) => {
-									setName(event.target.value);
-									setValidationError(
-										validationError() === undefined ? validationError() : undefined,
-									);
-								}}
-								required
-								value={name()}
-							/>
-							<TextField
-								disabled={isSubmitting()}
-								helperText="Optional UUID for parent product"
-								label="Parent Product ID"
-								onChange={(event) => {
-									setParentProductId(event.target.value);
-								}}
-								value={parentProductId()}
-							/>
-							<Show when={submitError() !== undefined}>
-								<Alert severity="error">{submitError()}</Alert>
-							</Show>
-						</Stack>
-					</DialogContent>
-					<DialogActions>
-						<Button disabled={isSubmitting()} onClick={close} variant="text">
-							Cancel
-						</Button>
-						<Button disabled={isSubmitting()} type="submit" variant="contained">
-							{isSubmitting() ? "Creating..." : "Create Product"}
-						</Button>
-					</DialogActions>
-				</Box>
-			</Dialog>
+			<CreateProductDialog
+				open={isOpen()}
+				isSubmitting={isSubmitting()}
+				name={name()}
+				onNameChange={(value) => {
+					setName(value);
+					setValidationError(validationError() === undefined ? validationError() : undefined);
+				}}
+				parentProductId={parentProductId()}
+				onParentProductIdChange={setParentProductId}
+				barcodeInput={barcodeInput()}
+				onBarcodeInputChange={setBarcodeInput}
+				validationError={validationError()}
+				submitError={submitError()}
+				onSubmit={handleSubmit}
+				onClose={close}
+			/>
 		</>
 	);
 };

@@ -26,7 +26,7 @@ pub fn product() -> decode.Decoder(product.T) {
       parent_id
     })
 
-  decode.success(product.T(id, name, parent_id))
+  decode.success(product.T(id, name, parent_id, []))
 }
 
 pub fn product_query_model() -> decode.Decoder(product_query_model.T) {
@@ -34,7 +34,12 @@ pub fn product_query_model() -> decode.Decoder(product_query_model.T) {
   use name <- decode.field(1, decode.string)
   use parent_id <- decode.field(2, decode.optional(decode.string))
   use children_ids_joined <- decode.field(3, decode.optional(decode.string))
+  use barcodes_joined <- decode.field(4, decode.optional(decode.string))
   let children_ids = case children_ids_joined {
+    Some(joined) -> string.split(joined, ",")
+    None -> []
+  }
+  let barcodes = case barcodes_joined {
     Some(joined) -> string.split(joined, ",")
     None -> []
   }
@@ -43,6 +48,7 @@ pub fn product_query_model() -> decode.Decoder(product_query_model.T) {
     name,
     parent_id,
     children_ids,
+    barcodes,
   ))
 }
 

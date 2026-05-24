@@ -16,6 +16,8 @@ fn create_error_response(error: create_product.Error) -> wisp.Response {
       handler_helpers.bad_request(
         "parent_product_id does not reference an existing product",
       )
+    create_product.InvalidBarcode ->
+      handler_helpers.bad_request("barcode value is invalid")
     create_product.InfrastructureError(infrastructure_error.DatabaseFailure) ->
       wisp.internal_server_error()
   }
@@ -28,13 +30,13 @@ pub fn handle(
   use <- wisp.require_method(request, http.Post)
   use body <- wisp.require_string_body(request)
 
-  use #(name, parent_product_id) <-
+  use #(name, parent_product_id, barcodes) <-
     request_mapper.map_payload(body)
     |> handler_helpers.on_error(fn(error) {
       request_mapper.error_to_string(error) |> handler_helpers.bad_request
     })
 
-  let command = create_product.Command(name:, parent_product_id:)
+  let command = create_product.Command(name:, parent_product_id:, barcodes:)
 
   use result <-
     create_product.execute(command, ports)
