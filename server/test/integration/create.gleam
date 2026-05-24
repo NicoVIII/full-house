@@ -41,5 +41,5 @@ pub fn product(
       id
     })
 
-  product.T(id: id, name: name, parent_product_id: parent_id)
+  product.T(id: id, name: name, parent_product_id: parent_id, barcodes: [])
 }

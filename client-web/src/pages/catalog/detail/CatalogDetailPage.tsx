@@ -9,15 +9,16 @@ import Stack from "@suid/material/Stack";
 import Typography from "@suid/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
-import { createMemo, For, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 
 import { deleteProductMutationOptions } from "../../../data/product/delete/mutation";
 import { productQueryOptions } from "../../../data/product/get/query";
 import { Product, ProductId } from "../../../data/product/product";
 import { routes } from "../../../routes";
-import CreateStockItemButton from "./CreateStockItemButton";
+import BarcodeSection from "./BarcodeSection";
 import ParentLink from "./ParentLink";
-import VariantRow from "./VariantRow";
+import StockSection from "./StockSection";
+import VariantSection from "./VariantSection";
 
 const usePageParams = () => {
 	const params = useParams();
@@ -38,6 +39,9 @@ const ProductDetailPage: Component = () => {
 	const deleteMutation = useMutation(() => deleteProductMutationOptions(productId()));
 
 	const handleStockItemCreated = () => queryClient.invalidateQueries({ queryKey: ["stock"] });
+	const handleStockItemCreatedEvent = () => {
+		void handleStockItemCreated();
+	};
 
 	const handleDelete = (p: Product) => {
 		if (!globalThis.confirm(`Delete product "${p.name}"?`)) return;
@@ -136,59 +140,9 @@ const ProductDetailPage: Component = () => {
 				<Show when={product()}>
 					{(p) => (
 						<>
-							<Paper elevation={0} sx={{ p: 3 }}>
-								<Stack spacing={2}>
-									<Stack
-										direction={{ xs: "column", sm: "row" }}
-										spacing={1}
-										sx={{
-											alignItems: { xs: "flex-start", sm: "center" },
-											justifyContent: "space-between",
-										}}
-									>
-										<Typography variant="h6" sx={{ fontWeight: 600 }}>
-											Variants
-										</Typography>
-										<Typography color="text.secondary" variant="body2">
-											{p().child_product_ids.length} variant
-											{p().child_product_ids.length === 1 ? "" : "s"}
-										</Typography>
-									</Stack>
-
-									<Show
-										when={p().child_product_ids.length > 0}
-										fallback={
-											<Typography color="text.secondary">
-												No variants linked to this product.
-											</Typography>
-										}
-									>
-										<Stack spacing={1}>
-											<For each={p().child_product_ids}>
-												{(childId) => <VariantRow id={childId} />}
-											</For>
-										</Stack>
-									</Show>
-								</Stack>
-							</Paper>
-
-							<Paper elevation={0} sx={{ p: 3 }}>
-								<Stack spacing={2}>
-									<Stack
-										direction={{ xs: "column", sm: "row" }}
-										spacing={1}
-										sx={{
-											alignItems: { xs: "flex-start", sm: "center" },
-											justifyContent: "space-between",
-										}}
-									>
-										<Typography variant="h6" sx={{ fontWeight: 600 }}>
-											Stock
-										</Typography>
-										<CreateStockItemButton productId={p().id} onCreated={handleStockItemCreated} />
-									</Stack>
-								</Stack>
-							</Paper>
+							<BarcodeSection product={p()} />
+							<VariantSection product={p()} />
+							<StockSection product={p()} onStockItemCreated={handleStockItemCreatedEvent} />
 						</>
 					)}
 				</Show>

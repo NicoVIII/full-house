@@ -1,12 +1,11 @@
-import { GetProduct, GetProductRequest } from "../../../skirout/product";
+import { GetProductByBarcode, GetProductByBarcodeRequest } from "../../../skirout/product";
 import { skirServiceClient } from "../../api_helper";
 import { Product, ProductId } from "../product";
 
-// TODO: non-happy path: product doesn't exist
-export async function fetchProduct(productId: string): Promise<Product> {
+export async function fetchProductByBarcode(barcode: string): Promise<Product> {
 	const data = await skirServiceClient.invokeRemote(
-		GetProduct,
-		GetProductRequest.create({ id: productId }),
+		GetProductByBarcode,
+		GetProductByBarcodeRequest.create({ barcode }),
 	);
 
 	return Product({

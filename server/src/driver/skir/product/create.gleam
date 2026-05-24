@@ -1,9 +1,11 @@
 import application/commands/create_product
 import common/product_id
 import composition
+import domain/products/barcode
 import domain/products/existing_product_id
 import domain/products/product_name
 import driver/skirout/product
+import gleam/list
 import gleam/option
 import gleam/result
 import skir_client/service
@@ -16,6 +18,7 @@ pub fn handle(
     create_product.Command(
       name: request.name,
       parent_product_id: request.parent_product_id,
+      barcodes: request.barcodes,
     )
 
   use product <- result.try(
@@ -34,6 +37,8 @@ pub fn handle(
             service.E400xBadRequest,
             "parent product does not exist",
           )
+        create_product.InvalidBarcode ->
+          service.ServiceError(service.E400xBadRequest, "invalid barcode")
         create_product.InfrastructureError(_) ->
           service.ServiceError(
             service.E500xInternalServerError,
@@ -44,6 +49,7 @@ pub fn handle(
   )
 
   product.product_new(
+    list.map(product.barcodes, barcode.value),
     [],
     product_id.value(product.id),
     product_name.value(product.name),

@@ -1,11 +1,14 @@
+import application/commands/update_product_barcodes
 import application/queries/common/page_limit
 import application/queries/common/page_offset
 import application/queries/common/paging
 import application/queries/common/product_query_model
 import application/queries/get_product
+import application/queries/get_product_by_barcode
 import application/queries/list_products
 import application/shared/infrastructure_error
 import common/product_id
+import domain/products/barcode
 import gleam/http
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -28,32 +31,44 @@ fn make_model(
   name: String,
   parent: Option(String),
   children: List(String),
+  barcodes: List(String),
 ) -> product_query_model.T {
   product_query_model.ProductQueryModel(
     id: id,
     name: name,
     parent_product_id: parent,
     children_ids: children,
+    barcodes: barcodes,
   )
 }
 
 pub fn all_products() -> List(product_query_model.T) {
   [
-    make_model("018f4e1a-0000-7000-8000-000000000001", "Espresso", None, []),
-    make_model("018f4e1a-0000-7000-8000-000000000002", "Latte", None, [
-      "018f4e1a-0000-7000-8000-000000000003",
-      "018f4e1a-0000-7000-8000-000000000004",
+    make_model("018f4e1a-0000-7000-8000-000000000001", "Espresso", None, [], [
+      "4006381333931",
     ]),
+    make_model(
+      "018f4e1a-0000-7000-8000-000000000002",
+      "Latte",
+      None,
+      [
+        "018f4e1a-0000-7000-8000-000000000003",
+        "018f4e1a-0000-7000-8000-000000000004",
+      ],
+      ["5901234123457"],
+    ),
     make_model(
       "018f4e1a-0000-7000-8000-000000000003",
       "Cappuccino",
       Some("018f4e1a-0000-7000-8000-000000000002"),
+      [],
       [],
     ),
     make_model(
       "018f4e1a-0000-7000-8000-000000000004",
       "Mocha Latte",
       Some("018f4e1a-0000-7000-8000-000000000002"),
+      [],
       [],
     ),
   ]
@@ -79,6 +94,40 @@ pub fn get_product_port(
   {
     Ok(found) -> Ok(found)
     Error(_) -> Error(get_product.ProductNotFound)
+  }
+}
+
+pub fn get_product_by_barcode_port(
+  product_barcode: barcode.T,
+) -> Result(
+  product_query_model.T,
+  get_product_by_barcode.GetProductByBarcodeError,
+) {
+  let barcode_value = barcode.value(product_barcode)
+
+  case
+    list.find(all_products(), fn(product) {
+      case
+        list.find(product.barcodes, fn(current) { current == barcode_value })
+      {
+        Ok(_) -> True
+        Error(_) -> False
+      }
+    })
+  {
+    Ok(found) -> Ok(found)
+    Error(_) -> Error(get_product_by_barcode.ProductNotFound)
+  }
+}
+
+pub fn update_product_barcodes_port(
+  id: product_id.T,
+  _additions: List(_),
+  _removals: List(_),
+) -> Result(Nil, update_product_barcodes.UpdateBarcodesPortError) {
+  case product_id.value(id) == missing_product_id {
+    True -> Error(update_product_barcodes.PortProductNotFound)
+    False -> Ok(Nil)
   }
 }
 

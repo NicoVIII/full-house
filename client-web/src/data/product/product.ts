@@ -10,6 +10,7 @@ export type Product = Branded<
 		name: string;
 		parent_product_id: ProductId | undefined;
 		child_product_ids: ProductId[];
+		barcodes: string[];
 	}>,
 	"Product"
 >;

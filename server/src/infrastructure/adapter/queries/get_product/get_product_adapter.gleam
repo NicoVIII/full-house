@@ -14,7 +14,8 @@ fn get_product(
       "
       SELECT
         p.id, p.name, p.parent_product_id,
-        (SELECT GROUP_CONCAT(c.id) FROM products c WHERE c.parent_product_id = p.id) AS children_ids
+        (SELECT GROUP_CONCAT(c.id) FROM products c WHERE c.parent_product_id = p.id) AS children_ids,
+        (SELECT GROUP_CONCAT(pb.barcode) FROM product_barcodes pb WHERE pb.product_id = p.id) AS barcodes
       FROM products p
       WHERE p.id = ?
       ",

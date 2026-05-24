@@ -5,7 +5,13 @@ import driver/skirout/product as skir_product
 import wisp
 
 pub fn map_product(p: product_query_model.T) -> skir_product.Product {
-  skir_product.product_new(p.children_ids, p.id, p.name, p.parent_product_id)
+  skir_product.product_new(
+    p.barcodes,
+    p.children_ids,
+    p.id,
+    p.name,
+    p.parent_product_id,
+  )
 }
 
 pub fn encode_product(

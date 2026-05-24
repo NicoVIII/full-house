@@ -9,5 +9,6 @@ pub type T {
     name: String,
     parent_product_id: Option(Id),
     children_ids: List(Id),
+    barcodes: List(String),
   )
 }

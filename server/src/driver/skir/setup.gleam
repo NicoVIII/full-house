@@ -2,7 +2,9 @@ import composition
 import driver/skir/product/create
 import driver/skir/product/delete
 import driver/skir/product/get
+import driver/skir/product/get_by_barcode
 import driver/skir/product/list
+import driver/skir/product/update_barcodes
 import driver/skir/stock/create as stock_create
 import driver/skir/stock/list as stock_list
 import driver/skir/stock/remove as stock_remove
@@ -44,6 +46,14 @@ pub fn make_service() -> RpcService {
   |> service.add_method(
     product.delete_product_method(),
     simplify_handle(delete.handle),
+  )
+  |> service.add_method(
+    product.get_product_by_barcode_method(),
+    simplify_handle(get_by_barcode.handle),
+  )
+  |> service.add_method(
+    product.update_product_barcodes_method(),
+    simplify_handle(update_barcodes.handle),
   )
   |> service.add_method(
     stock.create_stock_item_method(),

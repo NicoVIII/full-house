@@ -10,6 +10,7 @@ const mockProduct = Product({
 	name: "Test Product",
 	parent_product_id: undefined,
 	child_product_ids: [],
+	barcodes: [],
 });
 
 const renderCard = (product: Product = mockProduct) => {
