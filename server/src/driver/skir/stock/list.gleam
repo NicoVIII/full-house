@@ -3,8 +3,7 @@ import application/queries/common/page_offset
 import application/queries/common/paging
 import application/queries/common/stock_item_query_model
 import application/queries/list_stock_items
-import composition
-import driver/skirout/stock
+import driver/skirout/stock_items/queries
 import gleam/list
 import gleam/result
 import skir_client/service
@@ -41,8 +40,8 @@ fn validate_offset(offset: Int) -> Result(page_offset.T, service.ServiceError) {
   })
 }
 
-fn map_stock_summary(model: stock_item_query_model.T) -> stock.StockSummary {
-  stock.stock_summary_new(
+fn map_stock_summary(model: stock_item_query_model.T) -> queries.StockSummary {
+  queries.stock_summary_new(
     model.best_before_date,
     model.product_id,
     model.product_name,
@@ -50,12 +49,10 @@ fn map_stock_summary(model: stock_item_query_model.T) -> stock.StockSummary {
   )
 }
 
-fn map_response(
-  response: list_stock_items.Response,
-) -> stock.StockListResponse {
+fn map_response(response: list_stock_items.Response) -> queries.StockItemList {
   let paging.Response(data, total, paging_params) = response
 
-  stock.stock_list_response_new(
+  queries.stock_item_list_new(
     list.map(data, map_stock_summary),
     page_limit.value(paging_params.limit),
     page_offset.value(paging_params.offset),
@@ -64,16 +61,13 @@ fn map_response(
 }
 
 pub fn handle(
-  request: stock.ListStockItemsRequest,
-  context: composition.AppContext,
-) -> Result(stock.StockListResponse, service.ServiceError) {
+  request: queries.ListStockItemsRequest,
+  port: list_stock_items.ListStockItemsPort,
+) -> Result(queries.StockItemList, service.ServiceError) {
   use limit <- result.try(validate_limit(request.limit))
   use offset <- result.try(validate_offset(request.offset))
 
-  list_stock_items.execute(
-    paging.Params(limit: limit, offset: offset),
-    context.list_stock_items_port,
-  )
+  list_stock_items.execute(paging.Params(limit: limit, offset: offset), port:)
   |> result.map(map_response)
   |> result.map_error(fn(_error) {
     service.ServiceError(

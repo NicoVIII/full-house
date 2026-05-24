@@ -1,0 +1,39 @@
+struct Product {
+  id: string = 0;
+  name: string = 1;
+  parent_product_id: string? = 2;
+  child_product_ids: [string] = 3;
+  barcodes: [string] = 4;
+}
+
+struct ProductList {
+  data: [Product] = 0;
+  total: int32 = 1;
+  offset: int32 = 2;
+  limit: int32 = 3;
+}
+
+struct GetProductRequest {
+  id: string = 0;
+}
+
+method GetProduct(
+  GetProductRequest
+): Product = 2;
+
+struct GetProductByBarcodeRequest {
+  barcode: string = 0;
+}
+
+method GetProductByBarcode(
+  GetProductByBarcodeRequest
+): Product = 8;
+
+struct ListProductsRequest {
+  offset: int32 = 0;
+  limit: int32 = 1;
+}
+
+method ListProducts(
+  ListProductsRequest
+): ProductList = 3;

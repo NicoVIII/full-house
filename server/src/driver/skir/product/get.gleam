@@ -2,13 +2,12 @@ import application/queries/common/product_query_model
 import application/queries/get_product
 import application/shared/infrastructure_error
 import common/product_id
-import composition
-import driver/skirout/product
+import driver/skirout/products/queries
 import gleam/result
 import skir_client/service
 
-fn map_product(model: product_query_model.T) -> product.Product {
-  product.product_new(
+fn map_product(model: product_query_model.T) -> queries.Product {
+  queries.product_new(
     model.barcodes,
     model.children_ids,
     model.id,
@@ -30,9 +29,9 @@ fn map_error(error: get_product.GetProductError) -> service.ServiceError {
 }
 
 pub fn handle(
-  request: product.GetProductRequest,
-  context: composition.AppContext,
-) -> Result(product.Product, service.ServiceError) {
+  request: queries.GetProductRequest,
+  port: get_product.GetProductPort,
+) -> Result(queries.Product, service.ServiceError) {
   use id <- result.try(
     product_id.new(request.id)
     |> result.map_error(fn(_) {
@@ -40,7 +39,7 @@ pub fn handle(
     }),
   )
 
-  get_product.execute(id, context.get_product_port)
+  get_product.execute(id, port)
   |> result.map(map_product)
   |> result.map_error(map_error)
 }

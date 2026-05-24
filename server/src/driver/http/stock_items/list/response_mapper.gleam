@@ -4,18 +4,18 @@ import application/queries/common/stock_item_query_model
 import application/queries/list_stock_items
 import driver/http/skir
 import driver/http/wire_format
-import driver/skirout/stock as skir_stock
+import driver/skirout/stock_items/queries
 import gleam/list
 import wisp
 
-fn to_skir(summary: stock_item_query_model.T) -> skir_stock.StockSummary {
+fn to_skir(summary: stock_item_query_model.T) -> queries.StockSummary {
   let stock_item_query_model.StockItemQueryModel(
     product_id:,
     product_name:,
     best_before_date:,
     quantity:,
   ) = summary
-  skir_stock.stock_summary_new(
+  queries.stock_summary_new(
     best_before_date,
     product_id,
     product_name,
@@ -29,16 +29,12 @@ pub fn map_list_stock_response(
   format format: wire_format.T,
 ) -> wisp.Response {
   let list_response =
-    skir_stock.stock_list_response_new(
+    queries.stock_item_list_new(
       list.map(list_response.data, to_skir),
       page_limit.value(list_response.paging_params.limit),
       page_offset.value(list_response.paging_params.offset),
       list_response.total,
     )
   response
-  |> skir.encode(
-    list_response,
-    skir_stock.stock_list_response_serializer(),
-    format,
-  )
+  |> skir.encode(list_response, queries.stock_item_list_serializer(), format)
 }

@@ -15,26 +15,34 @@
     "To verify the snapshot is up-to-date in CI:",
     "  npx skir snapshot --ci"
   ],
-  "lastChange": "2026-05-23T12:56:25.600Z",
+  "lastChange": "2026-05-25T11:38:51.610Z",
   "trackedRecordIds": [
-    "product.skir:CreateProductRequest",
-    "product.skir:DeleteProductRequest",
-    "product.skir:DeleteProductResponse",
-    "product.skir:GetProductRequest",
-    "product.skir:ListProductsRequest",
-    "product.skir:Product",
-    "product.skir:ProductListResponse",
-    "stock.skir:CreateStockItemRequest",
-    "stock.skir:ListStockItemsRequest",
-    "stock.skir:RemoveStockItemRequest",
-    "stock.skir:RemoveStockItemResponse",
-    "stock.skir:StockItem",
-    "stock.skir:StockListResponse",
-    "stock.skir:StockSummary"
+    "products/commands.skir:CreateProductRequest",
+    "products/commands.skir:CreateProductResponse",
+    "products/commands.skir:DeleteProductRequest",
+    "products/commands.skir:DeleteProductResponse",
+    "products/commands.skir:UpdateProductRequest",
+    "products/commands.skir:UpdateProductResponse",
+    "products/queries.skir:GetProductByBarcodeRequest",
+    "products/queries.skir:GetProductRequest",
+    "products/queries.skir:ListProductsRequest",
+    "products/queries.skir:Product",
+    "products/queries.skir:ProductList",
+    "stock_items/commands.skir:CreateStockItemRequest",
+    "stock_items/commands.skir:CreateStockItemResponse",
+    "stock_items/commands.skir:DeleteStockItemRequest",
+    "stock_items/commands.skir:DeleteStockItemResponse",
+    "stock_items/queries.skir:ListStockItemsRequest",
+    "stock_items/queries.skir:StockItemList",
+    "stock_items/queries.skir:StockSummary"
   ],
-  "untrackedRecordIds": [],
+  "untrackedRecordIds": [
+    "stock_items/queries.skir:StockItem"
+  ],
   "modules": {
-    "stock.skir": "struct StockSummary {\n  product_id: string = 0;\n  product_name: string = 1;\n  quantity: int32 = 2;\n  best_before_date: string = 3;\n}\n\nstruct CreateStockItemRequest {\n  product_id: string = 0;\n  best_before_date: string = 1;\n}\n\nstruct StockItem {\n  id: string = 0;\n  product_id: string = 1;\n  best_before_date: string = 2;\n}\n\nstruct StockListResponse {\n  data: [StockSummary] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nstruct ListStockItemsRequest {\n  offset: int32 = 0;\n  limit: int32 = 1;\n}\n\nstruct RemoveStockItemRequest {\n  product_id: string = 0;\n  best_before_date: string = 1;\n}\n\nstruct RemoveStockItemResponse {\n  product_id: string = 0;\n  best_before_date: string = 1;\n  quantity: int32 = 2;\n}\n\nmethod CreateStockItem(\n  CreateStockItemRequest\n): StockItem = 5;\n\nmethod ListStockItems(\n  ListStockItemsRequest\n): StockListResponse = 6;\n\nmethod RemoveStockItem(\n  RemoveStockItemRequest\n): RemoveStockItemResponse = 7;\n",
-    "product.skir": "struct Product {\n  id: string = 0;\n  name: string = 1;\n  parent_product_id: string? = 2;\n  child_product_ids: [string] = 3;\n}\n\nstruct CreateProductRequest {\n  name: string = 0;\n  parent_product_id: string? = 1;\n}\n\nstruct ProductListResponse {\n  data: [Product] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nstruct GetProductRequest {\n  id: string = 0;\n}\n\nstruct ListProductsRequest {\n  offset: int32 = 0;\n  limit: int32 = 1;\n}\n\nstruct DeleteProductRequest {\n  id: string = 0;\n}\n\nstruct DeleteProductResponse {}\n\nmethod CreateProduct(\n  CreateProductRequest\n): Product = 1;\n\nmethod GetProduct(\n  GetProductRequest\n): Product = 2;\n\nmethod ListProducts(\n  ListProductsRequest\n): ProductListResponse = 3;\n\nmethod DeleteProduct(\n  DeleteProductRequest\n): DeleteProductResponse = 4;\n"
+    "stock_items/commands.skir": "struct CreateStockItemRequest {\n  product_id: string = 0;\n  best_before_date: string = 1;\n}\n\nenum CreateStockItemResponse {\n  success = 1;\n  error = 2;  // TODO: extend with error details\n}\n\nmethod CreateStockItem(\n  CreateStockItemRequest\n): CreateStockItemResponse = 5;\n\nstruct DeleteStockItemRequest {\n  product_id: string = 0;\n  best_before_date: string = 1;\n}\n\nenum DeleteStockItemResponse {\n  success = 1;\n  error = 2;  // TODO: extend with error details\n}\n\nmethod DeleteStockItem(\n  DeleteStockItemRequest\n): DeleteStockItemResponse = 7;\n",
+    "stock_items/queries.skir": "struct StockSummary {\n  product_id: string = 0;\n  product_name: string = 1;\n  quantity: int32 = 2;\n  best_before_date: string = 3;\n}\n\nstruct StockItem {\n  id: string = 0;\n  product_id: string = 1;\n  best_before_date: string = 2;\n}\n\nstruct StockItemList {\n  data: [StockSummary] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nstruct ListStockItemsRequest {\n  offset: int32 = 0;\n  limit: int32 = 1;\n}\n\nmethod ListStockItems(\n  ListStockItemsRequest\n): StockItemList = 6;\n",
+    "products/commands.skir": "struct CreateProductRequest {\n  id: string = 3;\n  name: string = 0;\n  parent_product_id: string? = 1;\n  barcodes: [string] = 2;\n}\n\nenum CreateProductResponse {\n  success = 1;\n  error = 2;  // TODO: extend with error details\n}\n\nmethod CreateProduct(\n  CreateProductRequest\n): CreateProductResponse = 1;\n\nstruct DeleteProductRequest {\n  id: string = 0;\n}\n\nenum DeleteProductResponse {\n  success = 1;\n  error = 2;  // TODO: extend with error details\n}\n\nmethod DeleteProduct(\n  DeleteProductRequest\n): DeleteProductResponse = 4;\n\nstruct UpdateProductRequest {\n  id: string = 0;\n  add_barcodes: [string] = 1;\n  remove_barcodes: [string] = 2;\n}\n\nenum UpdateProductResponse {\n  success = 1;\n  error = 2;  // TODO: extend with error details\n}\n\nmethod UpdateProduct(\n  UpdateProductRequest\n): UpdateProductResponse = 9;\n",
+    "products/queries.skir": "struct Product {\n  id: string = 0;\n  name: string = 1;\n  parent_product_id: string? = 2;\n  child_product_ids: [string] = 3;\n  barcodes: [string] = 4;\n}\n\nstruct ProductList {\n  data: [Product] = 0;\n  total: int32 = 1;\n  offset: int32 = 2;\n  limit: int32 = 3;\n}\n\nstruct GetProductRequest {\n  id: string = 0;\n}\n\nmethod GetProduct(\n  GetProductRequest\n): Product = 2;\n\nstruct GetProductByBarcodeRequest {\n  barcode: string = 0;\n}\n\nmethod GetProductByBarcode(\n  GetProductByBarcodeRequest\n): Product = 8;\n\nstruct ListProductsRequest {\n  offset: int32 = 0;\n  limit: int32 = 1;\n}\n\nmethod ListProducts(\n  ListProductsRequest\n): ProductList = 3;\n"
   }
 }

@@ -1,21 +1,21 @@
-import application/commands/delete_product
+import application/commands/products/delete/command
+import application/commands/products/delete/ports
 import application/shared/infrastructure_error
-import common/product_id
-import composition
-import driver/skirout/product
+import driver/shared/products/delete/request_parser
+import driver/skirout/products/commands
 import gleam/result
 import skir_client/service
 
-fn map_error(error: delete_product.Error) -> service.ServiceError {
+fn map_error(error: command.Error) -> service.ServiceError {
   case error {
-    delete_product.ProductNotFound ->
+    command.ProductNotFound ->
       service.ServiceError(service.E404xNotFound, "product not found")
-    delete_product.DomainError(_) ->
+    command.DomainError(_) ->
       service.ServiceError(
         service.E409xConflict,
         "cannot delete product with active dependencies",
       )
-    delete_product.InfrastructureError(infrastructure_error.DatabaseFailure) ->
+    command.InfrastructureError(infrastructure_error.DatabaseFailure) ->
       service.ServiceError(
         service.E500xInternalServerError,
         "infrastructure error",
@@ -24,20 +24,20 @@ fn map_error(error: delete_product.Error) -> service.ServiceError {
 }
 
 pub fn handle(
-  request: product.DeleteProductRequest,
-  context: composition.AppContext,
-) -> Result(product.DeleteProductResponse, service.ServiceError) {
-  use id <- result.try(
-    product_id.new(request.id)
+  request: commands.DeleteProductRequest,
+  ports: ports.T,
+) -> Result(commands.DeleteProductResponse, service.ServiceError) {
+  // Build command
+  use command <- result.try(
+    request_parser.parse(request)
     |> result.map_error(fn(_) {
       service.ServiceError(service.E400xBadRequest, "product id is invalid")
     }),
   )
 
-  delete_product.execute(
-    delete_product.Command(id: id),
-    context.delete_product_ports,
-  )
-  |> result.map(fn(_) { product.delete_product_response_new() })
-  |> result.map_error(map_error)
+  // Execute command and prepare response
+  case command.handle(command, ports) {
+    Ok(_) -> Ok(commands.DeleteProductResponseSuccess)
+    Error(e) -> Error(map_error(e))
+  }
 }

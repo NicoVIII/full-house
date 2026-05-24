@@ -17,7 +17,7 @@ pub fn prove(
   Ok(ExistingProductId(id))
 }
 
-pub fn value(existing_id: T) -> String {
+pub fn to_value(existing_id: T) -> String {
   let ExistingProductId(id) = existing_id
-  product_id.value(id)
+  product_id.to_value(id)
 }

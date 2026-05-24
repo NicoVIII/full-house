@@ -25,6 +25,6 @@ pub fn new(raw: String) -> Result(T, ValidationError) {
   }
 }
 
-pub fn value(date: T) -> String {
+pub fn to_value(date: T) -> String {
   date.value
 }

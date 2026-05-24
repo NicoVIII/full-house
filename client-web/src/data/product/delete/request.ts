@@ -1,4 +1,4 @@
-import { DeleteProduct, DeleteProductRequest } from "../../../skirout/product";
+import { DeleteProduct, DeleteProductRequest } from "../../../skirout/products/commands";
 import { skirServiceClient } from "../../api_helper";
 import { ProductId } from "../product";
 

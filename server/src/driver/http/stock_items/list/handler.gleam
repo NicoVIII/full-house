@@ -18,7 +18,7 @@ pub fn handle(
     pagination_request_mapper.map_paging_params(query)
     |> handler_helpers.on_error(fn(error) {
       pagination_request_mapper.error_to_string(error)
-      |> handler_helpers.bad_request
+      |> wisp.bad_request
     })
 
   use result <-

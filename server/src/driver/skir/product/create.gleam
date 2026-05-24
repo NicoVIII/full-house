@@ -1,59 +1,48 @@
-import application/commands/create_product
-import common/product_id
-import composition
-import domain/products/barcode
-import domain/products/existing_product_id
-import domain/products/product_name
-import driver/skirout/product
-import gleam/list
-import gleam/option
+import application/commands/products/create/command
+import application/commands/products/create/ports
+import driver/shared/parse_error
+import driver/shared/products/create/request_parser
+import driver/skirout/products/commands
 import gleam/result
-import skir_client/service
+import skir_client/service.{ServiceError}
 
 pub fn handle(
-  request: product.CreateProductRequest,
-  context: composition.AppContext,
-) -> Result(product.Product, service.ServiceError) {
-  let command =
-    create_product.Command(
-      name: request.name,
-      parent_product_id: request.parent_product_id,
-      barcodes: request.barcodes,
-    )
-
-  use product <- result.try(
-    create_product.execute(command, context.create_product_ports)
+  request: commands.CreateProductRequest,
+  ports: ports.T,
+) -> Result(commands.CreateProductResponse, service.ServiceError) {
+  // Build command
+  use command <- result.try(
+    request_parser.parse(request)
     |> result.map_error(fn(e) {
       case e {
-        create_product.InvalidName ->
-          service.ServiceError(service.E400xBadRequest, "invalid name")
-        create_product.InvalidParentId ->
-          service.ServiceError(
-            service.E400xBadRequest,
-            "invalid parent_product_id",
-          )
-        create_product.ParentDoesNotExist ->
-          service.ServiceError(
-            service.E400xBadRequest,
-            "parent product does not exist",
-          )
-        create_product.InvalidBarcode ->
-          service.ServiceError(service.E400xBadRequest, "invalid barcode")
-        create_product.InfrastructureError(_) ->
-          service.ServiceError(
-            service.E500xInternalServerError,
-            "infrastructure error",
-          )
+        parse_error.ParseError(message) ->
+          ServiceError(service.E400xBadRequest, message)
       }
     }),
   )
 
-  product.product_new(
-    list.map(product.barcodes, barcode.value),
-    [],
-    product_id.value(product.id),
-    product_name.value(product.name),
-    option.map(product.parent_product_id, existing_product_id.value),
+  // Execute command
+  use Nil <- result.try(
+    command.handle(command, ports)
+    |> result.map_error(fn(e) {
+      case e {
+        command.IdAlreadyExists ->
+          ServiceError(
+            service.E409xConflict,
+            "product with the same id already exists",
+          )
+        command.ParentDoesNotExist ->
+          ServiceError(service.E400xBadRequest, "parent product does not exist")
+        command.BarcodeAssignedToAnotherProduct(name) ->
+          ServiceError(
+            service.E409xConflict,
+            "barcode is already assigned to product \"" <> name <> "\"",
+          )
+        command.InfrastructureError(_) ->
+          ServiceError(service.E500xInternalServerError, "infrastructure error")
+      }
+    }),
   )
-  |> Ok
+
+  Ok(commands.CreateProductResponseSuccess)
 }

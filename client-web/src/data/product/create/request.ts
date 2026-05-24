@@ -1,33 +1,27 @@
-import { CreateProduct, CreateProductRequest } from "../../../skirout/product";
+import { CreateProduct, CreateProductRequest } from "../../../skirout/products/commands";
 import { skirServiceClient } from "../../api_helper";
-import { Product, ProductId } from "../product";
 
 export type Request = Readonly<{
+	id: string;
 	name: string;
 	parent_product_id?: string | undefined;
 	barcodes?: string[];
 }>;
 
 export async function createProduct({
+	id,
 	name,
 	parent_product_id,
 	barcodes,
-}: Request): Promise<Product> {
-	const product = await skirServiceClient.invokeRemote(
+}: Request): Promise<void> {
+	await skirServiceClient.invokeRemote(
 		CreateProduct,
 		CreateProductRequest.create({
+			id,
 			name,
 			// oxlint-disable-next-line unicorn/no-null
 			parentProductId: parent_product_id ?? null,
 			barcodes: barcodes ?? [],
 		}),
 	);
-
-	return Product({
-		id: ProductId(product.id),
-		name: product.name,
-		parent_product_id: product.parentProductId ? ProductId(product.parentProductId) : undefined,
-		child_product_ids: product.childProductIds.map(ProductId),
-		barcodes: [...product.barcodes],
-	});
 }

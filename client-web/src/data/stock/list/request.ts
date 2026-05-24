@@ -1,4 +1,4 @@
-import { ListStockItems, ListStockItemsRequest } from "../../../skirout/stock";
+import { ListStockItems, ListStockItemsRequest } from "../../../skirout/stock_items/queries";
 import { skirServiceClient } from "../../api_helper";
 import { StockListResponse } from "../stock";
 

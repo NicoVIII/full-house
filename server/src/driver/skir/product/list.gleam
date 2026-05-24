@@ -3,14 +3,13 @@ import application/queries/common/page_offset
 import application/queries/common/paging
 import application/queries/common/product_query_model
 import application/queries/list_products
-import composition
-import driver/skirout/product
+import driver/skirout/products/queries
 import gleam/list
 import gleam/result
 import skir_client/service
 
-fn map_product(model: product_query_model.T) -> product.Product {
-  product.product_new(
+fn map_product(model: product_query_model.T) -> queries.Product {
+  queries.product_new(
     model.barcodes,
     model.children_ids,
     model.id,
@@ -51,12 +50,10 @@ fn validate_offset(offset: Int) -> Result(page_offset.T, service.ServiceError) {
   })
 }
 
-fn map_response(
-  response: list_products.Response,
-) -> product.ProductListResponse {
+fn map_response(response: list_products.Response) -> queries.ProductList {
   let paging.Response(data, total, paging_params) = response
 
-  product.product_list_response_new(
+  queries.product_list_new(
     list.map(data, map_product),
     page_limit.value(paging_params.limit),
     page_offset.value(paging_params.offset),
@@ -65,16 +62,13 @@ fn map_response(
 }
 
 pub fn handle(
-  request: product.ListProductsRequest,
-  context: composition.AppContext,
-) -> Result(product.ProductListResponse, service.ServiceError) {
+  request: queries.ListProductsRequest,
+  port: list_products.ListProductsPort,
+) -> Result(queries.ProductList, service.ServiceError) {
   use limit <- result.try(validate_limit(request.limit))
   use offset <- result.try(validate_offset(request.offset))
 
-  list_products.execute(
-    paging.Params(limit: limit, offset: offset),
-    context.list_products_port,
-  )
+  list_products.execute(paging.Params(limit: limit, offset: offset), port)
   |> result.map(map_response)
   |> result.map_error(fn(_error) {
     service.ServiceError(

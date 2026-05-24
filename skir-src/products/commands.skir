@@ -1,0 +1,43 @@
+struct CreateProductRequest {
+  id: string = 3;
+  name: string = 0;
+  parent_product_id: string? = 1;
+  barcodes: [string] = 2;
+}
+
+enum CreateProductResponse {
+  success = 1;
+  error = 2;  // TODO: extend with error details
+}
+
+method CreateProduct(
+  CreateProductRequest
+): CreateProductResponse = 1;
+
+struct DeleteProductRequest {
+  id: string = 0;
+}
+
+enum DeleteProductResponse {
+  success = 1;
+  error = 2;  // TODO: extend with error details
+}
+
+method DeleteProduct(
+  DeleteProductRequest
+): DeleteProductResponse = 4;
+
+struct UpdateProductRequest {
+  id: string = 0;
+  add_barcodes: [string] = 1;
+  remove_barcodes: [string] = 2;
+}
+
+enum UpdateProductResponse {
+  success = 1;
+  error = 2;  // TODO: extend with error details
+}
+
+method UpdateProduct(
+  UpdateProductRequest
+): UpdateProductResponse = 9;
