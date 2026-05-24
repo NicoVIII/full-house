@@ -1,31 +1,20 @@
 import application/commands/create_stock_item
 import common/product_id
-import composition
 import domain/stock_items/best_before_date
 import domain/stock_items/stock_item
 import gleam/function
 import gleam/http
 import gleam/json
 import gleam/string
+import integration/driver/http/stock_items/common
 import integration/driver/http/testsetup
 import wisp/simulate
-
-fn prepare_handler(
-  mock_ports: fn(create_stock_item.Ports) -> create_stock_item.Ports,
-) {
-  testsetup.build_handler(fn(ctx) {
-    composition.AppContext(
-      ..ctx,
-      create_stock_item_ports: mock_ports(ctx.create_stock_item_ports),
-    )
-  })
-}
 
 pub fn create_stock_item_returns_201_test() {
   let expected_best_before_date = "2026-10-15"
 
   let handler =
-    prepare_handler(fn(_) {
+    testsetup.build_handler_with_create_stock_item_ports(fn(_) {
       create_stock_item.Ports(
         does_product_exist: fn(_) { Ok(True) },
         create: fn(item) {
@@ -38,12 +27,10 @@ pub fn create_stock_item_returns_201_test() {
     })
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
-        #("product_id", json.string("018f4e1a-0000-7000-8000-000000000001")),
+        #("product_id", json.string(common.valid_product_id)),
         #("best_before_date", json.string(expected_best_before_date)),
       ]),
     )
@@ -61,15 +48,14 @@ pub fn create_stock_item_returns_201_test() {
 }
 
 pub fn create_stock_item_missing_best_before_date_returns_400_test() {
-  let handler = prepare_handler(function.identity)
+  let handler =
+    testsetup.build_handler_with_create_stock_item_ports(function.identity)
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
-        #("product_id", json.string("018f4e1a-0000-7000-8000-000000000001")),
+        #("product_id", json.string(common.valid_product_id)),
       ]),
     )
 
@@ -81,15 +67,14 @@ pub fn create_stock_item_missing_best_before_date_returns_400_test() {
 }
 
 pub fn create_stock_item_invalid_best_before_date_format_returns_400_test() {
-  let handler = prepare_handler(function.identity)
+  let handler =
+    testsetup.build_handler_with_create_stock_item_ports(function.identity)
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
-        #("product_id", json.string("018f4e1a-0000-7000-8000-000000000001")),
+        #("product_id", json.string(common.valid_product_id)),
         #("best_before_date", json.string("15-10-2026")),
       ]),
     )
@@ -106,17 +91,15 @@ pub fn create_stock_item_invalid_best_before_date_format_returns_400_test() {
 
 pub fn create_stock_item_product_does_not_exist_returns_400_test() {
   let handler =
-    prepare_handler(fn(ports) {
+    testsetup.build_handler_with_create_stock_item_ports(fn(ports) {
       create_stock_item.Ports(..ports, does_product_exist: fn(_) { Ok(False) })
     })
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
-        #("product_id", json.string("018f4e1a-0000-7000-8000-000000000099")),
+        #("product_id", json.string(common.missing_product_id)),
         #("best_before_date", json.string("2026-10-15")),
       ]),
     )
@@ -132,12 +115,11 @@ pub fn create_stock_item_product_does_not_exist_returns_400_test() {
 }
 
 pub fn create_stock_item_invalid_product_id_returns_400_test() {
-  let handler = prepare_handler(function.identity)
+  let handler =
+    testsetup.build_handler_with_create_stock_item_ports(function.identity)
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
         #("product_id", json.string("not-a-uuid")),
@@ -153,15 +135,14 @@ pub fn create_stock_item_invalid_product_id_returns_400_test() {
 }
 
 pub fn create_stock_item_invalid_calendar_date_returns_400_test() {
-  let handler = prepare_handler(function.identity)
+  let handler =
+    testsetup.build_handler_with_create_stock_item_ports(function.identity)
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
-        #("product_id", json.string("018f4e1a-0000-7000-8000-000000000001")),
+        #("product_id", json.string(common.valid_product_id)),
         #("best_before_date", json.string("2026-02-30")),
       ]),
     )
@@ -178,13 +159,13 @@ pub fn create_stock_item_invalid_calendar_date_returns_400_test() {
 
 pub fn create_stock_item_skir_handler_maps_best_before_date_test() {
   let handler =
-    prepare_handler(fn(_) {
+    testsetup.build_handler_with_create_stock_item_ports(fn(_) {
       create_stock_item.Ports(
         does_product_exist: fn(_) { Ok(True) },
         create: fn(item) {
           let stock_item.StockItem(product_id: item_product_id, ..) = item
           let assert Ok(expected_product_id) =
-            product_id.new("018f4e1a-0000-7000-8000-000000000001")
+            product_id.new(common.valid_product_id)
 
           assert item_product_id == expected_product_id
           Ok(Nil)
@@ -193,12 +174,10 @@ pub fn create_stock_item_skir_handler_maps_best_before_date_test() {
     })
 
   let request =
-    simulate.request(http.Post, "/api/v1/stock_items")
-    |> simulate.header("Content-Type", "application/json")
-    |> simulate.header("Accept", "application/json")
+    common.json_request(http.Post, "/api/v1/stock_items")
     |> simulate.json_body(
       json.object([
-        #("product_id", json.string("018f4e1a-0000-7000-8000-000000000001")),
+        #("product_id", json.string(common.valid_product_id)),
         #("best_before_date", json.string("2027-01-01")),
       ]),
     )

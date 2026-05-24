@@ -1,21 +1,14 @@
 import application/queries/common/paging
 import application/queries/common/stock_item_query_model
-import application/queries/list_stock_items
-import composition
 import gleam/http
 import gleam/string
+import integration/driver/http/stock_items/common
 import integration/driver/http/testsetup
 import wisp/simulate
 
-fn prepare_handler(mock_port: list_stock_items.ListStockItemsPort) {
-  testsetup.build_handler(fn(ctx) {
-    composition.AppContext(..ctx, list_stock_items_port: mock_port)
-  })
-}
-
 pub fn list_stock_items_returns_best_before_date_test() {
   let handler =
-    prepare_handler(fn(paging_params) {
+    testsetup.build_handler_with_list_stock_items_port(fn(paging_params) {
       Ok(paging.Response(
         data: [
           stock_item_query_model.StockItemQueryModel(
@@ -36,9 +29,7 @@ pub fn list_stock_items_returns_best_before_date_test() {
       ))
     })
 
-  let request =
-    simulate.request(http.Get, "/api/v1/stock_items?limit=2&offset=0")
-    |> simulate.header("Accept", "application/json")
+  let request = common.request(http.Get, "/api/v1/stock_items?limit=2&offset=0")
 
   let response = handler(request)
   let body = simulate.read_body(response)
@@ -50,11 +41,12 @@ pub fn list_stock_items_returns_best_before_date_test() {
 }
 
 pub fn list_stock_items_rejects_invalid_limit_test() {
-  let handler = prepare_handler(fn(_) { panic as "port should not be called" })
+  let handler =
+    testsetup.build_handler_with_list_stock_items_port(fn(_) {
+      panic as "port should not be called"
+    })
 
-  let request =
-    simulate.request(http.Get, "/api/v1/stock_items?limit=abc")
-    |> simulate.header("Accept", "application/json")
+  let request = common.request(http.Get, "/api/v1/stock_items?limit=abc")
 
   let response = handler(request)
   let body = simulate.read_body(response)

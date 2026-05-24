@@ -1,6 +1,10 @@
 import application/commands/create_product
 import application/commands/create_stock_item
 import application/commands/delete_product
+import application/commands/remove_stock_item
+import application/queries/get_product
+import application/queries/list_products
+import application/queries/list_stock_items
 import composition
 import full_house
 import gleam/erlang/process
@@ -34,4 +38,69 @@ pub fn build_handler(
   mock_app_context()
   |> mock_context
   |> full_house.build_handler(process.new_name("test_mock"))
+}
+
+pub fn build_handler_with_create_stock_item_ports(
+  mock_ports: fn(create_stock_item.Ports) -> create_stock_item.Ports,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(
+      ..ctx,
+      create_stock_item_ports: mock_ports(ctx.create_stock_item_ports),
+    )
+  })
+}
+
+pub fn build_handler_with_create_product_ports(
+  mock_ports: fn(create_product.Ports) -> create_product.Ports,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(
+      ..ctx,
+      create_product_ports: mock_ports(ctx.create_product_ports),
+    )
+  })
+}
+
+pub fn build_handler_with_get_product_port(
+  mock_port: get_product.GetProductPort,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(..ctx, get_product_port: mock_port)
+  })
+}
+
+pub fn build_handler_with_list_products_port(
+  mock_port: list_products.ListProductsPort,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(..ctx, list_products_port: mock_port)
+  })
+}
+
+pub fn build_handler_with_delete_product_ports(
+  mock_ports: fn(delete_product.Ports) -> delete_product.Ports,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(
+      ..ctx,
+      delete_product_ports: mock_ports(ctx.delete_product_ports),
+    )
+  })
+}
+
+pub fn build_handler_with_list_stock_items_port(
+  mock_port: list_stock_items.ListStockItemsPort,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(..ctx, list_stock_items_port: mock_port)
+  })
+}
+
+pub fn build_handler_with_remove_stock_item_port(
+  mock_port: remove_stock_item.RemovePort,
+) -> fn(wisp.Request) -> wisp.Response {
+  build_handler(fn(ctx) {
+    composition.AppContext(..ctx, remove_stock_item_port: mock_port)
+  })
 }

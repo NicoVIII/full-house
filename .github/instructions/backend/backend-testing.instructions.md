@@ -1,43 +1,43 @@
 ---
-description: "Use when implementing or changing backend Gleam features. Prefer strong endpoint integration coverage and focused infrastructure adapter tests (unit or focused integration)."
+description: "Use when implementing or changing backend Gleam features. Enforce bounded-context integration tests, real-infrastructure adapter tests, and critical-path unit tests."
 applyTo: "server/src/**/*.gleam, server/test/**/*.gleam"
 ---
 # Backend Testing Strategy
 
+[Hard Rule] - enforcement
+
+Keep test categories separate.
+
+- Bounded-context integration tests: validate flow from `driver/**` through `application/**` and `domain/**` to outbound application port boundaries.
+- Infrastructure adapter tests: validate concrete adapters with real infrastructure.
+- Unit tests: validate critical business/domain rules in isolation.
+
 [Strong Preference]
 
-Aim for broad and meaningful backend test coverage, with explicit and documented exceptions when justified.
 - Most backend behavior should be covered by automated tests.
-- Endpoint behavior should be covered by integration tests.
-- Endpoint integration tests should exercise the request flow through `driver/**`, `application/**`, and `domain/**` up to outbound application port boundaries.
-- Endpoint integration tests should stop at the outbound port boundary and use test doubles for outbound dependencies.
-- Integration tests should assert protocol-level behavior (status codes, response payloads, pagination/error handling where relevant).
-- Endpoint integration tests should not be happy-path-only. Cover invalid-input and failure/edge paths where they matter for the endpoint contract.
-- Infrastructure adapters in `infrastructure/**` should have focused coverage for mapping, edge cases, and error paths.
-- For SQL adapters, focused integration tests against a test database are acceptable and often preferable to brittle mocks.
-- Use the Arrange-Act-Assert (AAA) pattern where applicable to keep tests concise and readable.
-- Keep AAA sections lightweight: only split steps that improve clarity.
-- Prefer deterministic tests (fixed test data, stable assertions, minimal hidden global state).
-- If test coverage is intentionally omitted, document the reason in the PR/task.
+- Bounded-context integration tests should include happy-path and meaningful failure-path coverage.
+- Integration tests should assert protocol-level behavior.
+- Infrastructure adapter tests should cover mapping, edge cases, and error paths against real infrastructure.
+- Use AAA and deterministic test data.
+- If coverage is intentionally omitted, document why in the PR/task.
 
-## Infrastructure Implementations For Testing
+## Boundary Rules
 
-When organizing infrastructure adapters (see `backend-layer-structure.instructions.md`), prefer test seams that keep endpoint tests fast and deterministic while preserving realistic adapter behavior:
-
-- Port-level test doubles are useful for endpoint integration tests that intentionally stop at outbound boundaries.
-- Real adapters can be exercised directly in focused integration tests (for example against an isolated test database) to validate SQL and decoding behavior.
-- Choose the lightest setup that still verifies the behavior you care about.
+- In bounded-context integration tests, mock only at outbound port boundaries.
+- Do not mock infrastructure internals in infrastructure adapter tests.
+- Keep critical rule validation in unit tests when behavior is isolatable.
 
 ## Test Organization
 
-1. Endpoint integration tests under `server/test/integration/**`
-2. Domain unit/property tests under `server/test/unit/domain/**`
-3. Focused infrastructure adapter tests under `server/test/integration/infrastructure/**` or `server/test/unit/infrastructure/**` depending on test style
+1. Bounded-context integration tests under `server/test/integration/driver/**`
+2. Infrastructure adapter tests under `server/test/integration/infrastructure/**`
+3. Domain/unit/property tests for critical paths under `server/test/unit/domain/**`
+4. Prefer operation-scoped files and intention-revealing test names.
 
 ## Review Checklist
 
-1. Does each changed/new endpoint have meaningful integration test coverage?
-2. Do endpoint tests cover happy path and key error/edge cases?
-3. Does each changed/new infrastructure adapter have focused coverage (unit or focused integration)?
-4. Do tests follow AAA structure where it improves readability?
-5. Are tests deterministic and easy to understand?
+1. Does each changed/new bounded-context operation have end-to-end integration coverage from driver to outbound port boundary?
+2. Do bounded-context integration tests cover happy path and key failure/edge cases?
+3. Does each changed/new infrastructure adapter have dedicated coverage with real infrastructure?
+4. Do critical business/domain paths have focused unit tests?
+5. Are tests deterministic and readable (AAA where useful)?

@@ -1,5 +1,4 @@
 import application/commands/delete_product
-import composition
 import gleam/function
 import gleam/http
 import gleam/option.{None}
@@ -10,20 +9,9 @@ import wisp/simulate
 
 const test_id = "018f4e1a-0000-7000-8000-000000000002"
 
-fn prepare_handler(
-  mock_ports: fn(delete_product.Ports) -> delete_product.Ports,
-) {
-  testsetup.build_handler(fn(ctx) {
-    composition.AppContext(
-      ..ctx,
-      delete_product_ports: mock_ports(ctx.delete_product_ports),
-    )
-  })
-}
-
 pub fn delete_product_returns_204_test() {
   let handler =
-    prepare_handler(fn(_) {
+    testsetup.build_handler_with_delete_product_ports(fn(_) {
       delete_product.Ports(
         get_deletion_properties: fn(_) {
           Ok(delete_product.DeletionProperties(
@@ -47,7 +35,8 @@ pub fn delete_product_returns_204_test() {
 }
 
 pub fn delete_product_with_invalid_uuid_returns_400_test() {
-  let handler = prepare_handler(function.identity)
+  let handler =
+    testsetup.build_handler_with_delete_product_ports(function.identity)
   let request = simulate.request(http.Delete, "/api/v1/products/not-a-uuid")
 
   let response = handler(request)
@@ -57,7 +46,7 @@ pub fn delete_product_with_invalid_uuid_returns_400_test() {
 
 pub fn delete_product_not_found_returns_404_test() {
   let handler =
-    prepare_handler(fn(ports) {
+    testsetup.build_handler_with_delete_product_ports(fn(ports) {
       delete_product.Ports(..ports, load_product: fn(_id) {
         Error(delete_product.LoadProductNotFound)
       })
@@ -75,7 +64,7 @@ pub fn delete_product_not_found_returns_404_test() {
 
 pub fn delete_product_with_stock_items_returns_409_test() {
   let handler =
-    prepare_handler(fn(ports) {
+    testsetup.build_handler_with_delete_product_ports(fn(ports) {
       delete_product.Ports(
         ..ports,
         get_deletion_properties: fn(_) {
@@ -104,7 +93,7 @@ pub fn delete_product_with_stock_items_returns_409_test() {
 
 pub fn delete_product_with_child_products_returns_409_test() {
   let handler =
-    prepare_handler(fn(ports) {
+    testsetup.build_handler_with_delete_product_ports(fn(ports) {
       delete_product.Ports(
         ..ports,
         get_deletion_properties: fn(_) {

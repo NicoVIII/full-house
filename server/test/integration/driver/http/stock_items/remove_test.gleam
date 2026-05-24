@@ -1,29 +1,24 @@
 import application/commands/remove_stock_item
 import application/shared/infrastructure_error
-import composition
 import gleam/http
 import gleam/string
+import integration/driver/http/stock_items/common
 import integration/driver/http/testsetup
 import wisp/simulate
 
-fn prepare_handler(mock_port: remove_stock_item.RemovePort) {
-  testsetup.build_handler(fn(ctx) {
-    composition.AppContext(..ctx, remove_stock_item_port: mock_port)
-  })
-}
-
 pub fn remove_stock_item_returns_200_with_updated_quantity_test() {
   let handler =
-    prepare_handler(fn(_item_product_id, _item_best_before_date) {
-      Ok(remove_stock_item.Removed(2))
-    })
+    testsetup.build_handler_with_remove_stock_item_port(
+      fn(_item_product_id, _item_best_before_date) {
+        Ok(remove_stock_item.Removed(2))
+      },
+    )
 
   let request =
-    simulate.request(
+    common.request(
       http.Delete,
-      "/api/v1/stock_items/018f4e1a-0000-7000-8000-000000000001/2026-10-15",
+      common.remove_path(common.valid_product_id, "2026-10-15"),
     )
-    |> simulate.header("Accept", "application/json")
 
   let response = handler(request)
   let body = simulate.read_body(response)
@@ -39,10 +34,12 @@ pub fn remove_stock_item_returns_200_with_updated_quantity_test() {
 
 pub fn remove_stock_item_invalid_product_id_returns_400_test() {
   let handler =
-    prepare_handler(fn(_, _) { panic as "port should not be called" })
+    testsetup.build_handler_with_remove_stock_item_port(fn(_, _) {
+      panic as "port should not be called"
+    })
 
   let request =
-    simulate.request(http.Delete, "/api/v1/stock_items/not-a-uuid/2026-10-15")
+    common.request(http.Delete, common.remove_path("not-a-uuid", "2026-10-15"))
 
   let response = handler(request)
   let body = simulate.read_body(response)
@@ -53,12 +50,14 @@ pub fn remove_stock_item_invalid_product_id_returns_400_test() {
 
 pub fn remove_stock_item_invalid_best_before_date_returns_400_test() {
   let handler =
-    prepare_handler(fn(_, _) { panic as "port should not be called" })
+    testsetup.build_handler_with_remove_stock_item_port(fn(_, _) {
+      panic as "port should not be called"
+    })
 
   let request =
-    simulate.request(
+    common.request(
       http.Delete,
-      "/api/v1/stock_items/018f4e1a-0000-7000-8000-000000000001/15-10-2026",
+      common.remove_path(common.valid_product_id, "15-10-2026"),
     )
 
   let response = handler(request)
@@ -72,12 +71,15 @@ pub fn remove_stock_item_invalid_best_before_date_returns_400_test() {
 }
 
 pub fn remove_stock_item_not_found_returns_404_test() {
-  let handler = prepare_handler(fn(_, _) { Ok(remove_stock_item.NotFound) })
+  let handler =
+    testsetup.build_handler_with_remove_stock_item_port(fn(_, _) {
+      Ok(remove_stock_item.NotFound)
+    })
 
   let request =
-    simulate.request(
+    common.request(
       http.Delete,
-      "/api/v1/stock_items/018f4e1a-0000-7000-8000-000000000001/2026-10-15",
+      common.remove_path(common.valid_product_id, "2026-10-15"),
     )
 
   let response = handler(request)
@@ -89,12 +91,14 @@ pub fn remove_stock_item_not_found_returns_404_test() {
 
 pub fn remove_stock_item_infrastructure_error_returns_500_test() {
   let handler =
-    prepare_handler(fn(_, _) { Error(infrastructure_error.DatabaseFailure) })
+    testsetup.build_handler_with_remove_stock_item_port(fn(_, _) {
+      Error(infrastructure_error.DatabaseFailure)
+    })
 
   let request =
-    simulate.request(
+    common.request(
       http.Delete,
-      "/api/v1/stock_items/018f4e1a-0000-7000-8000-000000000001/2026-10-15",
+      common.remove_path(common.valid_product_id, "2026-10-15"),
     )
 
   let response = handler(request)
