@@ -1,0 +1,27 @@
+struct CreateStockItemRequest {
+  product_id: string = 0;
+  best_before_date: string = 1;
+}
+
+enum CreateStockItemResponse {
+  success = 1;
+  error = 2;  // TODO: extend with error details
+}
+
+method CreateStockItem(
+  CreateStockItemRequest
+): CreateStockItemResponse = 5;
+
+struct DeleteStockItemRequest {
+  product_id: string = 0;
+  best_before_date: string = 1;
+}
+
+enum DeleteStockItemResponse {
+  success = 1;
+  error = 2;  // TODO: extend with error details
+}
+
+method DeleteStockItem(
+  DeleteStockItemRequest
+): DeleteStockItemResponse = 7;

@@ -4,12 +4,14 @@ import driver/skir/product/delete
 import driver/skir/product/get
 import driver/skir/product/get_by_barcode
 import driver/skir/product/list
-import driver/skir/product/update_barcodes
+import driver/skir/product/update
 import driver/skir/stock/create as stock_create
+import driver/skir/stock/delete as stock_delete
 import driver/skir/stock/list as stock_list
-import driver/skir/stock/remove as stock_remove
-import driver/skirout/product
-import driver/skirout/stock
+import driver/skirout/products/commands as product_commands
+import driver/skirout/products/queries as product_queries
+import driver/skirout/stock_items/commands as stock_item_commands
+import driver/skirout/stock_items/queries as stock_item_queries
 import gleam/erlang/process
 import skir_client/service
 
@@ -17,14 +19,15 @@ pub type RpcService =
   service.Service(Nil, composition.AppContext, Nil)
 
 fn simplify_handle(
-  handler: fn(a, composition.AppContext) -> Result(b, service.ServiceError),
+  handler: fn(a, ports) -> Result(b, service.ServiceError),
+  port_mapper: fn(composition.AppContext) -> ports,
 ) {
   fn(request: a, _: Nil, context: composition.AppContext) -> #(
     Result(b, service.ServiceError),
     Nil,
     Nil,
   ) {
-    let result = handler(request, context)
+    let result = handler(request, port_mapper(context))
     #(result, Nil, Nil)
   }
 }
@@ -32,40 +35,58 @@ fn simplify_handle(
 pub fn make_service() -> RpcService {
   service.new(empty_message: Nil)
   |> service.add_method(
-    product.create_product_method(),
-    simplify_handle(create.handle),
+    product_commands.create_product_method(),
+    simplify_handle(create.handle, fn(ctx) {
+      ctx.product_context.command_context.create_ports
+    }),
   )
   |> service.add_method(
-    product.get_product_method(),
-    simplify_handle(get.handle),
+    product_queries.get_product_method(),
+    simplify_handle(get.handle, fn(ctx) {
+      ctx.product_context.query_context.get_port
+    }),
   )
   |> service.add_method(
-    product.list_products_method(),
-    simplify_handle(list.handle),
+    product_queries.list_products_method(),
+    simplify_handle(list.handle, fn(ctx) {
+      ctx.product_context.query_context.list_port
+    }),
   )
   |> service.add_method(
-    product.delete_product_method(),
-    simplify_handle(delete.handle),
+    product_commands.delete_product_method(),
+    simplify_handle(delete.handle, fn(ctx) {
+      ctx.product_context.command_context.delete_ports
+    }),
   )
   |> service.add_method(
-    product.get_product_by_barcode_method(),
-    simplify_handle(get_by_barcode.handle),
+    product_queries.get_product_by_barcode_method(),
+    simplify_handle(get_by_barcode.handle, fn(ctx) {
+      ctx.product_context.query_context.get_by_barcode_port
+    }),
   )
   |> service.add_method(
-    product.update_product_barcodes_method(),
-    simplify_handle(update_barcodes.handle),
+    product_commands.update_product_method(),
+    simplify_handle(update.handle, fn(ctx) {
+      ctx.product_context.command_context.update_ports
+    }),
   )
   |> service.add_method(
-    stock.create_stock_item_method(),
-    simplify_handle(stock_create.handle),
+    stock_item_commands.create_stock_item_method(),
+    simplify_handle(stock_create.handle, fn(ctx) {
+      ctx.stock_item_context.command_context.create_ports
+    }),
   )
   |> service.add_method(
-    stock.list_stock_items_method(),
-    simplify_handle(stock_list.handle),
+    stock_item_queries.list_stock_items_method(),
+    simplify_handle(stock_list.handle, fn(ctx) {
+      ctx.stock_item_context.query_context.list_port
+    }),
   )
   |> service.add_method(
-    stock.remove_stock_item_method(),
-    simplify_handle(stock_remove.handle),
+    stock_item_commands.delete_stock_item_method(),
+    simplify_handle(stock_delete.handle, fn(ctx) {
+      ctx.stock_item_context.command_context.delete_ports
+    }),
   )
 }
 

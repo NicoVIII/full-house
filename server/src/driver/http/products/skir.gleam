@@ -1,11 +1,11 @@
 import application/queries/common/product_query_model
 import driver/http/skir
 import driver/http/wire_format
-import driver/skirout/product as skir_product
+import driver/skirout/products/queries
 import wisp
 
-pub fn map_product(p: product_query_model.T) -> skir_product.Product {
-  skir_product.product_new(
+pub fn map_product(p: product_query_model.T) -> queries.Product {
+  queries.product_new(
     p.barcodes,
     p.children_ids,
     p.id,
@@ -20,5 +20,5 @@ pub fn encode_product(
   format: wire_format.T,
 ) -> wisp.Response {
   let product = map_product(p)
-  skir.encode(response, product, skir_product.product_serializer(), format)
+  skir.encode(response, product, queries.product_serializer(), format)
 }

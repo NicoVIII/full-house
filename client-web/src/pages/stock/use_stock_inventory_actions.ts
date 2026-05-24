@@ -2,8 +2,8 @@ import { createInfiniteQuery, useMutation } from "@tanstack/solid-query";
 import { createMemo, createSignal } from "solid-js";
 
 import { createStockItemMutationOptions } from "../../data/stock/create/mutation";
+import { removeStockItemMutationOptions } from "../../data/stock/delete/mutation";
 import { stockListQueryOptions } from "../../data/stock/list/query";
-import { removeStockItemMutationOptions } from "../../data/stock/remove/mutation";
 import type { StockSummary } from "../../data/stock/stock";
 import { flattenPaginatedItems, readPaginatedTotal } from "../paginated_query_helpers";
 

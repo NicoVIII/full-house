@@ -1,10 +1,10 @@
 import { mutationOptions } from "@tanstack/solid-query";
 
 import { MutationOptions } from "../../tanstack_helper";
-import { CreateStockItemRequest, createStockItem, StockItemData } from "./request";
+import { createStockItem, CreateStockItemRequest } from "./request";
 
 export const createStockItemMutationOptions = (
-	options?: MutationOptions<StockItemData, CreateStockItemRequest>,
+	options?: MutationOptions<void, CreateStockItemRequest>,
 ) =>
 	mutationOptions({
 		mutationKey: ["createStockItem"],

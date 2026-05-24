@@ -1,6 +1,6 @@
 import application/queries/common/product_query_model
 import application/shared/infrastructure_error
-import domain/products/barcode
+import domain/products/barcodes/barcode
 
 pub type GetProductByBarcodeError {
   ProductNotFound

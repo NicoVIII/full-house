@@ -6,6 +6,7 @@ import { Portal } from "@suid/material/Portal/Portal";
 import { useMutation } from "@tanstack/solid-query";
 import type { Component } from "solid-js";
 import { createEffect, createSignal } from "solid-js";
+import { v7 as uuidv7 } from "uuid";
 
 import { createProductMutationOptions } from "../../data/product/create/mutation";
 import CreateProductDialog from "./CreateProductDialog";
@@ -89,6 +90,8 @@ const CreateProductFab: Component = () => {
 		setIsSubmitting(true);
 
 		createProductMutation.mutate({
+			// We generate a new uuid
+			id: uuidv7(),
 			name: trimmedName,
 			parent_product_id: trimmedParent === "" ? undefined : trimmedParent,
 			barcodes,

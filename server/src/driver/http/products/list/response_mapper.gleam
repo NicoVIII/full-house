@@ -4,7 +4,7 @@ import application/queries/list_products
 import driver/http/products/skir as product_skir
 import driver/http/skir
 import driver/http/wire_format
-import driver/skirout/product as skir_product
+import driver/skirout/products/queries
 import gleam/list
 import wisp
 
@@ -14,16 +14,12 @@ pub fn map_list_products_response(
   format: wire_format.T,
 ) -> wisp.Response {
   let list_reponse =
-    skir_product.product_list_response_new(
+    queries.product_list_new(
       list.map(list_product_response.data, product_skir.map_product),
       page_limit.value(list_product_response.paging_params.limit),
       page_offset.value(list_product_response.paging_params.offset),
       list_product_response.total,
     )
   response
-  |> skir.encode(
-    list_reponse,
-    skir_product.product_list_response_serializer(),
-    format,
-  )
+  |> skir.encode(list_reponse, queries.product_list_serializer(), format)
 }

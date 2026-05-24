@@ -1,14 +1,13 @@
 import application/queries/common/product_query_model
 import application/queries/get_product_by_barcode
 import application/shared/infrastructure_error
-import composition
-import domain/products/barcode
-import driver/skirout/product
+import domain/products/barcodes/barcode
+import driver/skirout/products/queries
 import gleam/result
 import skir_client/service
 
-fn map_product(model: product_query_model.T) -> product.Product {
-  product.product_new(
+fn map_product(model: product_query_model.T) -> queries.Product {
+  queries.product_new(
     model.barcodes,
     model.children_ids,
     model.id,
@@ -34,9 +33,9 @@ fn map_error(
 }
 
 pub fn handle(
-  request: product.GetProductByBarcodeRequest,
-  context: composition.AppContext,
-) -> Result(product.Product, service.ServiceError) {
+  request: queries.GetProductByBarcodeRequest,
+  port: get_product_by_barcode.GetProductByBarcodePort,
+) -> Result(queries.Product, service.ServiceError) {
   use product_barcode <- result.try(
     barcode.from_user_input(request.barcode)
     |> result.map_error(fn(_) {
@@ -44,10 +43,7 @@ pub fn handle(
     }),
   )
 
-  get_product_by_barcode.execute(
-    product_barcode,
-    context.get_product_by_barcode_port,
-  )
+  get_product_by_barcode.execute(product_barcode, port)
   |> result.map(map_product)
   |> result.map_error(map_error)
 }

@@ -1,20 +1,16 @@
-import common/uuid
+import common/uuid_v7
 import gleam/result
 
 pub opaque type T {
-  ProductId(value: uuid.T)
-}
-
-pub fn generate() -> T {
-  ProductId(uuid.generate_v7())
+  ProductId(value: uuid_v7.T)
 }
 
 pub fn new(raw_id: String) -> Result(T, Nil) {
-  uuid.new(raw_id)
+  uuid_v7.new(raw_id)
   |> result.map(ProductId)
 }
 
-pub fn value(product_id: T) -> String {
+pub fn to_value(product_id: T) -> String {
   let ProductId(uid) = product_id
-  uuid.value(uid)
+  uuid_v7.to_value(uid)
 }

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { deleteStockItem } from "./delete/request";
 import { fetchStock } from "./list/request";
-import { removeStockItem } from "./remove/request";
 
 const { invokeRemoteMock } = vi.hoisted(() => ({
 	invokeRemoteMock: vi.fn(),
@@ -76,19 +76,14 @@ describe("removeStockItem", () => {
 			quantity: 3,
 		});
 
-		const result = await removeStockItem({
+		await deleteStockItem({
 			product_id: "1",
 			best_before_date: "2026-10-15",
 		});
 
-		expect(result).toEqual({
-			product_id: "1",
-			best_before_date: "2026-10-15",
-			quantity: 3,
-		});
 		expect(invokeRemoteMock).toHaveBeenCalledTimes(1);
 		expect(invokeRemoteMock).toHaveBeenCalledWith(
-			expect.objectContaining({ name: "RemoveStockItem" }),
+			expect.objectContaining({ name: "DeleteStockItem" }),
 			expect.objectContaining({
 				productId: "1",
 				bestBeforeDate: "2026-10-15",
@@ -100,7 +95,7 @@ describe("removeStockItem", () => {
 		invokeRemoteMock.mockRejectedValue(new Error("remove rpc failed"));
 
 		await expect(
-			removeStockItem({
+			deleteStockItem({
 				product_id: "1",
 				best_before_date: "2026-10-15",
 			}),

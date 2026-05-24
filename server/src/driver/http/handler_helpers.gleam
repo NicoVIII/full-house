@@ -1,4 +1,3 @@
-import gleam/json
 import wisp
 
 type NextFn(a) =
@@ -29,11 +28,8 @@ pub fn on_error_value(
   on_error(value, fn(_) { on_error_response })
 }
 
-pub fn bad_request(message: String) -> wisp.Response {
-  json.object([
-    #("error", json.string("invalid_parameter")),
-    #("message", json.string(message)),
-  ])
-  |> json.to_string
-  |> wisp.bad_request
+pub fn conflict(message: String) -> wisp.Response {
+  wisp.response(409)
+  |> wisp.set_header("content-type", "text/plain")
+  |> wisp.set_body(wisp.Text(message))
 }

@@ -51,6 +51,6 @@ pub fn from_user_input(
   |> new
 }
 
-pub fn value(name: T) -> String {
+pub fn to_value(name: T) -> String {
   name.value
 }

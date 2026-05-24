@@ -1,4 +1,4 @@
-import { ListProducts, ListProductsRequest } from "../../../skirout/product";
+import { ListProducts, ListProductsRequest } from "../../../skirout/products/queries";
 import { ListResponse, skirServiceClient } from "../../api_helper";
 import { Product, ProductId } from "../product";
 

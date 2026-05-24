@@ -1,4 +1,4 @@
-import { GetProductByBarcode, GetProductByBarcodeRequest } from "../../../skirout/product";
+import { GetProductByBarcode, GetProductByBarcodeRequest } from "../../../skirout/products/queries";
 import { skirServiceClient } from "../../api_helper";
 import { Product, ProductId } from "../product";
 
