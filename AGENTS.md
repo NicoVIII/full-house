@@ -5,9 +5,9 @@
 ## API
 
 ```bash
-bunx skir gen
-bunx skir format
-bunx skir snapshot
+./skir.sh gen
+./skir.sh format
+./skir.sh snapshot
 ```
 
 ## Server

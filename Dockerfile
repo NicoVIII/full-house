@@ -4,8 +4,9 @@ ARG GLEAM_VERSION=v1.16.0
 FROM oven/bun:1-alpine AS skir-gen
 WORKDIR /app
 COPY skir.yml ./
+COPY skir.sh ./
 COPY skir-src/ ./skir-src/
-RUN bunx skir@1.2 gen
+RUN chmod +x ./skir.sh && ./skir.sh gen
 
 FROM oven/bun:1-alpine AS frontend-builder
 WORKDIR /app

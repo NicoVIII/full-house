@@ -6,20 +6,22 @@
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers/features/git-lfs:1": {},
-		"ghcr.io/NicoVIII/devcontainer-features/lefthook:0": {},
+		"ghcr.io/devcontainers/features/git-lfs:1": { },
+		"ghcr.io/NicoVIII/devcontainer-features/lefthook:0": { },
 		// Backend
 		"ghcr.io/NicoVIII/devcontainer-features/gleam:0": {
 			"version": "1.16.0"
 		},
 		// Frontend
-		"ghcr.io/devcontainers-extra/features/bun:1": {}
+		"ghcr.io/devcontainers-extra/features/bun:1": { },
+		// Deployment
+		"ghcr.io/devcontainers/features/docker-in-docker:3": { }
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "sudo chmod +x ./.devcontainer/post_create.sh && ./.devcontainer/post_create.sh",
-	"postStartCommand": "lefthook install && cd client-web && bun install",
+	"postStartCommand": "lefthook install && ./skir.sh gen && cd client-web && bun install",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
