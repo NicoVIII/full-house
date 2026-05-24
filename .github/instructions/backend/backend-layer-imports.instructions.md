@@ -7,25 +7,24 @@ applyTo: "server/src/**/*.gleam"
 
 [Hard Rule] - enforcement
 
-Follow one-way dependency direction across layers.
+Keep dependencies one-way toward domain/application.
 
-## Allowed Dependencies By Layer
+## Allowed
 
-- `domain/**`: `domain/**`, `gleam/**`, pure external libs
-- `application/**`: `application/**`, `domain/**`, `gleam/**`
-- `infrastructure/**`: `infrastructure/**`, `application/**`, `domain/**`, `gleam/**`
-- `driver/**`: `driver/**`, `application/**`, `domain/**`, `gleam/**`
-- Composition root (`full_house.gleam` or `composition/**`): may import all layers, but wiring only
+- `domain/**` -> `domain/**`, stdlib/external pure libs
+- `application/**` -> `application/**`, `domain/**`
+- `infrastructure/**` -> `infrastructure/**`, `application/**`, `domain/**`
+- `driver/**` -> `driver/**`, `application/**`, `domain/**`
+- Composition root -> all layers (wiring only)
 
-## Forbidden Dependencies
+## Forbidden
 
-- `domain/**` must not import `application/**`, `infrastructure/**`, or `driver/**`
-- `application/**` must not import `infrastructure/**` or `driver/**`
-- `driver/**` must not import `infrastructure/**`
-- `infrastructure/**` must not import `driver/**`
+- `domain/**` -> `application/**`, `infrastructure/**`, `driver/**`
+- `application/**` -> `infrastructure/**`, `driver/**`
+- `driver/**` -> `infrastructure/**`
+- `infrastructure/**` -> `driver/**`
 
 ## Review Checklist
 
-1. Can this file still compile conceptually if adapters are swapped?
-2. Does dependency direction still point inward toward domain/application?
-3. Is composition root doing wiring only, not business logic?
+1. Does dependency direction still point inward?
+2. Is composition root only wiring, not business logic?

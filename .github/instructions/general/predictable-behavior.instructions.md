@@ -7,37 +7,19 @@ applyTo: "server/**/*.gleam, client-web/src/**/*.ts, client-web/src/**/*.tsx"
 
 [Hard Rule] - enforcement
 
-Callers must never be surprised by silent correction or swallowed failures.
+Do not silently correct invalid input or swallow failures.
 
-## Absence vs Invalid Input
+## Rules
 
-- Absent parameter: documented default is acceptable
-- Invalid provided parameter: return an explicit error
-
-Never silently treat invalid input as a valid default.
-
-## Backend Rules
-
-- HTTP driver layer: invalid request input -> `400 Bad Request` with actionable error message
-- Domain/application layers: propagate failures as `Result`, do not silently replace errors with fallbacks
-- Infrastructure failures: propagate to driver layer; map typed errors to suitable status codes (`404`, `409`, `500`)
-- For `500`, return a generic safe message (no internal leakage)
-
-## Frontend Rules
-
-- Surface request failures to users (message/toast/error UI)
-- Do not silently show empty/cached data as if request succeeded
-- Show inline validation feedback for invalid user input
-
-## Silent Default Exception (All Required)
-
-1. Input was absent (not invalid)
-2. Default is documented
-3. Caller cannot reasonably be surprised by the defaulted result
+- Distinguish absence from invalid input:
+  - absent + documented default: allowed
+  - invalid provided value: return/report explicit error
+- Backend: map invalid request input to `400`; propagate typed failures to appropriate `404`/`409`/`500`.
+- Frontend: surface request and validation errors in UI; do not present failure as success.
+- For `500`, return safe generic messages (no internals).
 
 ## Review Checklist
 
-1. Does each fallback distinguish absence from invalid input?
-2. Are invalid caller inputs rejected with clear feedback?
-3. Are infrastructure/application errors propagated instead of swallowed?
-4. Would an API/UI consumer understand whether their input was accepted?
+1. Is invalid input rejected explicitly?
+2. Are failures propagated instead of hidden?
+3. Can consumers clearly tell whether input was accepted?

@@ -7,49 +7,19 @@ applyTo: "server/**/*.gleam, client-web/src/**/*.ts, client-web/src/**/*.tsx"
 
 [Hard Rule] - enforcement
 
-Prefer code that is easy to understand and free of avoidable noise. When a shorter version hides intent, choose the clearer one.
+Choose clarity over cleverness; remove noise without hiding intent.
 
-## Practical Criteria
+## Rules
 
-- Module purpose is clear quickly
-- Names communicate intent
-- Control flow reads top-to-bottom
-- Complexity is justified by real needs
-- Conciseness removes noise without hiding intent
+- Keep names and module purpose obvious.
+- Keep control flow easy to scan top-to-bottom.
+- Keep definitions ordered before use where practical.
+- Prefer self-explanatory code; comment only for non-obvious intent/trade-offs.
+- Preserve boundaries, validation, and explicit error handling while simplifying.
+- For frontend decomposition decisions, follow `frontend-composition.instructions.md`.
 
-## Frontend Note
+## Review Checklist
 
-- Apply the same rule to frontend code: prefer components and reactive flows that are easy to scan without unnecessary ceremony or tightly packed JSX
-- Extract helpers or subcomponents when they make rendering logic easier to follow
-
-## Definition Order
-
-- Define constants before functions that use them
-- Define private helpers before first use
-- Define local utility values before dependent expressions
-- Keep file flow sequential from top to bottom
-
-Allowed exception:
-
-- Mutually recursive functions may stay grouped when reordering harms clarity
-
-## Commenting
-
-- Prefer self-explanatory code over explanatory comments
-- Write comments for non-obvious intent, trade-offs, or edge cases
-- Keep comments short and focused on why
-- Do not restate obvious line-by-line behavior
-- Avoid long comment blocks that duplicate code structure
-
-## Do Not Trade Away
-
-- Architectural boundaries
-- Validation and explicit error handling
-- Necessary abstractions
-- Clarity for unnecessary terseness
-
-## Related Rules
-
-- `module-focus.instructions.md`
-- `backend-acl.instructions.md`
-- `no-primitive-obsession.instructions.md`
+1. Is intent obvious on first read?
+2. Is complexity justified and localized?
+3. Was conciseness achieved without reducing clarity?

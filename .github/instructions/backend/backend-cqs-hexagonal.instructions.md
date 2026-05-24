@@ -2,33 +2,25 @@
 description: "Use when implementing or refactoring backend Gleam modules with hexagonal architecture and CQS. Keep domain pure, define outbound ports in application modules, and separate command and query use cases."
 applyTo: "server/src/**/*.gleam"
 ---
-# Backend CQS And Hexagonal Architecture
+
+# Backend CQS + Hexagonal
 
 [Hard Rule] - enforcement
 
-Enforce CQS and hexagonal boundaries in backend code.
+Preserve hexagonal boundaries and keep each use case either command or query.
 
-- Keep domain modules pure: no HTTP, persistence, or infrastructure concerns in `domain/**`.
-- Define outbound ports as abstractions owned by the application layer.
-- Port types can live in the use-case module itself (for example `application/commands/create_product.gleam`) or in a dedicated application module when shared by multiple use cases.
-- Implement outbound adapters in `infrastructure/**`.
-- Implement inbound adapters in `driver/**` (for example HTTP handlers and routers).
-- When an invariant depends on data owned by infrastructure, prefer this shape: infrastructure returns facts through ports, application/domain decides, infrastructure executes the command. Database constraints and external safeguards are a backstop for races and misconfiguration, not the canonical rule definition.
-- Treat each use case as either command or query, never both.
-- Query use cases return read models; command use cases perform state changes and return command results.
-- Do not place query/pagination transport metadata in domain entities unless it is domain-significant.
-- Place query/read models outside domain. They may live in `application/**` or `driver/**` depending on context.
-- Compose dependencies in a dedicated composition root (for example `src/full_house.gleam` or `src/composition/**`).
-- Dependency wiring can be global (application-wide composition root) or route-local (per-route composition), but it always happens in the composition root—not in `driver/**` or elsewhere. Route-local wiring means each route can construct its own dependencies instead of sharing a single global composition.
-- Import/dependency direction is defined in `backend-layer-imports.instructions.md`.
-- For layer structure and directory organization guidelines, see `backend-layer-structure.instructions.md`.
+## Rules
+
+- `domain/**` is pure: no driver/infrastructure concerns.
+- Define outbound ports in `application/**`; implement them in `infrastructure/**`.
+- Keep inbound adapters in `driver/**` (protocol translation only).
+- Command use cases mutate state; query use cases return read models.
+- Wire dependencies only in composition root (`full_house.gleam` or `composition/**`).
+- Follow dependency direction from `backend-layer-imports.instructions.md`.
 
 ## Review Checklist
 
-1. Is this module clearly command or query oriented?
-2. Are domain types free of adapter and transport details?
-3. Are outbound port abstractions defined in `application/**` and implemented in `infrastructure/**`?
-4. Does `driver/**` only translate protocol concerns (HTTP/query params/status/JSON) and delegate business work?
-5. If infrastructure returns a business-shaped error, is it only reporting a guardrail outcome rather than originating the business rule itself?
-6. Is dependency wiring kept in the composition root and scoped per route when needed?
-7. Are import/dependency rules compliant with `backend-layer-imports.instructions.md`?
+1. Is the module clearly command or query?
+2. Are domain types free of transport/adapter details?
+3. Are ports in application and adapters in infrastructure?
+4. Is wiring done only in composition root?

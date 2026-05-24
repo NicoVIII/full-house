@@ -7,59 +7,23 @@ applyTo: "server/src/**/*.gleam"
 
 [Hard Rule] - enforcement
 
-Use a named opaque type when a primitive value carries domain meaning or validation rules.
+Use opaque named types for values with domain meaning or validation.
 
-## When A Value Object Is Required
+## Create A Value Object When
 
-Create a value object when the value:
+- The value has constraints (format/range/non-empty).
+- The value represents a named domain concept.
+- The same primitive could be confused with another concept.
+- Validation repeats across call sites.
 
-- Has constraints (format, range, non-empty)
-- Represents a distinct concept a domain expert would name
-- Could be confused with another value of the same primitive type
-- Is validated repeatedly in multiple call sites
+## Constructor Rules
 
-Do not create value objects for trivial internal values with no constraints.
-
-## Placement
-
-- Domain concepts -> `domain/**`
-- Use-case mechanics (for example pagination controls) -> `application/**`
-- Shared low-level wrappers -> `domain/basics/**`
-
-## Constructor Contract
-
-For validated opaque types, always provide a safe constructor:
-
-1. `new(...) -> Result(T, E)` for untrusted/external input
-2. Optional trusted-path constructor/factory when it materially improves ergonomics (for example specialized test-only creation helpers)
-
-If a trusted-path constructor/factory exists, it should delegate to `new` (or share the same validation/building path) to avoid duplicated logic.
-
-Never route unvalidated user or external input through trusted-path constructors/factories.
-
-For validation constructors that can return multiple errors:
-
-- Return a non-empty error collection type.
-- Prefer a deduplicating collection (for example a non-empty set) when error order is not domain-significant.
-- Prefer an ordered non-empty collection when error order or priority is domain-significant (for example stable API error message ordering).
-
-## Anti-Patterns
-
-- Passing raw `String` / `Int` where a named value object exists
-- Silently clamping invalid input instead of returning an error
-- Mixing multiple independent concepts in one type/module (for example combined offset+limit type)
+- Provide `new(...) -> Result(T, E)` for untrusted input.
+- Trusted-path constructors are optional; never use them for untrusted input.
+- Validate once in the value object, not repeatedly in callers.
 
 ## Review Checklist
 
-1. Are meaningful primitive fields wrapped in named opaque types?
-2. Are invariants enforced once in constructors instead of many call sites?
-3. Is there a `new` constructor for untrusted input?
-4. If trusted-path constructors/factories exist, are they restricted to trusted data paths?
-5. Is the value object placed in the correct layer?
-
-## Related Instructions
-
-- `module-focus.instructions.md`
-- `backend-layer-imports.instructions.md`
-- `backend-layer-structure.instructions.md`
-- `predictable-behavior.instructions.md`
+1. Are meaningful primitives wrapped in named opaque types?
+2. Are invariants enforced in constructors?
+3. Is untrusted input validated through safe constructors?
