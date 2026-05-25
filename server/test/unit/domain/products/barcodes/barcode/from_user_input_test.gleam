@@ -35,6 +35,13 @@ pub fn rejects_too_long_after_trim_test() {
   )
 }
 
+pub fn rejects_comma_after_trim_test() {
+  should.equal(
+    barcode.from_user_input("  12,34  "),
+    Error(barcode.InvalidCharacters),
+  )
+}
+
 pub fn matches_trim_then_new_property_test() {
   qcheck.run(property_config(), qcheck.string(), fn(raw) {
     assert barcode.from_user_input(raw) == barcode.new(string.trim(raw))
