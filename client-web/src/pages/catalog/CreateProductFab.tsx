@@ -49,8 +49,9 @@ const CreateProductFab: Component = () => {
 		// eslint-disable-next-line functional/no-conditional-statements
 		if (shouldPrefill) {
 			setBarcodeInput(barcode);
-			setIsOpen(true);
 			setHasHandledBarcodePrefill(true);
+			// Defer opening to next tick so Dialog DOM is ready
+			queueMicrotask(() => setIsOpen(true));
 		}
 	});
 

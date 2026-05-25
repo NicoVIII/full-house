@@ -27,7 +27,7 @@ fn check_existence(
 
   case query_result {
     Ok([#(Some(_))]) -> Ok(True)
-    Ok([#(None)]) -> Ok(False)
+    Ok([]) | Ok([#(None)]) -> Ok(False)
     Error(_) -> Error(infrastructure_error.DatabaseFailure)
     // nolint: avoid_panic
     Ok(_) -> panic as "Unexpected query result format"
