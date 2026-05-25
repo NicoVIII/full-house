@@ -16,12 +16,8 @@ fn create_error_response(error: command.Error) -> wisp.Response {
       wisp.bad_request(
         "parent_product_id does not reference an existing product",
       )
-    command.BarcodeAssignedToAnotherProduct(conflicting_product_name) ->
-      handler_helpers.conflict(
-        "barcode is already assigned to product \""
-        <> conflicting_product_name
-        <> "\"",
-      )
+    command.BarcodeAssignedToAnotherProduct ->
+      handler_helpers.conflict("barcode is already assigned to another product")
     command.InfrastructureError(infrastructure_error.DatabaseFailure) ->
       wisp.internal_server_error()
   }
