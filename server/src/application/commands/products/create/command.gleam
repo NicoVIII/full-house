@@ -25,7 +25,7 @@ pub type T {
 pub type Error {
   IdAlreadyExists
   ParentDoesNotExist
-  BarcodeAssignedToAnotherProduct(conflicting_product_name: String)
+  BarcodeAssignedToAnotherProduct
   InfrastructureError(infrastructure_error.T)
 }
 
@@ -89,7 +89,7 @@ fn check_barcodes(
           |> result.map_error(fn(e) {
             case e {
               unassigned_barcode.AlreadyAssigned ->
-                BarcodeAssignedToAnotherProduct("Conflicting Product")
+                BarcodeAssignedToAnotherProduct
             }
           })
         Error(e) -> Error(InfrastructureError(e))
@@ -122,8 +122,7 @@ pub fn handle(
   ports.create(new_product)
   |> result.map_error(fn(e) {
     case e {
-      ports.BarcodeAlreadyAssigned(conflicting_name) ->
-        BarcodeAssignedToAnotherProduct(conflicting_name)
+      ports.BarcodeAlreadyAssigned(_) -> BarcodeAssignedToAnotherProduct
       ports.InfrastructureError(reason) -> InfrastructureError(reason)
     }
   })

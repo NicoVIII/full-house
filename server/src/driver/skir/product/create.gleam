@@ -33,10 +33,10 @@ pub fn handle(
           )
         command.ParentDoesNotExist ->
           ServiceError(service.E400xBadRequest, "parent product does not exist")
-        command.BarcodeAssignedToAnotherProduct(name) ->
+        command.BarcodeAssignedToAnotherProduct ->
           ServiceError(
             service.E409xConflict,
-            "barcode is already assigned to product \"" <> name <> "\"",
+            "barcode is already assigned to another product",
           )
         command.InfrastructureError(_) ->
           ServiceError(service.E500xInternalServerError, "infrastructure error")
