@@ -5,6 +5,7 @@ import driver/http/handler_helpers
 import driver/http/products/skir
 import driver/http/wire_format
 import gleam/json
+import gleam/list
 import wisp
 
 fn error_response(
@@ -28,10 +29,15 @@ fn error_response(
 }
 
 pub fn handle(
-  barcode_raw barcode_raw: String,
-  request request: wisp.Request,
-  port port: get_product_by_barcode.GetProductByBarcodePort,
+  request: wisp.Request,
+  port: get_product_by_barcode.GetProductByBarcodePort,
 ) -> wisp.Response {
+  use barcode_raw <-
+    list.key_find(wisp.get_query(request), "barcode")
+    |> handler_helpers.on_error_value(wisp.bad_request(
+      "barcode query parameter is required",
+    ))
+
   use product_barcode <-
     barcode.from_user_input(barcode_raw)
     |> handler_helpers.on_error_value(wisp.bad_request("barcode is invalid"))

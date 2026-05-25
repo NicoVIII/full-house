@@ -55,14 +55,12 @@ fn products_detail_route(
 }
 
 fn products_barcode_route(
-  barcode_raw barcode_raw: String,
-  request request: wisp.Request,
-  context context: composition.AppProductsContext,
+  request: wisp.Request,
+  context: composition.AppProductsContext,
 ) -> wisp.Response {
   case request.method {
     http.Get ->
       products_get_by_barcode_handler.handle(
-        barcode_raw,
         request,
         context.query_context.get_by_barcode_port,
       )
@@ -110,12 +108,8 @@ pub fn handle_api_request(
 ) -> wisp.Response {
   case wisp.path_segments(request) {
     ["api", "v1", "products"] -> products_route(request, ctx.product_context)
-    ["api", "v1", "products", "by-barcode", barcode_raw] ->
-      products_barcode_route(
-        barcode_raw:,
-        request:,
-        context: ctx.product_context,
-      )
+    ["api", "v1", "products", "by-barcode"] ->
+      products_barcode_route(request, ctx.product_context)
     ["api", "v1", "products", id_raw] ->
       products_detail_route(id_raw:, request:, ctx: ctx.product_context)
     ["api", "v1", "stock_items"] ->
