@@ -5,12 +5,6 @@ struct StockSummary {
   best_before_date: string = 3;
 }
 
-struct StockItem {
-  id: string = 0;
-  product_id: string = 1;
-  best_before_date: string = 2;
-}
-
 struct StockItemList {
   data: [StockSummary] = 0;
   total: int32 = 1;
