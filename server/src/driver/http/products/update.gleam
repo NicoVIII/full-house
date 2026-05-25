@@ -20,7 +20,7 @@ fn command_error_response(
     update_product_command.BarcodeToRemoveNotAssignedToProduct ->
       wisp.bad_request("barcode to remove is not assigned to product")
     update_product_command.BarcodeAssignedToAnotherProduct ->
-      wisp.bad_request("barcode is already assigned to another product")
+      handler_helpers.conflict("barcode is already assigned to another product")
     update_product_command.InfrastructureError(
       infrastructure_error.DatabaseFailure,
     ) -> wisp.internal_server_error()
