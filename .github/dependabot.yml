@@ -18,3 +18,12 @@ updates:
     directory: "/client-web"
     schedule:
       interval: weekly
+    groups:
+      client-web-linting:
+        patterns:
+          - "@eslint/*"
+          - "eslint"
+          - "eslint-plugin-*"
+          - "typescript-eslint"
+          - "oxlint"
+          - "oxlint-*"
