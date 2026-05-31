@@ -1,5 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/solid-query";
 
+import { tanstackQueryKeys } from "../../tanstack_keys";
 import { setProductQueryData } from "../get/query";
 import { fetchProducts } from "./request";
 
@@ -7,7 +8,7 @@ const PAGE_SIZE = 6;
 
 export const productListQueryOptions = () =>
 	infiniteQueryOptions({
-		queryKey: ["products", "infinite"] as const,
+		queryKey: tanstackQueryKeys.product.listInfinite(),
 		queryFn: async ({ pageParam, client }) => {
 			const products = await fetchProducts({
 				limit: PAGE_SIZE,

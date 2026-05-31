@@ -1,12 +1,13 @@
 import { mutationOptions } from "@tanstack/solid-query";
 
 import { MutationOptions } from "../../tanstack_helper";
+import { tanstackMutationKeys } from "../../tanstack_keys";
 import { productListQueryOptions } from "../list/query";
 import { createProduct, Request } from "./request";
 
 export const createProductMutationOptions = (options?: MutationOptions<void, Request>) =>
 	mutationOptions({
-		mutationKey: ["createProduct"],
+		mutationKey: tanstackMutationKeys.product.create(),
 		mutationFn: createProduct,
 		...options,
 		onSuccess: async (result, _variables, _on_result, context) => {

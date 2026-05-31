@@ -1,23 +1,20 @@
 import { QueryClient, queryOptions } from "@tanstack/solid-query";
 
 import { QueryOptions } from "../../tanstack_helper";
+import { tanstackQueryKeys } from "../../tanstack_keys";
 import { Product, ProductId } from "../product";
 import { fetchProduct } from "./request";
 
-function getProductQueryKey(id: ProductId) {
-	return ["product", id] as const;
-}
-
 export const setProductQueryData = (client: QueryClient, product: Product) => {
-	client.setQueryData(getProductQueryKey(product.id), product);
+	client.setQueryData(tanstackQueryKeys.product.byId(product.id), product);
 };
 
 export const productQueryOptions = (
 	id: ProductId,
-	options?: QueryOptions<Product, readonly ["product", ProductId]>,
+	options?: QueryOptions<Product, ReturnType<typeof tanstackQueryKeys.product.byId>>,
 ) =>
 	queryOptions({
-		queryKey: getProductQueryKey(id),
+		queryKey: tanstackQueryKeys.product.byId(id),
 		queryFn: () => fetchProduct(id),
 		staleTime: 1000 * 60 * 60,
 		...options,

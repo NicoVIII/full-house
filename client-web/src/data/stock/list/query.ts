@@ -1,12 +1,13 @@
 import { infiniteQueryOptions } from "@tanstack/solid-query";
 
+import { tanstackQueryKeys } from "../../tanstack_keys";
 import { fetchStock } from "./request";
 
 const PAGE_SIZE = 6;
 
 export const stockListQueryOptions = () =>
 	infiniteQueryOptions({
-		queryKey: ["stock", "infinite"] as const,
+		queryKey: tanstackQueryKeys.stock.listInfinite(),
 		queryFn: ({ pageParam }) =>
 			fetchStock({
 				limit: PAGE_SIZE,

@@ -1,19 +1,16 @@
 import { queryOptions } from "@tanstack/solid-query";
 
 import { QueryOptions } from "../../tanstack_helper";
+import { tanstackQueryKeys } from "../../tanstack_keys";
 import { Product } from "../product";
 import { fetchProductByBarcode } from "./request";
 
-function getProductByBarcodeQueryKey(barcode: string) {
-	return ["productByBarcode", barcode] as const;
-}
-
 export const productByBarcodeQueryOptions = (
 	barcode: string,
-	options?: QueryOptions<Product, readonly ["productByBarcode", string]>,
+	options?: QueryOptions<Product, ReturnType<typeof tanstackQueryKeys.product.byBarcode>>,
 ) =>
 	queryOptions({
-		queryKey: getProductByBarcodeQueryKey(barcode),
+		queryKey: tanstackQueryKeys.product.byBarcode(barcode),
 		queryFn: () => fetchProductByBarcode(barcode),
 		staleTime: 1000 * 60,
 		...options,

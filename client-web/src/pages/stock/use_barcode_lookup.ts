@@ -3,6 +3,7 @@ import { createSignal } from "solid-js";
 
 import { fetchProductByBarcode } from "../../data/product/get_by_barcode/request";
 import type { Product } from "../../data/product/product";
+import { tanstackMutationKeys } from "../../data/tanstack_keys";
 
 export function useBarcodeLookup() {
 	const [barcodeInput, setBarcodeInput] = createSignal("");
@@ -13,7 +14,7 @@ export function useBarcodeLookup() {
 
 	const lookupProductMutation = useMutation(() =>
 		mutationOptions({
-			mutationKey: ["lookupProductByBarcode"],
+			mutationKey: tanstackMutationKeys.product.lookupByBarcode(),
 			mutationFn: fetchProductByBarcode,
 			onSuccess: (product) => {
 				setResolvedProduct(product);
