@@ -9,6 +9,9 @@ export const setProductQueryData = (client: QueryClient, product: Product) => {
 	client.setQueryData(tanstackQueryKeys.product.byId(product.id), product);
 };
 
+export const invalidateProductByIdQuery = (client: QueryClient, id: ProductId) =>
+	client.invalidateQueries({ queryKey: tanstackQueryKeys.product.byId(id) });
+
 export const productQueryOptions = (
 	id: ProductId,
 	options?: QueryOptions<Product, ReturnType<typeof tanstackQueryKeys.product.byId>>,

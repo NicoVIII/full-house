@@ -1,9 +1,16 @@
 import { infiniteQueryOptions } from "@tanstack/solid-query";
+import type { QueryClient } from "@tanstack/solid-query";
 
 import { tanstackQueryKeys } from "../../tanstack_keys";
 import { fetchStock } from "./request";
 
 const PAGE_SIZE = 6;
+
+export const invalidateAllStockQueries = (client: QueryClient) =>
+	client.invalidateQueries({ queryKey: tanstackQueryKeys.stock.all() });
+
+export const invalidateStockListQuery = (client: QueryClient) =>
+	client.invalidateQueries({ queryKey: tanstackQueryKeys.stock.listInfinite() });
 
 export const stockListQueryOptions = () =>
 	infiniteQueryOptions({

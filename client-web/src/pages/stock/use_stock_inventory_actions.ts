@@ -3,7 +3,7 @@ import { createMemo, createSignal } from "solid-js";
 
 import { createStockItemMutationOptions } from "../../data/stock/create/mutation";
 import { removeStockItemMutationOptions } from "../../data/stock/delete/mutation";
-import { stockListQueryOptions } from "../../data/stock/list/query";
+import { invalidateStockListQuery, stockListQueryOptions } from "../../data/stock/list/query";
 import type { StockSummary } from "../../data/stock/stock";
 import { flattenPaginatedItems, readPaginatedTotal } from "../paginated_query_helpers";
 
@@ -29,7 +29,7 @@ export function useStockInventoryActions() {
 				setRemovingKey(`${variables.product_id}|${variables.best_before_date}`);
 			},
 			onSuccess: async (_result, _variables, _on_result, context) => {
-				await context.client.invalidateQueries(stockListQueryOptions());
+				await invalidateStockListQuery(context.client);
 			},
 			onError: (error: Readonly<Error>) => {
 				setRemoveError(error.message);

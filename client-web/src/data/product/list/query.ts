@@ -1,10 +1,14 @@
 import { infiniteQueryOptions } from "@tanstack/solid-query";
+import type { QueryClient } from "@tanstack/solid-query";
 
 import { tanstackQueryKeys } from "../../tanstack_keys";
 import { setProductQueryData } from "../get/query";
 import { fetchProducts } from "./request";
 
 const PAGE_SIZE = 6;
+
+export const invalidateProductListQuery = (client: QueryClient) =>
+	client.invalidateQueries({ queryKey: tanstackQueryKeys.product.listInfinite() });
 
 export const productListQueryOptions = () =>
 	infiniteQueryOptions({

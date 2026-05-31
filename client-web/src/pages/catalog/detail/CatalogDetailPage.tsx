@@ -14,7 +14,7 @@ import { createMemo, Show } from "solid-js";
 import { deleteProductMutationOptions } from "../../../data/product/delete/mutation";
 import { productQueryOptions } from "../../../data/product/get/query";
 import { Product, ProductId } from "../../../data/product/product";
-import { tanstackQueryKeys } from "../../../data/tanstack_keys";
+import { invalidateAllStockQueries } from "../../../data/stock/list/query";
 import { routes } from "../../../routes";
 import BarcodeSection from "./BarcodeSection";
 import ParentLink from "./ParentLink";
@@ -39,8 +39,7 @@ const ProductDetailPage: Component = () => {
 
 	const deleteMutation = useMutation(() => deleteProductMutationOptions(productId()));
 
-	const handleStockItemCreated = () =>
-		queryClient.invalidateQueries({ queryKey: tanstackQueryKeys.stock.all() });
+	const handleStockItemCreated = () => invalidateAllStockQueries(queryClient);
 	const handleStockItemCreatedEvent = () => {
 		void handleStockItemCreated();
 	};
