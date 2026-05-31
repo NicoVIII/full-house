@@ -23,6 +23,10 @@ type BarcodeWorkflowPanelProps = Readonly<{
 	onStopCamera: () => void;
 	isCameraActive: boolean;
 	onVideoRef: (element: Readonly<HTMLVideoElement>) => void;
+	cameraSupportStatus: Readonly<{
+		isSupported: boolean;
+		message: string;
+	}>;
 	cameraError: string | undefined;
 	scanError: string | undefined;
 	resolvedProduct: Product | undefined;
@@ -96,19 +100,25 @@ const BarcodeWorkflowPanel: Component<BarcodeWorkflowPanelProps> = (props) => {
 					</Button>
 				</Stack>
 
-				<Show when={props.isCameraActive}>
-					<video
-						muted
-						playsinline
-						ref={props.onVideoRef}
-						style={{
-							width: "100%",
-							"max-width": "420px",
-							"border-radius": "8px",
-							border: "1px solid #d2d7de",
-						}}
-					/>
-				</Show>
+				<Typography
+					variant="caption"
+					sx={{ color: props.cameraSupportStatus.isSupported ? "text.secondary" : "warning.main" }}
+				>
+					{props.cameraSupportStatus.message}
+				</Typography>
+
+				<video
+					muted
+					playsinline
+					ref={props.onVideoRef}
+					style={{
+						display: props.isCameraActive ? "block" : "none",
+						width: "100%",
+						"max-width": "420px",
+						"border-radius": "8px",
+						border: "1px solid #d2d7de",
+					}}
+				/>
 
 				<Show when={props.cameraError !== undefined}>
 					<Alert severity="error">{props.cameraError}</Alert>

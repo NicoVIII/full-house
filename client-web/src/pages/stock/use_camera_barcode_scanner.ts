@@ -8,9 +8,76 @@ type BarcodeDetectorInstance = Readonly<{
 
 type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
 
+type BarcodeDetectorStatic = BarcodeDetectorConstructor &
+	Readonly<{
+		getSupportedFormats?: () => Promise<string[]>;
+	}>;
+
+type CameraSupportStatus = Readonly<{
+	isSupported: boolean;
+	message: string;
+}>;
+
+const REQUESTED_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "qr_code"];
+
+function resolveBarcodeDetectorCtor(): BarcodeDetectorStatic | undefined {
+	return (
+		globalThis as typeof globalThis & {
+			BarcodeDetector?: BarcodeDetectorStatic;
+		}
+	).BarcodeDetector;
+}
+
+function getMissingApiError(detectorCtor: BarcodeDetectorStatic | undefined): string | undefined {
+	if (!globalThis.isSecureContext) {
+		return "Camera scanning requires a secure context (HTTPS or localhost).";
+	}
+
+	if (!("mediaDevices" in navigator) || typeof navigator.mediaDevices.getUserMedia !== "function") {
+		return "Camera access is not available in this browser context.";
+	}
+
+	if (detectorCtor === undefined) {
+		return "BarcodeDetector API is not available in this browser.";
+	}
+
+	return undefined;
+}
+
+function getCameraSupportStatus(): CameraSupportStatus {
+	const detectorCtor = resolveBarcodeDetectorCtor();
+
+	if (!globalThis.isSecureContext) {
+		return {
+			isSupported: false,
+			message: "Camera scan needs HTTPS (or localhost).",
+		};
+	}
+
+	if (!("mediaDevices" in navigator) || typeof navigator.mediaDevices.getUserMedia !== "function") {
+		return {
+			isSupported: false,
+			message: "Camera API is not available in this browser context.",
+		};
+	}
+
+	if (detectorCtor === undefined) {
+		return {
+			isSupported: false,
+			message: "Barcode scanning API is missing in this browser.",
+		};
+	}
+
+	return {
+		isSupported: true,
+		message: "Camera scan is available on this browser.",
+	};
+}
+
 export function useCameraBarcodeScanner(onDetected: (value: string) => void) {
 	const [cameraError, setCameraError] = createSignal<string>();
 	const [isCameraActive, setIsCameraActive] = createSignal(false);
+	const [cameraSupportStatus] = createSignal<CameraSupportStatus>(getCameraSupportStatus());
 	const [videoRef, setVideoRef] = createSignal<HTMLVideoElement>();
 	const [mediaStream, setMediaStream] = createSignal<MediaStream>();
 	const [detectorInterval, setDetectorInterval] =
@@ -54,14 +121,15 @@ export function useCameraBarcodeScanner(onDetected: (value: string) => void) {
 			return;
 		}
 
-		const detectorCtor = (
-			globalThis as typeof globalThis & {
-				BarcodeDetector?: BarcodeDetectorConstructor;
-			}
-		).BarcodeDetector;
+		const detectorCtor = resolveBarcodeDetectorCtor();
+		const missingApiError = getMissingApiError(detectorCtor);
+		if (missingApiError !== undefined) {
+			setCameraError(missingApiError);
+			return;
+		}
 
 		if (detectorCtor === undefined) {
-			setCameraError("Camera scanning is not supported in this browser. Use manual barcode input.");
+			setCameraError("BarcodeDetector API is not available in this browser.");
 			return;
 		}
 
@@ -81,19 +149,24 @@ export function useCameraBarcodeScanner(onDetected: (value: string) => void) {
 			video.srcObject = stream;
 			await video.play();
 
-			const detector = new detectorCtor({
-				formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "qr_code"],
-			});
+			const supportedFormats = await detectorCtor.getSupportedFormats?.();
+			const usableFormats =
+				supportedFormats === undefined
+					? REQUESTED_FORMATS
+					: REQUESTED_FORMATS.filter((format) => supportedFormats.includes(format));
+
+			if (usableFormats.length === 0) {
+				setCameraError("BarcodeDetector API is available, but no supported barcode formats match.");
+				stopCamera();
+				return;
+			}
+
+			const detector = new detectorCtor({ formats: usableFormats });
 
 			setDetectorInterval(
 				globalThis.setInterval(() => {
-					const activeVideo = videoRef();
-					if (activeVideo === undefined) {
-						return;
-					}
-
 					void detector
-						.detect(activeVideo)
+						.detect(video)
 						.then((results) => {
 							const rawValue = results[0]?.rawValue;
 							// eslint-disable-next-line functional/no-conditional-statements
@@ -116,6 +189,7 @@ export function useCameraBarcodeScanner(onDetected: (value: string) => void) {
 
 	return {
 		cameraError,
+		cameraSupportStatus,
 		isCameraActive,
 		setVideoRef,
 		startCamera,

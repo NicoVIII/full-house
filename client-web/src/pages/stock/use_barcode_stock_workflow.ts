@@ -74,6 +74,7 @@ export function useBarcodeStockWorkflow() {
 		setBarcodeInput: lookup.setBarcodeInput,
 		scanError: lookup.scanError,
 		cameraError: camera.cameraError,
+		cameraSupportStatus: camera.cameraSupportStatus,
 		resolvedProduct: lookup.resolvedProduct,
 		bestBeforeDate,
 		setBestBeforeDate,

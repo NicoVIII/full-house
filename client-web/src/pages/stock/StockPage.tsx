@@ -40,6 +40,7 @@ const StockPage: Component = () => {
 				onStopCamera={workflow.stopCamera}
 				isCameraActive={workflow.isCameraActive()}
 				onVideoRef={workflow.setVideoRef}
+				cameraSupportStatus={workflow.cameraSupportStatus()}
 				cameraError={workflow.cameraError()}
 				scanError={workflow.scanError()}
 				resolvedProduct={workflow.resolvedProduct()}
