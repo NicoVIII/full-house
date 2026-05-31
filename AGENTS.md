@@ -2,34 +2,47 @@
 
 `server/` — Gleam/Wisp API. `client-web/` — Solid/TypeScript/Vite.
 
+## Just (Repo Root)
+
+```bash
+just --list
+just setup
+just check
+just test
+just fix-format
+just fix-all
+```
+
 ## API
 
 ```bash
-./skir.sh gen
-./skir.sh format
-./skir.sh snapshot
+just skir-gen
+just skir-format
+just skir-snapshot
 ```
 
 ## Server
 
 ```bash
-./scripts/setup_dev_db.py # Execute database migrations
-cd server
-gleam check
-gleam format
-gleam run -m lint
-gleam test
+just server::run
+just server::build
+just server::check
+just server::format
+just server::format-check
+just server::lint
+just server::test
 ```
 
 ## Webclient
 
 ```bash
-cd client-web
-bun run dev
-bun run build
-bun run format:fix
-bun run lint:fix
-bun run check:deadcode
-bun run test:run
-bun run type-check
+just client::dev
+just client::build
+just client::format
+just client::format-check
+just client::lint
+just client::lint-fix
+just client::deadcode
+just client::test
+just client::type-check
 ```
