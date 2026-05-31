@@ -1,0 +1,29 @@
+default:
+  @just --list
+
+dev:
+  bun run dev
+
+build:
+  bun run build
+
+format:
+  bun run format:fix
+
+format-check:
+  bun run format:check
+
+type-check:
+  bun x --no-install tsc --noEmit
+
+lint:
+  bun run lint
+
+lint-fix:
+  bun run lint:fix
+
+deadcode:
+  bun run check:deadcode
+
+test:
+  bun run test:run

@@ -1,0 +1,23 @@
+default:
+  @just --list
+
+run:
+  gleam run
+
+build:
+  gleam build
+
+check:
+  gleam check
+
+format:
+  gleam format
+
+format-check:
+  gleam format --check
+
+lint:
+  gleam run -m lint
+
+test:
+  gleam test
