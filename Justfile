@@ -27,6 +27,7 @@ test:
   just client::test
 
 check:
+  just devcontainer-shellcheck
   just skir-format-check
   just skir-snapshot-check
   just server::format-check
@@ -47,3 +48,6 @@ fix-format:
 fix-all:
   just fix-format
   just client::lint-fix
+
+devcontainer-shellcheck:
+  find .devcontainer -type f -name '*.sh' -print0 | xargs -0r shellcheck

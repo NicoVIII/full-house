@@ -1,5 +1,8 @@
 pre-commit:
   jobs:
+    - name: "devcontainer-shellcheck"
+      glob: "{lefthook.yml,Justfile,.devcontainer/**/*.sh}"
+      run: just devcontainer-shellcheck
     - name: "skir-format"
       glob: "{lefthook.yml,skir-src/**/*.skir}"
       run: ./skir.sh format --ci
