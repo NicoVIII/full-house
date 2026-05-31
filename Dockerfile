@@ -35,15 +35,15 @@ RUN wget -q -O /dbmate "https://github.com/amacneil/dbmate/releases/latest/downl
 
 FROM erlang:${ERLANG_VERSION}-alpine
 COPY --from=dbmate-downloader /dbmate /usr/local/bin/dbmate
-COPY deploy/healthcheck.sh /app/healthcheck.sh
-COPY deploy/start.sh /app/start.sh
+COPY container/start.sh /app/start.sh
 RUN \
-  chmod +x /app/healthcheck.sh /app/start.sh \
+  chmod +x /app/start.sh \
   && addgroup --system webapp \
   && adduser --system webapp -g webapp \
   && mkdir -p /data \
   && chown webapp:webapp /data
 USER webapp
+HEALTHCHECK CMD wget --spider --quiet 'http://127.0.0.1:80'
 COPY --from=server-builder /app/build/erlang-shipment /app/
 COPY --from=frontend-builder /app/dist /app/static
 COPY server/db/migrations /app/db/migrations

@@ -50,4 +50,4 @@ fix-all:
   just client::lint-fix
 
 devcontainer-shellcheck:
-  find .devcontainer -type f -name '*.sh' -print0 | xargs -0r shellcheck
+  find .devcontainer container -type f -name '*.sh' -print0 | xargs -0r shellcheck
