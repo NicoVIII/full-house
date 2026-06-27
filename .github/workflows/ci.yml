@@ -45,7 +45,7 @@ jobs:
           gleam-version: ${{ env.GLEAM_VERSION }}
           rebar3-version: ${{ env.REBAR3_VERSION }}
       - name: Cache server dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             server/build/packages
@@ -80,7 +80,7 @@ jobs:
         with:
           bun-version: ${{ env.BUN_VERSION }}
       - name: Cache client-web dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('client-web/package.json', 'client-web/bun.lock') }}
